@@ -16,17 +16,27 @@ package org.liferay.jukebox.lar;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.trash.TrashHandler;
+import com.liferay.portal.kernel.util.StreamUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.service.ServiceContext;
 
+import java.io.InputStream;
 import java.util.List;
 
+import com.liferay.portlet.documentlibrary.NoSuchFileException;
+import com.liferay.portlet.documentlibrary.model.DLFileEntry;
+import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
+import com.liferay.portlet.documentlibrary.store.DLStoreUtil;
 import org.liferay.jukebox.model.Artist;
 import org.liferay.jukebox.service.ArtistLocalServiceUtil;
 
@@ -130,10 +140,43 @@ public class ArtistStagedModelDataHandler
 			FileEntry fileEntry =
 				(FileEntry)portletDataContext.getZipEntryAsObject(path);
 
-			importedArtist = ArtistLocalServiceUtil.updateArtist(
-				userId, importedArtist.getArtistId(), importedArtist.getName(),
-				importedArtist.getBio(), fileEntry.getContentStream(),
-				serviceContext);
+			InputStream inputStream = null;
+
+			try {
+				String binPath = attachmentElement.attributeValue("bin-path");
+
+				if (Validator.isNull(binPath) &&
+					portletDataContext.isPerformDirectBinaryImport()) {
+
+					try {
+						inputStream = _getContentStream(fileEntry);
+					}
+					catch (NoSuchFileException nsfe) {
+					}
+				}
+				else {
+					inputStream =
+						portletDataContext.getZipEntryAsInputStream(binPath);
+				}
+
+				if (inputStream == null) {
+					if (_log.isWarnEnabled()) {
+						_log.warn(
+							"Unable to import attachment for file entry " +
+								fileEntry.getFileEntryId());
+					}
+
+					continue;
+				}
+
+				importedArtist = ArtistLocalServiceUtil.updateArtist(
+					userId, importedArtist.getArtistId(),
+					importedArtist.getName(), importedArtist.getBio(),
+					inputStream, serviceContext);
+			}
+			finally {
+				StreamUtil.cleanUp(inputStream);
+			}
 		}
 
 		portletDataContext.importClassedModel(artist, importedArtist);
@@ -176,5 +219,27 @@ public class ArtistStagedModelDataHandler
 
 		return true;
 	}
+
+	private InputStream _getContentStream(FileEntry fileEntry)
+		throws PortalException, SystemException {
+
+		long repositoryId = DLFolderConstants.getDataRepositoryId(
+			fileEntry.getRepositoryId(), fileEntry.getFolderId());
+
+		String name = ((DLFileEntry)fileEntry.getModel()).getName();
+
+		InputStream is = DLStoreUtil.getFileAsStream(
+			fileEntry.getCompanyId(), repositoryId, name,
+			fileEntry.getVersion());
+
+		if (is == null) {
+			is = new UnsyncByteArrayInputStream(new byte[0]);
+		}
+
+		return is;
+	}
+
+	private static Log _log = LogFactoryUtil.getLog(
+		ArtistStagedModelDataHandler.class);
 
 }
