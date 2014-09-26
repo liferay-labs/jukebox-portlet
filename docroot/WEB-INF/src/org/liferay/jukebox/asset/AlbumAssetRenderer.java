@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.LayoutConstants;
@@ -85,6 +86,11 @@ public class AlbumAssetRenderer
 	@Override
 	public String getSummary(Locale locale) {
 		String summary = _album.getName();
+
+		if (Validator.isNotNull(_album.getYear())) {
+			summary = StringUtil.appendParentheticalSuffix(
+				summary, String.valueOf(_album.getYear()));
+		}
 
 		return summary;
 	}

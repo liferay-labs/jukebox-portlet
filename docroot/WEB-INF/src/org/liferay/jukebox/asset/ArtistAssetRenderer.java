@@ -18,7 +18,9 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
+import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.LayoutConstants;
@@ -83,6 +85,10 @@ public class ArtistAssetRenderer extends BaseAssetRenderer {
 	@Override
 	public String getSummary(Locale locale) {
 		String summary = _artist.getName();
+
+		if (Validator.isNotNull(_artist.getBio())) {
+			summary = StringUtil.shorten(_artist.getBio(), 200);
+		}
 
 		return summary;
 	}
