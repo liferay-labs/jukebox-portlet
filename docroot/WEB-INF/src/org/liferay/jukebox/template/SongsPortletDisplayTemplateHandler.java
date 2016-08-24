@@ -17,7 +17,9 @@ package org.liferay.jukebox.template;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portletdisplaytemplate.BasePortletDisplayTemplateHandler;
 import com.liferay.portal.kernel.template.TemplateVariableGroup;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portlet.display.template.PortletDisplayTemplateConstants;
 
 import java.util.List;
 import java.util.Locale;
