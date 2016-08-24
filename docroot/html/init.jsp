@@ -44,10 +44,10 @@
 <%@ page import="org.liferay.jukebox.service.permission.ArtistPermission" %>
 <%@ page import="org.liferay.jukebox.service.permission.AlbumPermission" %>
 <%@ page import="org.liferay.jukebox.service.permission.SongPermission" %>
-<%@ page import="org.liferay.jukebox.AlbumNameException" %>
-<%@ page import="org.liferay.jukebox.ArtistNameException" %>
-<%@ page import="org.liferay.jukebox.DuplicatedSongException" %>
-<%@ page import="org.liferay.jukebox.SongNameException" %>
+<%@ page import="org.liferay.jukebox.exception.AlbumNameException" %>
+<%@ page import="org.liferay.jukebox.exception.ArtistNameException" %>
+<%@ page import="org.liferay.jukebox.exception.DuplicatedSongException" %>
+<%@ page import="org.liferay.jukebox.exception.SongNameException" %>
 
 <%@ page import="com.liferay.portal.kernel.language.LanguageUtil" %>
 <%@ page import="com.liferay.portal.kernel.template.TemplateHandler" %>
@@ -73,11 +73,11 @@
 <%@ page import="com.liferay.portal.kernel.xuggler.XugglerUtil" %>
 <%@ page import="com.liferay.portal.kernel.workflow.WorkflowConstants" %>
 <%@ page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %>
-<%@ page import="com.liferay.portlet.trash.util.TrashUtil" %>
-<%@ page import="com.liferay.portlet.PortletURLUtil" %>
+<%@ page import="com.liferay.trash.kernel.util.TrashUtil" %>
+<%@ page import="com.liferay.portal.kernel.portlet.PortletURLUtil" %>
 
-<%@ page import="com.liferay.portal.security.permission.ActionKeys" %>
-<%@ page import="com.liferay.portal.util.PortalUtil" %>
+<%@ page import="com.liferay.portal.kernel.security.permission.ActionKeys" %>
+<%@ page import="com.liferay.portal.kernel.util.PortalUtil" %>
 
 <%@ page import="com.liferay.portlet.portletdisplaytemplate.util.PortletDisplayTemplateUtil" %>
 
