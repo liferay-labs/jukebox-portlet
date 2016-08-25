@@ -103,8 +103,8 @@ Hits hits = indexer.search(searchContext);
 
 				<liferay-ui:app-view-search-entry
 					description="<%= (summary != null) ? HtmlUtil.escape(summary.getContent()) : StringPool.BLANK %>"
-					fileEntryTuples="<%= searchResult.getFileEntryTuples() %>"
-					mbMessages="<%= searchResult.getMBMessages() %>"
+					fileEntryRelatedSearchResults="<%= searchResult.getFileEntryRelatedSearchResults() %>"
+					commentRelatedSearchResults="<%= searchResult.getCommentRelatedSearchResults() %>"
 					queryTerms="<%= hits.getQueryTerms() %>"
 					thumbnailSrc="<%= album.getImageURL(themeDisplay) %>"
 					title="<%= (summary != null) ? HtmlUtil.escape(summary.getTitle()) : album.getName() %>"

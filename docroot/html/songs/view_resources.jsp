@@ -25,8 +25,6 @@ long albumId = ParamUtil.getLong(request, "albumId");
 String displayStyle = GetterUtil.getString(portletPreferences.getValue("displayStyle", StringPool.BLANK));
 long displayStyleGroupId = GetterUtil.getLong(portletPreferences.getValue("displayStyleGroupId", null), scopeGroupId);
 
-long portletDisplayDDMTemplateId = PortletDisplayTemplateUtil.getPortletDisplayTemplateDDMTemplateId(displayStyleGroupId, displayStyle);
-
 List<Song> songs = null;
 
 if (albumId > 0) {
@@ -48,86 +46,85 @@ else {
 }
 %>
 
-<c:choose>
-	<c:when test="<%= portletDisplayDDMTemplateId > 0 %>">
-		<%= PortletDisplayTemplateUtil.renderDDMTemplate(request, response, portletDisplayDDMTemplateId, songs) %>
-	</c:when>
-	<c:when test="<%= songs.isEmpty() %>">
-		<div class="alert alert-info">
-			<c:choose>
-				<c:when test="<%= albumId > 0 %>">
-					<liferay-ui:message key="this-album-does-not-have-any-song" />
-				</c:when>
-				<c:otherwise>
-					<liferay-ui:message key="there-are-no-songs" />
-				</c:otherwise>
-			</c:choose>
-		</div>
-	</c:when>
-	<c:otherwise>
-
-		<div id="sm2-container">
-		  <!-- SM2 flash goes here -->
-		</div>
-
-		<c:if test="<%= !XugglerUtil.isEnabled() %>">
-			<div class="alert alert-warning">
-				<liferay-ui:message key="you-should-activate-xuggler" />
+<liferay-ddm:template-renderer className="<%= Song.class.getName() %>" displayStyle="<%= displayStyle %>" displayStyleGroupId="<%= displayStyleGroupId %>" entries="<%= songs %>">
+	<c:choose>
+		<c:when test="<%= songs.isEmpty() %>">
+			<div class="alert alert-info">
+				<c:choose>
+					<c:when test="<%= albumId > 0 %>">
+						<liferay-ui:message key="this-album-does-not-have-any-song" />
+					</c:when>
+					<c:otherwise>
+						<liferay-ui:message key="there-are-no-songs" />
+					</c:otherwise>
+				</c:choose>
 			</div>
-		</c:if>
-
-		<ul class="songs-list graphic">
-
-			<%
-			for (Song song : songs) {
-			%>
-
-				<li class="song">
-
-					<%
-					String songURL = song.getSongURL(themeDisplay, "mp3");
-					%>
-
-					<c:choose>
-						<c:when test="<%= Validator.isNotNull(songURL) %>">
-							<a class="song-link" href="<%= songURL %>" type="audio/mpeg">
-								<%= song.getName() %>
-							</a>
-						</c:when>
-						<c:otherwise>
-							<span class="song-link">
-								<%= song.getName() %>
-							</span>
-						</c:otherwise>
-					</c:choose>
-
-					<c:if test="<%= SongPermission.contains(permissionChecker, song.getSongId(), ActionKeys.UPDATE) %>">
-						<portlet:renderURL var="editSongURL">
-							<portlet:param name="jspPage" value="/html/songs/edit_song.jsp" />
+		</c:when>
+		<c:otherwise>
+	
+			<div id="sm2-container">
+			  <!-- SM2 flash goes here -->
+			</div>
+	
+			<c:if test="<%= !XugglerUtil.isEnabled() %>">
+				<div class="alert alert-warning">
+					<liferay-ui:message key="you-should-activate-xuggler" />
+				</div>
+			</c:if>
+	
+			<ul class="songs-list graphic">
+	
+				<%
+				for (Song song : songs) {
+				%>
+	
+					<li class="song">
+	
+						<%
+						String songURL = song.getSongURL(themeDisplay, "mp3");
+						%>
+	
+						<c:choose>
+							<c:when test="<%= Validator.isNotNull(songURL) %>">
+								<a class="song-link" href="<%= songURL %>" type="audio/mpeg">
+									<%= song.getName() %>
+								</a>
+							</c:when>
+							<c:otherwise>
+								<span class="song-link">
+									<%= song.getName() %>
+								</span>
+							</c:otherwise>
+						</c:choose>
+	
+						<c:if test="<%= SongPermission.contains(permissionChecker, song.getSongId(), ActionKeys.UPDATE) %>">
+							<portlet:renderURL var="editSongURL">
+								<portlet:param name="jspPage" value="/html/songs/edit_song.jsp" />
+								<portlet:param name="songId" value="<%= String.valueOf(song.getSongId()) %>" />
+								<portlet:param name="redirect" value="<%= currentURL %>" />
+							</portlet:renderURL>
+	
+							<liferay-ui:icon cssClass="song-small-link" image="../aui/pencil" message="edit" url="<%= editSongURL %>" />
+						</c:if>
+	
+						<portlet:renderURL var="viewSongURL">
+							<portlet:param name="jspPage" value="/html/songs/view_song.jsp" />
 							<portlet:param name="songId" value="<%= String.valueOf(song.getSongId()) %>" />
 							<portlet:param name="redirect" value="<%= currentURL %>" />
 						</portlet:renderURL>
-
-						<liferay-ui:icon cssClass="song-small-link" image="../aui/pencil" message="edit" url="<%= editSongURL %>" />
-					</c:if>
-
-					<portlet:renderURL var="viewSongURL">
-						<portlet:param name="jspPage" value="/html/songs/view_song.jsp" />
-						<portlet:param name="songId" value="<%= String.valueOf(song.getSongId()) %>" />
-						<portlet:param name="redirect" value="<%= currentURL %>" />
-					</portlet:renderURL>
-
-					<liferay-ui:icon cssClass="song-small-link" image="../aui/info" message="info" url="<%= viewSongURL %>" />
-
-					<c:if test="<%= Validator.isNotNull(song.getLyricsURL(themeDisplay)) %>">
-						<liferay-ui:icon cssClass="song-small-link" image="../aui/align-left" message="lyrics" method="get" url="<%= song.getLyricsURL(themeDisplay) %>" />
-					</c:if>
-				</li>
-
-			<%
-			}
-			%>
-
-		</ul>
-	</c:otherwise>
-</c:choose>
+	
+						<liferay-ui:icon cssClass="song-small-link" image="../aui/info" message="info" url="<%= viewSongURL %>" />
+	
+						<c:if test="<%= Validator.isNotNull(song.getLyricsURL(themeDisplay)) %>">
+							<liferay-ui:icon cssClass="song-small-link" image="../aui/align-left" message="lyrics" method="get" url="<%= song.getLyricsURL(themeDisplay) %>" />
+						</c:if>
+					</li>
+	
+				<%
+				}
+				%>
+	
+			</ul>
+		</c:otherwise>
+	</c:choose>
+</liferay-ddm:template-renderer>

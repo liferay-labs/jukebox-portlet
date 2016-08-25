@@ -12,6 +12,8 @@
 
 	<dependencies defaultconf="default">
 		<dependency name="com.liferay.portlet.display.template" org="com.liferay" rev="2.0.0" />
+		<dependency name="com.liferay.dynamic.data.mapping.taglib" org="com.liferay" rev="2.0.0" />
+		<dependency name="com.liferay.trash.taglib" org="com.liferay" rev="2.0.0" />
 		<dependency conf="test->default" name="arquillian-junit-container" org="org.jboss.arquillian.junit" rev="1.1.6.Final" />
 		<dependency conf="test->default" name="arquillian-tomcat-remote-7" org="org.jboss.arquillian.container" rev="1.0.0.CR6" />
 		<dependency conf="test->default" name="com.liferay.ant.arquillian" org="com.liferay" rev="1.0.0-SNAPSHOT" />

@@ -33,8 +33,8 @@ long displayStyleGroupId = GetterUtil.getLong(portletPreferences.getValue("displ
 			TemplateHandler templateHandler = TemplateHandlerRegistryUtil.getTemplateHandler(Song.class.getName());
 			%>
 
-			<liferay-ui:ddm-template-selector
-				classNameId="<%= PortalUtil.getClassNameId(templateHandler.getClassName()) %>"
+			<liferay-ddm:template-selector
+				className="<%= templateHandler.getClassName() %>"
 				displayStyle="<%= displayStyle %>"
 				displayStyleGroupId="<%= displayStyleGroupId %>"
 				refreshURL="<%= PortalUtil.getCurrentURL(request) %>"

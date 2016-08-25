@@ -27,7 +27,7 @@ boolean showToolbar = ParamUtil.getBoolean(request, "showToolbar", true);
 
 <portlet:actionURL name="restoreAlbum" var="undoTrashURL" />
 
-<liferay-ui:trash-undo portletURL="<%= undoTrashURL %>" />
+<liferay-trash:undo portletURL="<%= undoTrashURL %>" />
 
 <c:if test="<%= (artistId <= 0) && showToolbar %>">
 	<portlet:renderURL var="searchURL">
