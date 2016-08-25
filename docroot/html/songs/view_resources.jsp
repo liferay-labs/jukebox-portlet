@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="../init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 
 <%
 String keywords = ParamUtil.getString(liferayPortletRequest, "keywords");
@@ -61,29 +61,28 @@ else {
 			</div>
 		</c:when>
 		<c:otherwise>
-	
 			<div id="sm2-container">
-			  <!-- SM2 flash goes here -->
+				<!-- SM2 flash goes here -->
 			</div>
-	
+
 			<c:if test="<%= !XugglerUtil.isEnabled() %>">
 				<div class="alert alert-warning">
 					<liferay-ui:message key="you-should-activate-xuggler" />
 				</div>
 			</c:if>
-	
-			<ul class="songs-list graphic">
-	
+
+			<ul class="graphic songs-list">
+
 				<%
 				for (Song song : songs) {
 				%>
-	
+
 					<li class="song">
-	
+
 						<%
 						String songURL = song.getSongURL(themeDisplay, "mp3");
 						%>
-	
+
 						<c:choose>
 							<c:when test="<%= Validator.isNotNull(songURL) %>">
 								<a class="song-link" href="<%= songURL %>" type="audio/mpeg">
@@ -96,34 +95,34 @@ else {
 								</span>
 							</c:otherwise>
 						</c:choose>
-	
+
 						<c:if test="<%= SongPermission.contains(permissionChecker, song.getSongId(), ActionKeys.UPDATE) %>">
 							<portlet:renderURL var="editSongURL">
 								<portlet:param name="jspPage" value="/html/songs/edit_song.jsp" />
 								<portlet:param name="songId" value="<%= String.valueOf(song.getSongId()) %>" />
 								<portlet:param name="redirect" value="<%= currentURL %>" />
 							</portlet:renderURL>
-	
+
 							<liferay-ui:icon cssClass="song-small-link" image="../aui/pencil" message="edit" url="<%= editSongURL %>" />
 						</c:if>
-	
+
 						<portlet:renderURL var="viewSongURL">
 							<portlet:param name="jspPage" value="/html/songs/view_song.jsp" />
 							<portlet:param name="songId" value="<%= String.valueOf(song.getSongId()) %>" />
 							<portlet:param name="redirect" value="<%= currentURL %>" />
 						</portlet:renderURL>
-	
+
 						<liferay-ui:icon cssClass="song-small-link" image="../aui/info" message="info" url="<%= viewSongURL %>" />
-	
+
 						<c:if test="<%= Validator.isNotNull(song.getLyricsURL(themeDisplay)) %>">
 							<liferay-ui:icon cssClass="song-small-link" image="../aui/align-left" message="lyrics" method="get" url="<%= song.getLyricsURL(themeDisplay) %>" />
 						</c:if>
 					</li>
-	
+
 				<%
 				}
 				%>
-	
+
 			</ul>
 		</c:otherwise>
 	</c:choose>

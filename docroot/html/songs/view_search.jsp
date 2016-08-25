@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="../init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 
 <%
 String redirect = ParamUtil.getString(request, "redirect");
@@ -102,9 +102,9 @@ Hits hits = indexer.search(searchContext);
 					</portlet:renderURL>
 
 					<liferay-ui:app-view-search-entry
+						commentRelatedSearchResults="<%= searchResult.getCommentRelatedSearchResults() %>"
 						description="<%= (summary != null) ? HtmlUtil.escape(summary.getContent()) : StringPool.BLANK %>"
 						fileEntryRelatedSearchResults="<%= searchResult.getFileEntryRelatedSearchResults() %>"
-						commentRelatedSearchResults="<%= searchResult.getCommentRelatedSearchResults() %>"
 						queryTerms="<%= hits.getQueryTerms() %>"
 						thumbnailSrc="<%= song.getImageURL(themeDisplay) %>"
 						title="<%= (summary != null) ? HtmlUtil.escape(summary.getTitle()) : song.getName() %>"

@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.InputStream;
+
 import java.util.List;
 
 import org.liferay.jukebox.model.Album;
@@ -40,7 +41,7 @@ import org.liferay.jukebox.service.permission.JukeBoxPermission;
  * @author Julio Camarero
  * @author Sergio González
  * @author Eudaldo Alonso
- * @see org.liferay.jukebox.service.base.AlbumServiceBaseImpl
+ * @see AlbumServiceBaseImpl
  * @see org.liferay.jukebox.service.AlbumServiceUtil
  */
 public class AlbumServiceImpl extends AlbumServiceBaseImpl {

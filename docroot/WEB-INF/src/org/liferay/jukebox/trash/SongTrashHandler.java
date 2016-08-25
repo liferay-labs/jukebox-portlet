@@ -155,7 +155,7 @@ public class SongTrashHandler extends JukeBoxBaseTrashHandler {
 			long classPK, int start, int end)
 		throws PortalException {
 
-		List<TrashRenderer> trashRenderers = new ArrayList<TrashRenderer>();
+		List<TrashRenderer> trashRenderers = new ArrayList<>();
 
 		List<Song> songs = SongLocalServiceUtil.getSongsByAlbumId(
 			classPK, start, end);

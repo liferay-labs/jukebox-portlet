@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="../init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 
 <%
 String redirect = ParamUtil.getString(request, "redirect");
@@ -53,11 +53,11 @@ if (artistId > 0) {
 
 	<aui:input name="file" type="file" />
 
-	<c:if test="<%= (artist == null) %>">
+	<c:if test="<%= artist == null %>">
 		<aui:field-wrapper label="permissions">
 			<liferay-ui:input-permissions
 				modelName="<%= Artist.class.getName() %>"
-				/>
+			/>
 		</aui:field-wrapper>
 	</c:if>
 

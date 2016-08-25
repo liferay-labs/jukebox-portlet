@@ -77,7 +77,8 @@ public class JukeboxPortletDataHandler extends BasePortletDataHandler {
 
 		if (portletDataContext.getBooleanParameter(NAMESPACE, "albums")) {
 			ActionableDynamicQuery albumActionableDynamicQuery =
-				AlbumLocalServiceUtil.getExportActionableDynamicQuery(portletDataContext);
+				AlbumLocalServiceUtil.getExportActionableDynamicQuery(
+					portletDataContext);
 
 			albumActionableDynamicQuery.performActions();
 		}
@@ -133,12 +134,14 @@ public class JukeboxPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		ActionableDynamicQuery albumActionableDynamicQuery =
-			AlbumLocalServiceUtil.getExportActionableDynamicQuery(portletDataContext);
+			AlbumLocalServiceUtil.getExportActionableDynamicQuery(
+				portletDataContext);
 
 		albumActionableDynamicQuery.performCount();
 
 		ActionableDynamicQuery artistActionableDynamicQuery =
-			ArtistLocalServiceUtil.getExportActionableDynamicQuery(portletDataContext);
+			ArtistLocalServiceUtil.getExportActionableDynamicQuery(
+				portletDataContext);
 
 		artistActionableDynamicQuery.performCount();
 	}

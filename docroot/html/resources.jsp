@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="./init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 
 <liferay-util:body-bottom outputKey="jukebox-css">
 	<link href="<%= PortalUtil.getStaticResourceURL(request, PortalUtil.getPathContext() + "/jukebox-portlet/css/jukebox.css") %>" rel="stylesheet" type="text/css" />

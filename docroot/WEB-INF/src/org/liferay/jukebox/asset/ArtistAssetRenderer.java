@@ -15,7 +15,6 @@
 package org.liferay.jukebox.asset;
 
 import com.liferay.asset.kernel.model.AssetRendererFactory;
-import com.liferay.asset.kernel.model.BaseAssetRenderer;
 import com.liferay.asset.kernel.model.BaseJSPAssetRenderer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.LayoutConstants;
@@ -35,9 +34,8 @@ import java.util.Locale;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.PortletURL;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.liferay.jukebox.model.Artist;
@@ -48,11 +46,15 @@ import org.liferay.jukebox.util.PortletKeys;
 /**
  * @author Julio Camarero
  */
-
 public class ArtistAssetRenderer extends BaseJSPAssetRenderer<Artist> {
 
 	public ArtistAssetRenderer(Artist artist) {
 		_artist = artist;
+	}
+
+	@Override
+	public Artist getAssetObject() {
+		return _artist;
 	}
 
 	@Override
@@ -68,6 +70,18 @@ public class ArtistAssetRenderer extends BaseJSPAssetRenderer<Artist> {
 	@Override
 	public long getGroupId() {
 		return _artist.getGroupId();
+	}
+
+	@Override
+	public String getJspPath(HttpServletRequest request, String template) {
+		if (template.equals(TEMPLATE_FULL_CONTENT)) {
+			request.setAttribute("jukebox_artist", _artist);
+
+			return "/html/artists/asset/" + template + ".jsp";
+		}
+		else {
+			return null;
+		}
 	}
 
 	public String getPortletId() {
@@ -130,7 +144,8 @@ public class ArtistAssetRenderer extends BaseJSPAssetRenderer<Artist> {
 
 	@Override
 	public String getURLView(
-			LiferayPortletResponse liferayPortletResponse, WindowState windowState)
+			LiferayPortletResponse liferayPortletResponse,
+			WindowState windowState)
 		throws Exception {
 
 		PortletURL portletURL = liferayPortletResponse.createLiferayPortletURL(
@@ -217,23 +232,6 @@ public class ArtistAssetRenderer extends BaseJSPAssetRenderer<Artist> {
 		return true;
 	}
 
-	@Override
-	public String getJspPath(HttpServletRequest request, String template) {
-		if (template.equals(TEMPLATE_FULL_CONTENT)) {
-			request.setAttribute("jukebox_artist", _artist);
-
-			return "/html/artists/asset/" + template + ".jsp";
-		}
-		else {
-			return null;
-		}
-	}
-
 	private Artist _artist;
-	
-	@Override
-	public Artist getAssetObject() {
-		return _artist;
-	}
 
 }

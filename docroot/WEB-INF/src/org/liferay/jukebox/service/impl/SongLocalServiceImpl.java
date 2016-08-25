@@ -40,6 +40,7 @@ import com.liferay.trash.kernel.model.TrashVersion;
 import com.liferay.trash.kernel.util.TrashUtil;
 
 import java.io.InputStream;
+
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -64,7 +65,7 @@ import org.liferay.jukebox.util.Constants;
  * @author Julio Camarero
  * @author Sergio González
  * @author Eudaldo Alonso
- * @see org.liferay.jukebox.service.base.SongLocalServiceBaseImpl
+ * @see SongLocalServiceBaseImpl
  * @see org.liferay.jukebox.service.SongLocalServiceUtil
  */
 public class SongLocalServiceImpl extends SongLocalServiceBaseImpl {
@@ -288,9 +289,8 @@ public class SongLocalServiceImpl extends SongLocalServiceBaseImpl {
 
 			// Entry
 
-			TrashVersion trashVersion =
-				trashVersionLocalService.fetchVersion(
-					trashEntry.getEntryId(), Song.class.getName(), songId);
+			TrashVersion trashVersion = trashVersionLocalService.fetchVersion(
+				trashEntry.getEntryId(), Song.class.getName(), songId);
 
 			int status = WorkflowConstants.STATUS_APPROVED;
 

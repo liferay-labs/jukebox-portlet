@@ -18,7 +18,6 @@ import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.BaseAssetRendererFactory;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
-import com.liferay.portal.kernel.theme.ThemeDisplay;
 
 import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.service.AlbumLocalServiceUtil;

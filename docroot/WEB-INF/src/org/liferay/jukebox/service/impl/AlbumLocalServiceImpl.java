@@ -36,6 +36,7 @@ import com.liferay.trash.kernel.model.TrashEntry;
 import com.liferay.trash.kernel.model.TrashVersion;
 
 import java.io.InputStream;
+
 import java.util.Date;
 import java.util.List;
 
@@ -58,7 +59,7 @@ import org.liferay.jukebox.util.Constants;
  * @author Julio Camarero
  * @author Sergio González
  * @author Eudaldo Alonso
- * @see org.liferay.jukebox.service.base.AlbumLocalServiceBaseImpl
+ * @see AlbumLocalServiceBaseImpl
  * @see org.liferay.jukebox.service.AlbumLocalServiceUtil
  */
 public class AlbumLocalServiceImpl extends AlbumLocalServiceBaseImpl {

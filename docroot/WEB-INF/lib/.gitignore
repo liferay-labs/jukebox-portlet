@@ -5,3 +5,6 @@
 /util-bridges.jar
 /util-java.jar
 /util-taglib.jar
+/com.liferay.dynamic.data.mapping.taglib.jar
+/com.liferay.portlet.display.template.jar
+/com.liferay.trash.taglib.jar

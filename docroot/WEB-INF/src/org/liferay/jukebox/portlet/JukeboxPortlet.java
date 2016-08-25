@@ -14,6 +14,7 @@
 
 package org.liferay.jukebox.portlet;
 
+import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
@@ -24,9 +25,9 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.trash.kernel.util.TrashUtil;
-import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 
 import java.io.InputStream;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,7 +79,7 @@ public class JukeboxPortlet extends MVCPortlet {
 			response.sendRedirect(redirect);
 		}
 		catch (Exception e) {
-			SessionErrors.add(request, e.getClass().getName());
+			SessionErrors.add(request, e.getClass());
 
 			if (e instanceof AlbumNameException ||
 				e instanceof PrincipalException) {
@@ -95,271 +96,90 @@ public class JukeboxPortlet extends MVCPortlet {
 	public void addArtist(ActionRequest request, ActionResponse response)
 		throws Exception {
 
-			UploadPortletRequest uploadPortletRequest =
-				PortalUtil.getUploadPortletRequest(request);
+		UploadPortletRequest uploadPortletRequest =
+			PortalUtil.getUploadPortletRequest(request);
 
-			String name = ParamUtil.getString(uploadPortletRequest, "name");
+		String name = ParamUtil.getString(uploadPortletRequest, "name");
 
-			String bio = ParamUtil.getString(uploadPortletRequest, "bio");
+		String bio = ParamUtil.getString(uploadPortletRequest, "bio");
 
-			InputStream inputStream = uploadPortletRequest.getFileAsStream(
-				"file");
+		InputStream inputStream = uploadPortletRequest.getFileAsStream("file");
 
-			ServiceContext serviceContext = ServiceContextFactory.getInstance(
-				Artist.class.getName(), uploadPortletRequest);
+		ServiceContext serviceContext = ServiceContextFactory.getInstance(
+			Artist.class.getName(), uploadPortletRequest);
 
-			try {
-				ArtistServiceUtil.addArtist(
-					name, bio, inputStream, serviceContext);
+		try {
+			ArtistServiceUtil.addArtist(name, bio, inputStream, serviceContext);
 
-				SessionMessages.add(request, "artistAdded");
+			SessionMessages.add(request, "artistAdded");
 
-				String redirect = ParamUtil.getString(
-					uploadPortletRequest, "redirect");
+			String redirect = ParamUtil.getString(
+				uploadPortletRequest, "redirect");
 
-				response.sendRedirect(redirect); }
-			catch (Exception e) {
-				SessionErrors.add(request, e.getClass().getName());
-
-				if (e instanceof ArtistNameException ||
-					e instanceof PrincipalException) {
-
-					response.setRenderParameter(
-						"jspPage", "/html/artists/edit_artist.jsp");
-				}
-				else {
-					response.setRenderParameter("jspPage", "/html/error.jsp");
-				}
-			}
+			response.sendRedirect(redirect);
 		}
+		catch (Exception e) {
+			SessionErrors.add(request, e.getClass());
 
-		public void deleteArtist(ActionRequest request, ActionResponse response)
-			throws Exception {
+			if (e instanceof ArtistNameException ||
+				e instanceof PrincipalException) {
 
-			long artistId = ParamUtil.getLong(request, "artistId");
-
-			ServiceContext serviceContext = ServiceContextFactory.getInstance(
-				Artist.class.getName(), request);
-
-			try {
-				ArtistServiceUtil.deleteArtist(artistId, serviceContext);
-
-				SessionMessages.add(request, "artistDeleted");
-
-				sendRedirect(request, response);
+				response.setRenderParameter(
+					"jspPage", "/html/artists/edit_artist.jsp");
 			}
-			catch (Exception e) {
-				SessionErrors.add(request, e.getClass().getName());
-
+			else {
 				response.setRenderParameter("jspPage", "/html/error.jsp");
 			}
 		}
-
-		public void updateArtist(ActionRequest request, ActionResponse response)
-			throws Exception {
-
-			UploadPortletRequest uploadPortletRequest =
-				PortalUtil.getUploadPortletRequest(request);
-
-			long artistId = ParamUtil.getLong(uploadPortletRequest, "artistId");
-			String name = ParamUtil.getString(uploadPortletRequest, "name");
-			String bio = ParamUtil.getString(uploadPortletRequest, "bio");
-
-			InputStream inputStream = uploadPortletRequest.getFileAsStream(
-				"file");
-
-			ServiceContext serviceContext = ServiceContextFactory.getInstance(
-				Artist.class.getName(), uploadPortletRequest);
-
-			try {
-				ArtistServiceUtil.updateArtist(
-					artistId, name, bio, inputStream, serviceContext);
-
-				SessionMessages.add(request, "artistUpdated");
-
-				String redirect = ParamUtil.getString(
-					uploadPortletRequest, "redirect");
-
-				response.sendRedirect(redirect);
-			}
-			catch (Exception e) {
-				SessionErrors.add(request, e.getClass().getName());
-
-				if (e instanceof ArtistNameException ||
-					e instanceof PrincipalException) {
-
-					response.setRenderParameter(
-						"jspPage", "/html/artists/edit_artist.jsp");
-				}
-				else {
-					response.setRenderParameter("jspPage", "/html/error.jsp");
-				}
-			}
-		}
+	}
 
 	public void addSong(ActionRequest request, ActionResponse response)
 		throws Exception {
 
-			UploadPortletRequest uploadPortletRequest =
-				PortalUtil.getUploadPortletRequest(request);
+		UploadPortletRequest uploadPortletRequest =
+			PortalUtil.getUploadPortletRequest(request);
 
-			long albumId = ParamUtil.getLong(uploadPortletRequest, "albumId");
-			String name = ParamUtil.getString(uploadPortletRequest, "name");
+		long albumId = ParamUtil.getLong(uploadPortletRequest, "albumId");
+		String name = ParamUtil.getString(uploadPortletRequest, "name");
 
-			InputStream songInputStream = uploadPortletRequest.getFileAsStream(
-				"songFile");
-			String songFileName = uploadPortletRequest.getFileName("songFile");
+		InputStream songInputStream = uploadPortletRequest.getFileAsStream(
+			"songFile");
+		String songFileName = uploadPortletRequest.getFileName("songFile");
 
-			InputStream lyricsInputStream =
-				uploadPortletRequest.getFileAsStream("lyricsFile");
-			String lyricsFileName = uploadPortletRequest.getFileName(
-				"lyricsFile");
+		InputStream lyricsInputStream = uploadPortletRequest.getFileAsStream(
+			"lyricsFile");
+		String lyricsFileName = uploadPortletRequest.getFileName("lyricsFile");
 
-			ServiceContext serviceContext = ServiceContextFactory.getInstance(
-				Song.class.getName(), uploadPortletRequest);
+		ServiceContext serviceContext = ServiceContextFactory.getInstance(
+			Song.class.getName(), uploadPortletRequest);
 
-			try {
-				SongServiceUtil.addSong(
-					albumId, name, songFileName, songInputStream,
-					lyricsFileName, lyricsInputStream, serviceContext);
+		try {
+			SongServiceUtil.addSong(
+				albumId, name, songFileName, songInputStream, lyricsFileName,
+				lyricsInputStream, serviceContext);
 
-				SessionMessages.add(request, "songAdded");
+			SessionMessages.add(request, "songAdded");
 
-				String redirect = ParamUtil.getString(
-					uploadPortletRequest, "redirect");
+			String redirect = ParamUtil.getString(
+				uploadPortletRequest, "redirect");
 
-				response.sendRedirect(redirect);
-			}
-			catch (Exception e) {
-				SessionErrors.add(request, e.getClass().getName());
-
-				if (e instanceof SongNameException ||
-					e instanceof DuplicatedSongException ||
-					e instanceof PrincipalException) {
-
-					response.setRenderParameter(
-						"jspPage", "/html/songs/edit_song.jsp");
-				}
-				else {
-					response.setRenderParameter("jspPage", "/html/error.jsp");
-				}
-			}
+			response.sendRedirect(redirect);
 		}
+		catch (Exception e) {
+			SessionErrors.add(request, e.getClass());
 
-		public void deleteSong(ActionRequest request, ActionResponse response)
-			throws Exception {
+			if (e instanceof SongNameException ||
+				e instanceof DuplicatedSongException ||
+				e instanceof PrincipalException) {
 
-			long songId = ParamUtil.getLong(request, "songId");
-
-			boolean moveToTrash = ParamUtil.getBoolean(request, "moveToTrash");
-
-			ServiceContext serviceContext = ServiceContextFactory.getInstance(
-				Song.class.getName(), request);
-
-			try {
-				if (moveToTrash) {
-					Song song = SongServiceUtil.moveSongToTrash(songId);
-
-					Map<String, String[]> data =
-						new HashMap<String, String[]>();
-
-					data.put(
-						"deleteEntryClassName",
-						new String[] {Song.class.getName()});
-					data.put(
-						"deleteEntryTitle",
-						new String[] {
-							TrashUtil.getOriginalTitle(song.getName())});
-					data.put(
-						"restoreEntryIds",
-						new String[] {String.valueOf(songId)});
-
-					SessionMessages.add(
-						request,
-						PortalUtil.getPortletId(request) +
-							SessionMessages.KEY_SUFFIX_DELETE_SUCCESS_DATA,
-						data);
-
-					SessionMessages.add(
-						request,
-						PortalUtil.getPortletId(request) +
-							SessionMessages.
-								KEY_SUFFIX_HIDE_DEFAULT_SUCCESS_MESSAGE);
-				}
-				else {
-					SongServiceUtil.deleteSong(songId, serviceContext);
-
-					SessionMessages.add(request, "songDeleted");
-				}
-
-				sendRedirect(request, response);
+				response.setRenderParameter(
+					"jspPage", "/html/songs/edit_song.jsp");
 			}
-			catch (Exception e) {
-				SessionErrors.add(request, e.getClass().getName());
-
+			else {
 				response.setRenderParameter("jspPage", "/html/error.jsp");
 			}
 		}
-
-		public void restoreSong(ActionRequest request, ActionResponse response)
-			throws Exception {
-
-			long[] restoreEntryIds = StringUtil.split(
-				ParamUtil.getString(request, "restoreEntryIds"), 0L);
-
-			for (long restoreEntryId : restoreEntryIds) {
-				SongServiceUtil.restoreSongFromTrash(restoreEntryId);
-			}
-		}
-
-		public void updateSong(ActionRequest request, ActionResponse response)
-			throws Exception {
-
-			UploadPortletRequest uploadPortletRequest =
-				PortalUtil.getUploadPortletRequest(request);
-
-			long albumId = ParamUtil.getLong(uploadPortletRequest, "albumId");
-			long songId = ParamUtil.getLong(uploadPortletRequest, "songId");
-			String name = ParamUtil.getString(uploadPortletRequest, "name");
-
-			InputStream songInputStream = uploadPortletRequest.getFileAsStream(
-				"songFile");
-			String songFileName = uploadPortletRequest.getFileName("songFile");
-
-			InputStream lyricsInputStream =
-				uploadPortletRequest.getFileAsStream("lyricsFile");
-			String lyricsFileName = uploadPortletRequest.getFileName(
-				"lyricsFile");
-
-			ServiceContext serviceContext = ServiceContextFactory.getInstance(
-				Song.class.getName(), uploadPortletRequest);
-
-			try {
-				SongServiceUtil.updateSong(
-					songId, albumId, name, songFileName, songInputStream,
-					lyricsFileName, lyricsInputStream, serviceContext);
-
-				SessionMessages.add(request, "songUpdated");
-
-				String redirect = ParamUtil.getString(
-					uploadPortletRequest, "redirect");
-
-				response.sendRedirect(redirect);
-			}
-			catch (Exception e) {
-				SessionErrors.add(request, e.getClass().getName());
-
-				if (e instanceof SongNameException ||
-					e instanceof PrincipalException) {
-
-					response.setRenderParameter(
-						"jspPage", "/html/songs/edit_song.jsp");
-				}
-				else {
-					response.setRenderParameter("jspPage", "/html/error.jsp");
-				}
-			}
-		}
+	}
 
 	public void deleteAlbum(ActionRequest request, ActionResponse response)
 		throws Exception {
@@ -375,7 +195,7 @@ public class JukeboxPortlet extends MVCPortlet {
 			if (moveToTrash) {
 				Album album = AlbumServiceUtil.moveAlbumToTrash(albumId);
 
-				Map<String, String[]> data = new HashMap<String, String[]>();
+				Map<String, String[]> data = new HashMap<>();
 
 				data.put(
 					"deleteEntryClassName",
@@ -387,7 +207,8 @@ public class JukeboxPortlet extends MVCPortlet {
 				SessionMessages.add(
 					request,
 					PortalUtil.getPortletId(request) +
-						SessionMessages.KEY_SUFFIX_DELETE_SUCCESS_DATA, data);
+						SessionMessages.KEY_SUFFIX_DELETE_SUCCESS_DATA,
+					data);
 
 				SessionMessages.add(
 					request,
@@ -404,7 +225,81 @@ public class JukeboxPortlet extends MVCPortlet {
 			sendRedirect(request, response);
 		}
 		catch (Exception e) {
-			SessionErrors.add(request, e.getClass().getName());
+			SessionErrors.add(request, e.getClass());
+
+			response.setRenderParameter("jspPage", "/html/error.jsp");
+		}
+	}
+
+	public void deleteArtist(ActionRequest request, ActionResponse response)
+		throws Exception {
+
+		long artistId = ParamUtil.getLong(request, "artistId");
+
+		ServiceContext serviceContext = ServiceContextFactory.getInstance(
+			Artist.class.getName(), request);
+
+		try {
+			ArtistServiceUtil.deleteArtist(artistId, serviceContext);
+
+			SessionMessages.add(request, "artistDeleted");
+
+			sendRedirect(request, response);
+		}
+		catch (Exception e) {
+			SessionErrors.add(request, e.getClass());
+
+			response.setRenderParameter("jspPage", "/html/error.jsp");
+		}
+	}
+
+	public void deleteSong(ActionRequest request, ActionResponse response)
+		throws Exception {
+
+		long songId = ParamUtil.getLong(request, "songId");
+
+		boolean moveToTrash = ParamUtil.getBoolean(request, "moveToTrash");
+
+		ServiceContext serviceContext = ServiceContextFactory.getInstance(
+			Song.class.getName(), request);
+
+		try {
+			if (moveToTrash) {
+				Song song = SongServiceUtil.moveSongToTrash(songId);
+
+				Map<String, String[]> data = new HashMap<>();
+
+				data.put(
+					"deleteEntryClassName",
+					new String[] {Song.class.getName()});
+				data.put(
+					"deleteEntryTitle",
+					new String[] {TrashUtil.getOriginalTitle(song.getName())});
+				data.put(
+					"restoreEntryIds", new String[] {String.valueOf(songId)});
+
+				SessionMessages.add(
+					request,
+					PortalUtil.getPortletId(request) +
+						SessionMessages.KEY_SUFFIX_DELETE_SUCCESS_DATA,
+					data);
+
+				SessionMessages.add(
+					request,
+					PortalUtil.getPortletId(request) +
+						SessionMessages.
+							KEY_SUFFIX_HIDE_DEFAULT_SUCCESS_MESSAGE);
+			}
+			else {
+				SongServiceUtil.deleteSong(songId, serviceContext);
+
+				SessionMessages.add(request, "songDeleted");
+			}
+
+			sendRedirect(request, response);
+		}
+		catch (Exception e) {
+			SessionErrors.add(request, e.getClass());
 
 			response.setRenderParameter("jspPage", "/html/error.jsp");
 		}
@@ -418,6 +313,17 @@ public class JukeboxPortlet extends MVCPortlet {
 
 		for (long restoreEntryId : restoreEntryIds) {
 			AlbumServiceUtil.restoreAlbumFromTrash(restoreEntryId);
+		}
+	}
+
+	public void restoreSong(ActionRequest request, ActionResponse response)
+		throws Exception {
+
+		long[] restoreEntryIds = StringUtil.split(
+			ParamUtil.getString(request, "restoreEntryIds"), 0L);
+
+		for (long restoreEntryId : restoreEntryIds) {
+			SongServiceUtil.restoreSongFromTrash(restoreEntryId);
 		}
 	}
 
@@ -446,16 +352,105 @@ public class JukeboxPortlet extends MVCPortlet {
 			String redirect = ParamUtil.getString(
 				uploadPortletRequest, "redirect");
 
-				response.sendRedirect(redirect);
+			response.sendRedirect(redirect);
 		}
 		catch (Exception e) {
-			SessionErrors.add(request, e.getClass().getName());
+			SessionErrors.add(request, e.getClass());
 
 			if (e instanceof AlbumNameException ||
 				e instanceof PrincipalException) {
 
 				response.setRenderParameter(
 					"jspPage", "/html/albums/edit_album.jsp");
+			}
+			else {
+				response.setRenderParameter("jspPage", "/html/error.jsp");
+			}
+		}
+	}
+
+	public void updateArtist(ActionRequest request, ActionResponse response)
+		throws Exception {
+
+		UploadPortletRequest uploadPortletRequest =
+			PortalUtil.getUploadPortletRequest(request);
+
+		long artistId = ParamUtil.getLong(uploadPortletRequest, "artistId");
+		String name = ParamUtil.getString(uploadPortletRequest, "name");
+		String bio = ParamUtil.getString(uploadPortletRequest, "bio");
+
+		InputStream inputStream = uploadPortletRequest.getFileAsStream("file");
+
+		ServiceContext serviceContext = ServiceContextFactory.getInstance(
+			Artist.class.getName(), uploadPortletRequest);
+
+		try {
+			ArtistServiceUtil.updateArtist(
+				artistId, name, bio, inputStream, serviceContext);
+
+			SessionMessages.add(request, "artistUpdated");
+
+			String redirect = ParamUtil.getString(
+				uploadPortletRequest, "redirect");
+
+			response.sendRedirect(redirect);
+		}
+		catch (Exception e) {
+			SessionErrors.add(request, e.getClass());
+
+			if (e instanceof ArtistNameException ||
+				e instanceof PrincipalException) {
+
+				response.setRenderParameter(
+					"jspPage", "/html/artists/edit_artist.jsp");
+			}
+			else {
+				response.setRenderParameter("jspPage", "/html/error.jsp");
+			}
+		}
+	}
+
+	public void updateSong(ActionRequest request, ActionResponse response)
+		throws Exception {
+
+		UploadPortletRequest uploadPortletRequest =
+			PortalUtil.getUploadPortletRequest(request);
+
+		long albumId = ParamUtil.getLong(uploadPortletRequest, "albumId");
+		long songId = ParamUtil.getLong(uploadPortletRequest, "songId");
+		String name = ParamUtil.getString(uploadPortletRequest, "name");
+
+		InputStream songInputStream = uploadPortletRequest.getFileAsStream(
+			"songFile");
+		String songFileName = uploadPortletRequest.getFileName("songFile");
+
+		InputStream lyricsInputStream = uploadPortletRequest.getFileAsStream(
+			"lyricsFile");
+		String lyricsFileName = uploadPortletRequest.getFileName("lyricsFile");
+
+		ServiceContext serviceContext = ServiceContextFactory.getInstance(
+			Song.class.getName(), uploadPortletRequest);
+
+		try {
+			SongServiceUtil.updateSong(
+				songId, albumId, name, songFileName, songInputStream,
+				lyricsFileName, lyricsInputStream, serviceContext);
+
+			SessionMessages.add(request, "songUpdated");
+
+			String redirect = ParamUtil.getString(
+				uploadPortletRequest, "redirect");
+
+			response.sendRedirect(redirect);
+		}
+		catch (Exception e) {
+			SessionErrors.add(request, e.getClass());
+
+			if (e instanceof SongNameException ||
+				e instanceof PrincipalException) {
+
+				response.setRenderParameter(
+					"jspPage", "/html/songs/edit_song.jsp");
 			}
 			else {
 				response.setRenderParameter("jspPage", "/html/error.jsp");

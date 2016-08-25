@@ -15,7 +15,6 @@
 package org.liferay.jukebox.asset;
 
 import com.liferay.asset.kernel.model.AssetRendererFactory;
-import com.liferay.asset.kernel.model.BaseAssetRenderer;
 import com.liferay.asset.kernel.model.BaseJSPAssetRenderer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.LayoutConstants;
@@ -36,9 +35,8 @@ import java.util.Locale;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.PortletURL;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.liferay.jukebox.model.Album;
@@ -49,12 +47,16 @@ import org.liferay.jukebox.util.PortletKeys;
 /**
  * @author Julio Camarero
  */
-
 public class AlbumAssetRenderer
 	extends BaseJSPAssetRenderer<Album> implements TrashRenderer {
 
 	public AlbumAssetRenderer(Album album) {
 		_album = album;
+	}
+
+	@Override
+	public Album getAssetObject() {
+		return _album;
 	}
 
 	@Override
@@ -70,6 +72,18 @@ public class AlbumAssetRenderer
 	@Override
 	public long getGroupId() {
 		return _album.getGroupId();
+	}
+
+	@Override
+	public String getJspPath(HttpServletRequest request, String template) {
+		if (template.equals(TEMPLATE_FULL_CONTENT)) {
+			request.setAttribute("jukebox_album", _album);
+
+			return "/html/albums/asset/" + template + ".jsp";
+		}
+		else {
+			return null;
+		}
 	}
 
 	public String getPortletId() {
@@ -127,6 +141,22 @@ public class AlbumAssetRenderer
 		portletURL.setParameter("albumId", String.valueOf(_album.getAlbumId()));
 
 		return portletURL;
+	}
+
+	@Override
+	public String getURLView(
+			LiferayPortletResponse liferayPortletResponse,
+			WindowState windowState)
+		throws Exception {
+
+		PortletURL portletURL = liferayPortletResponse.createLiferayPortletURL(
+			AlbumsPortlet.PORTLET_ID, PortletRequest.RENDER_PHASE);
+
+		portletURL.setParameter("jspPage", "/html/albums/view_album.jsp");
+		portletURL.setParameter("albumId", String.valueOf(_album.getAlbumId()));
+		portletURL.setWindowState(windowState);
+
+		return portletURL.toString();
 	}
 
 	@Override
@@ -201,36 +231,7 @@ public class AlbumAssetRenderer
 	public boolean isPrintable() {
 		return true;
 	}
-	
+
 	private Album _album;
-
-	@Override
-	public Album getAssetObject() {
-		return _album;
-	}
-
-	@Override
-	public String getURLView(LiferayPortletResponse liferayPortletResponse, WindowState windowState) throws Exception {
-		PortletURL portletURL = liferayPortletResponse.createLiferayPortletURL(
-			AlbumsPortlet.PORTLET_ID, PortletRequest.RENDER_PHASE);
-
-		portletURL.setParameter("jspPage", "/html/albums/view_album.jsp");
-		portletURL.setParameter("albumId", String.valueOf(_album.getAlbumId()));
-		portletURL.setWindowState(windowState);
-
-		return portletURL.toString();
-	}
-
-	@Override
-	public String getJspPath(HttpServletRequest request, String template) {
-		if (template.equals(TEMPLATE_FULL_CONTENT)) {
-			request.setAttribute("jukebox_album", _album);
-
-			return "/html/albums/asset/" + template + ".jsp";
-		}
-		else {
-			return null;
-		}
-	}
 
 }

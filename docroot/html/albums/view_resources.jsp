@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="../init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 
 <%
 String keywords = ParamUtil.getString(liferayPortletRequest, "keywords");
@@ -53,50 +53,49 @@ else {
 			</div>
 		</c:when>
 		<c:otherwise>
-			<ul class="list-unstyled albums-list">
-	
+			<ul class="albums-list list-unstyled">
+
 				<%
 				for (Album album : albums) {
 				%>
-	
-				<li class="album">
-	
-					<%
-					Artist artist = ArtistLocalServiceUtil.getArtist(album.getArtistId());
-					%>
-	
-					<portlet:renderURL var="viewAlbumURL">
-						<portlet:param name="jspPage" value="/html/albums/view_album.jsp" />
-						<portlet:param name="albumId" value="<%= String.valueOf(album.getAlbumId()) %>" />
-						<portlet:param name="redirect" value="<%= currentURL %>" />
-					</portlet:renderURL>
-	
-					<aui:a href="<%= viewAlbumURL %>">
-						<img alt="" class="album-image img-rounded" src="<%= album.getImageURL(themeDisplay) %>" />
-	
-						<%= album.getName() %>
-					</aui:a>
-	
-					<c:if test="<%= AlbumPermission.contains(permissionChecker, album.getAlbumId(), ActionKeys.UPDATE) %>">
-						<portlet:renderURL var="editAlbumURL">
-							<portlet:param name="jspPage" value="/html/albums/edit_album.jsp" />
+
+					<li class="album">
+
+						<%
+						Artist artist = ArtistLocalServiceUtil.getArtist(album.getArtistId());
+						%>
+
+						<portlet:renderURL var="viewAlbumURL">
+							<portlet:param name="jspPage" value="/html/albums/view_album.jsp" />
 							<portlet:param name="albumId" value="<%= String.valueOf(album.getAlbumId()) %>" />
 							<portlet:param name="redirect" value="<%= currentURL %>" />
 						</portlet:renderURL>
-	
-						<liferay-ui:icon cssClass="album-small-link" image="../aui/pencil" message="edit" url="<%= editAlbumURL %>" />
-					</c:if>
-	
-					<div class="album-artist-name">
-						<%= artist.getName() %>
-					</div>
-	
-				</li>
-	
+
+						<aui:a href="<%= viewAlbumURL %>">
+							<img alt="" class="album-image img-rounded" src="<%= album.getImageURL(themeDisplay) %>" />
+
+							<%= album.getName() %>
+						</aui:a>
+
+						<c:if test="<%= AlbumPermission.contains(permissionChecker, album.getAlbumId(), ActionKeys.UPDATE) %>">
+							<portlet:renderURL var="editAlbumURL">
+								<portlet:param name="jspPage" value="/html/albums/edit_album.jsp" />
+								<portlet:param name="albumId" value="<%= String.valueOf(album.getAlbumId()) %>" />
+								<portlet:param name="redirect" value="<%= currentURL %>" />
+							</portlet:renderURL>
+
+							<liferay-ui:icon cssClass="album-small-link" image="../aui/pencil" message="edit" url="<%= editAlbumURL %>" />
+						</c:if>
+
+						<div class="album-artist-name">
+							<%= artist.getName() %>
+						</div>
+					</li>
+
 				<%
 				}
 				%>
-	
+
 			</ul>
 		</c:otherwise>
 	</c:choose>

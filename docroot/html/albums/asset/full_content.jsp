@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="../../init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 
 <liferay-util:include page="/html/albums/view_album.jsp" servletContext="<%= application %>">
 	<liferay-util:param name="showHeader" value="<%= String.valueOf(false) %>" />

@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="../init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 
 <%
 String redirect = ParamUtil.getString(request, "redirect");
@@ -94,23 +94,23 @@ Hits hits = indexer.search(searchContext);
 				Artist artist = ArtistLocalServiceUtil.getArtist(searchResult.getClassPK());
 			%>
 
-			<li class="search-result-info">
-				<portlet:renderURL var="viewArtistURL">
-					<portlet:param name="jspPage" value="/html/artists/view_artist.jsp" />
-					<portlet:param name="artistId" value="<%= String.valueOf(artist.getArtistId()) %>" />
-					<portlet:param name="redirect" value="<%= PortalUtil.getCurrentURL(renderRequest) %>" />
-				</portlet:renderURL>
+				<li class="search-result-info">
+					<portlet:renderURL var="viewArtistURL">
+						<portlet:param name="jspPage" value="/html/artists/view_artist.jsp" />
+						<portlet:param name="artistId" value="<%= String.valueOf(artist.getArtistId()) %>" />
+						<portlet:param name="redirect" value="<%= PortalUtil.getCurrentURL(renderRequest) %>" />
+					</portlet:renderURL>
 
-				<liferay-ui:app-view-search-entry
-					description="<%= (summary != null) ? HtmlUtil.escape(summary.getContent()) : StringPool.BLANK %>"
-					fileEntryRelatedSearchResults="<%= searchResult.getFileEntryRelatedSearchResults() %>"
-					commentRelatedSearchResults="<%= searchResult.getCommentRelatedSearchResults() %>"
-					queryTerms="<%= hits.getQueryTerms() %>"
-					thumbnailSrc="<%= artist.getImageURL(themeDisplay) %>"
-					title="<%= (summary != null) ? HtmlUtil.escape(summary.getTitle()) : artist.getName() %>"
-					url="<%= viewArtistURL %>"
-				/>
-			</li>
+					<liferay-ui:app-view-search-entry
+						commentRelatedSearchResults="<%= searchResult.getCommentRelatedSearchResults() %>"
+						description="<%= (summary != null) ? HtmlUtil.escape(summary.getContent()) : StringPool.BLANK %>"
+						fileEntryRelatedSearchResults="<%= searchResult.getFileEntryRelatedSearchResults() %>"
+						queryTerms="<%= hits.getQueryTerms() %>"
+						thumbnailSrc="<%= artist.getImageURL(themeDisplay) %>"
+						title="<%= (summary != null) ? HtmlUtil.escape(summary.getTitle()) : artist.getName() %>"
+						url="<%= viewArtistURL %>"
+					/>
+				</li>
 
 			<%
 			}

@@ -57,7 +57,7 @@ public abstract class JukeBoxBaseTrashHandler extends BaseTrashHandler {
 	public List<ContainerModel> getParentContainerModels(long classPK)
 		throws PortalException {
 
-		List<ContainerModel> containerModels = new ArrayList<ContainerModel>();
+		List<ContainerModel> containerModels = new ArrayList<>();
 
 		ContainerModel containerModel = getParentContainerModel(classPK);
 
@@ -100,7 +100,7 @@ public abstract class JukeBoxBaseTrashHandler extends BaseTrashHandler {
 			long classPK, int start, int end)
 		throws PortalException {
 
-		List<TrashRenderer> trashRenderers = new ArrayList<TrashRenderer>();
+		List<TrashRenderer> trashRenderers = new ArrayList<>();
 
 		List<Song> songs = SongLocalServiceUtil.getSongsByAlbumId(
 			classPK, start, end);

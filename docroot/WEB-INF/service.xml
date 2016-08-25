@@ -5,70 +5,11 @@
 	<service-builder package-path="org.liferay.jukebox">
 	<author>Julio Camarero</author>
 	<namespace>jukebox</namespace>
-	<entity name="Artist" local-service="true" remote-service="true" uuid="true" trash-enabled="true">
+	<entity local-service="true" name="Album" remote-service="true" trash-enabled="true" uuid="true">
 
 		<!-- Primary key column -->
 
-		<column name="artistId" type="long" primary="true" />
-
-		<!-- Foreign key columns -->
-
-		<column name="companyId" type="long" />
-		<column name="groupId" type="long" />
-		<column name="userId" type="long" />
-		<column name="userName" type="String" />
-		<column name="createDate" type="Date" />
-		<column name="modifiedDate" type="Date" />
-		<column name="status" type="int" />
-		<column name="statusByUserId" type="long" />
-		<column name="statusByUserName" type="String" />
-		<column name="statusDate" type="Date" />
-
-		<!-- Other columns -->
-
-		<column name="name" type="String" />
-		<column name="bio" type="String" />
-
-		<!-- Finder Methods Standard -->
-
-		<finder name="GroupId" return-type="Collection">
-			<finder-column name="groupId" />
-		</finder>
-		<finder name="UserId" return-type="Collection">
-			<finder-column name="userId" />
-		</finder>
-		<finder name="CompanyId" return-type="Collection">
-			<finder-column name="companyId" />
-		</finder>
-		<finder name="U_G" return-type="Collection">
-			<finder-column name="userId" />
-			<finder-column name="groupId" />
-		</finder>
-		<finder name="G_S" return-type="Collection">
-			<finder-column name="groupId" />
-			<finder-column name="status" />
-		</finder>
-		<finder name="G_LikeN_S" return-type="Collection">
-			<finder-column name="groupId" />
-			<finder-column name="name" case-sensitive="false" comparator="LIKE" />
-			<finder-column name="status" />
-		</finder>
-
-		<!-- References -->
-
-		<reference package-path="com.liferay.portal" entity="Company" />
-		<reference package-path="com.liferay.portal" entity="Group" />
-		<reference package-path="com.liferay.portlet.asset" entity="AssetEntry" />
-		<reference package-path="com.liferay.portlet.asset" entity="AssetLink" />
-		<reference package-path="com.liferay.portlet.expando" entity="ExpandoValue" />
-		<reference package-path="com.liferay.portlet.messageboards" entity="MBMessage" />
-		<reference package-path="com.liferay.portlet.social" entity="SocialActivity" />
-	</entity>
-	<entity name="Album" local-service="true" remote-service="true" uuid="true" trash-enabled="true">
-
-		<!-- Primary key column -->
-
-		<column name="albumId" type="long" primary="true" container-model="true" />
+		<column container-model="true" name="albumId" primary="true" type="long" />
 
 		<!-- Foreign key columns -->
 
@@ -119,27 +60,86 @@
 		</finder>
 		<finder name="G_LikeN_S" return-type="Collection">
 			<finder-column name="groupId" />
-			<finder-column name="name" case-sensitive="false" comparator="LIKE" />
+			<finder-column case-sensitive="false" comparator="LIKE" name="name" />
 			<finder-column name="status" />
 		</finder>
 
 		<!-- References -->
 
-		<reference package-path="com.liferay.portal" entity="Company" />
-		<reference package-path="com.liferay.portal" entity="Group" />
-		<reference package-path="com.liferay.portlet.asset" entity="AssetEntry" />
-		<reference package-path="com.liferay.portlet.asset" entity="AssetLink" />
-		<reference package-path="com.liferay.portlet.expando" entity="ExpandoValue" />
-		<reference package-path="com.liferay.portlet.messageboards" entity="MBMessage" />
-		<reference package-path="com.liferay.portlet.social" entity="SocialActivity" />
-		<reference package-path="com.liferay.portlet.trash" entity="TrashEntry" />
-		<reference package-path="com.liferay.portlet.trash" entity="TrashVersion" />
+		<reference entity="Company" package-path="com.liferay.portal" />
+		<reference entity="Group" package-path="com.liferay.portal" />
+		<reference entity="AssetEntry" package-path="com.liferay.portlet.asset" />
+		<reference entity="AssetLink" package-path="com.liferay.portlet.asset" />
+		<reference entity="ExpandoValue" package-path="com.liferay.portlet.expando" />
+		<reference entity="MBMessage" package-path="com.liferay.portlet.messageboards" />
+		<reference entity="SocialActivity" package-path="com.liferay.portlet.social" />
+		<reference entity="TrashEntry" package-path="com.liferay.portlet.trash" />
+		<reference entity="TrashVersion" package-path="com.liferay.portlet.trash" />
 	</entity>
-	<entity name="Song" local-service="true" remote-service="true" uuid="true" trash-enabled="true">
+		<entity local-service="true" name="Artist" remote-service="true" trash-enabled="true" uuid="true">
 
 		<!-- Primary key column -->
 
-		<column name="songId" type="long" primary="true" />
+		<column name="artistId" primary="true" type="long" />
+
+		<!-- Foreign key columns -->
+
+		<column name="companyId" type="long" />
+		<column name="groupId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
+		<column name="status" type="int" />
+		<column name="statusByUserId" type="long" />
+		<column name="statusByUserName" type="String" />
+		<column name="statusDate" type="Date" />
+
+		<!-- Other columns -->
+
+		<column name="name" type="String" />
+		<column name="bio" type="String" />
+
+		<!-- Finder Methods Standard -->
+
+		<finder name="GroupId" return-type="Collection">
+			<finder-column name="groupId" />
+		</finder>
+		<finder name="UserId" return-type="Collection">
+			<finder-column name="userId" />
+		</finder>
+		<finder name="CompanyId" return-type="Collection">
+			<finder-column name="companyId" />
+		</finder>
+		<finder name="U_G" return-type="Collection">
+			<finder-column name="userId" />
+			<finder-column name="groupId" />
+		</finder>
+		<finder name="G_S" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column name="status" />
+		</finder>
+		<finder name="G_LikeN_S" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column case-sensitive="false" comparator="LIKE" name="name" />
+			<finder-column name="status" />
+		</finder>
+
+		<!-- References -->
+
+		<reference entity="Company" package-path="com.liferay.portal" />
+		<reference entity="Group" package-path="com.liferay.portal" />
+		<reference entity="AssetEntry" package-path="com.liferay.portlet.asset" />
+		<reference entity="AssetLink" package-path="com.liferay.portlet.asset" />
+		<reference entity="ExpandoValue" package-path="com.liferay.portlet.expando" />
+		<reference entity="MBMessage" package-path="com.liferay.portlet.messageboards" />
+		<reference entity="SocialActivity" package-path="com.liferay.portlet.social" />
+	</entity>
+	<entity local-service="true" name="Song" remote-service="true" trash-enabled="true" uuid="true">
+
+		<!-- Primary key column -->
+
+		<column name="songId" primary="true" type="long" />
 
 
 		<!-- Foreign key columns -->
@@ -194,7 +194,7 @@
 		</finder>
 		<finder name="G_LikeN_S" return-type="Collection">
 			<finder-column name="groupId" />
-			<finder-column name="name" case-sensitive="false" comparator="LIKE" />
+			<finder-column case-sensitive="false" comparator="LIKE" name="name" />
 			<finder-column name="status" />
 		</finder>
 		<finder name="G_A_A_N" return-type="Song" unique="true">
@@ -206,25 +206,25 @@
 
 		<!-- References -->
 
-		<reference package-path="com.liferay.portal" entity="Company" />
-		<reference package-path="com.liferay.portal" entity="Group" />
-		<reference package-path="com.liferay.portlet.asset" entity="AssetEntry" />
-		<reference package-path="com.liferay.portlet.asset" entity="AssetLink" />
-		<reference package-path="com.liferay.portlet.expando" entity="ExpandoValue" />
-		<reference package-path="com.liferay.portlet.messageboards" entity="MBMessage" />
-		<reference package-path="com.liferay.portlet.social" entity="SocialActivity" />
-		<reference package-path="com.liferay.portlet.trash" entity="TrashEntry" />
-		<reference package-path="com.liferay.portlet.trash" entity="TrashVersion" />
+		<reference entity="Company" package-path="com.liferay.portal" />
+		<reference entity="Group" package-path="com.liferay.portal" />
+		<reference entity="AssetEntry" package-path="com.liferay.portlet.asset" />
+		<reference entity="AssetLink" package-path="com.liferay.portlet.asset" />
+		<reference entity="ExpandoValue" package-path="com.liferay.portlet.expando" />
+		<reference entity="MBMessage" package-path="com.liferay.portlet.messageboards" />
+		<reference entity="SocialActivity" package-path="com.liferay.portlet.social" />
+		<reference entity="TrashEntry" package-path="com.liferay.portlet.trash" />
+		<reference entity="TrashVersion" package-path="com.liferay.portlet.trash" />
 	</entity>
 	<exceptions>
 		<exception>AlbumName</exception>
 		<exception>ArtistName</exception>
-		<exception>SongName</exception>
-		<exception>DuplicatedSong</exception>
-		<exception>DuplicatedArtist</exception>
 		<exception>DuplicatedAlbum</exception>
-		<exception>NoSuchArtist</exception>
+		<exception>DuplicatedArtist</exception>
+		<exception>DuplicatedSong</exception>
 		<exception>NoSuchAlbum</exception>
+		<exception>NoSuchArtist</exception>
 		<exception>NoSuchSong</exception>
+		<exception>SongName</exception>
 	</exceptions>
 </service-builder>

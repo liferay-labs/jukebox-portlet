@@ -15,7 +15,6 @@
 package org.liferay.jukebox.asset;
 
 import com.liferay.asset.kernel.model.AssetRendererFactory;
-import com.liferay.asset.kernel.model.BaseAssetRenderer;
 import com.liferay.asset.kernel.model.BaseJSPAssetRenderer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.LayoutConstants;
@@ -37,9 +36,8 @@ import java.util.Locale;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 import javax.portlet.PortletURL;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.liferay.jukebox.model.Song;
@@ -50,12 +48,16 @@ import org.liferay.jukebox.util.PortletKeys;
 /**
  * @author Julio Camarero
  */
-
 public class SongAssetRenderer
 	extends BaseJSPAssetRenderer<Song> implements TrashRenderer {
 
 	public SongAssetRenderer(Song song) {
 		_song = song;
+	}
+
+	@Override
+	public Song getAssetObject() {
+		return _song;
 	}
 
 	@Override
@@ -71,6 +73,18 @@ public class SongAssetRenderer
 	@Override
 	public long getGroupId() {
 		return _song.getGroupId();
+	}
+
+	@Override
+	public String getJspPath(HttpServletRequest request, String template) {
+		if (template.equals(TEMPLATE_FULL_CONTENT)) {
+			request.setAttribute("jukebox_song", _song);
+
+			return "/html/songs/asset/" + template + ".jsp";
+		}
+		else {
+			return null;
+		}
 	}
 
 	public String getPortletId() {
@@ -101,8 +115,7 @@ public class SongAssetRenderer
 			return thumbnailSrc;
 		}
 
-		return themeDisplay.getPortalURL() +
-			"/jukebox-portlet/icons/songs.png";
+		return themeDisplay.getPortalURL() + "/jukebox-portlet/icons/songs.png";
 	}
 
 	@Override
@@ -224,22 +237,5 @@ public class SongAssetRenderer
 	}
 
 	private Song _song;
-
-	@Override
-	public Song getAssetObject() {
-		return _song;
-	}
-
-	@Override
-	public String getJspPath(HttpServletRequest request, String template) {
-		if (template.equals(TEMPLATE_FULL_CONTENT)) {
-			request.setAttribute("jukebox_song", _song);
-
-			return "/html/songs/asset/" + template + ".jsp";
-		}
-		else {
-			return null;
-		}
-	}
 
 }

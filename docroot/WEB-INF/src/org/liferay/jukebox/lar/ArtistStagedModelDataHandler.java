@@ -38,6 +38,11 @@ public class ArtistStagedModelDataHandler
 	public static final String[] CLASS_NAMES = {Artist.class.getName()};
 
 	@Override
+	public void deleteStagedModel(Artist artist) throws PortalException {
+		ArtistLocalServiceUtil.deleteArtist(artist);
+	}
+
+	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
 		throws PortalException {
@@ -48,6 +53,14 @@ public class ArtistStagedModelDataHandler
 		if (artist != null) {
 			ArtistLocalServiceUtil.deleteArtist(artist);
 		}
+	}
+
+	@Override
+	public List<Artist> fetchStagedModelsByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return ArtistLocalServiceUtil.getArtistsByUuidAndCompanyId(
+			uuid, companyId);
 	}
 
 	@Override
@@ -171,17 +184,6 @@ public class ArtistStagedModelDataHandler
 		}
 
 		return true;
-	}
-
-	@Override
-	public void deleteStagedModel(Artist artist) throws PortalException {
-		ArtistLocalServiceUtil.deleteArtist(artist);
-		
-	}
-
-	@Override
-	public List<Artist> fetchStagedModelsByUuidAndCompanyId(String uuid, long companyId) {
-		return ArtistLocalServiceUtil.getArtistsByUuidAndCompanyId(uuid, companyId);
 	}
 
 }

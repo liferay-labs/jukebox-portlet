@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="../init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 
 <%
 String redirect = ParamUtil.getString(request, "redirect");
@@ -24,7 +24,7 @@ long songId = ParamUtil.getLong(request, "songId");
 Song song = null;
 
 if (songId > 0) {
-	 song = SongLocalServiceUtil.getSong(songId);
+	song = SongLocalServiceUtil.getSong(songId);
 }
 else {
 	song = (Song)request.getAttribute("jukebox_song");
@@ -99,13 +99,13 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 <div class="song-details">
 	<div class="song-info">
 		<div class="song-artist">
-			<img alt="" class="img-circle artist-image" src="<%= artist.getImageURL(themeDisplay) %>" />
+			<img alt="" class="artist-image img-circle" src="<%= artist.getImageURL(themeDisplay) %>" />
 
 			<%= artist.getName() %>
 		</div>
 
 		<div class="song-album">
-			<img alt="" class="img-rounded album-image" src="<%= album.getImageURL(themeDisplay) %>" />
+			<img alt="" class="album-image img-rounded" src="<%= album.getImageURL(themeDisplay) %>" />
 
 			<%= album.getName() %>
 			<span class="song-year">(<%= album.getYear() %>)</span>
@@ -114,7 +114,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 
 	<div class="song-metainfo">
 		<div class="song-player">
-			<ul class="songs-list graphic">
+			<ul class="graphic songs-list">
 				<li class="song">
 
 					<%

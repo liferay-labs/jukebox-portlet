@@ -21,7 +21,6 @@ import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
 
 import org.liferay.jukebox.util.Constants;
@@ -42,7 +41,7 @@ public class ArtistImpl extends ArtistBaseImpl {
 	public FileEntry getCustomImage() {
 		Repository repository =
 			PortletFileRepositoryUtil.fetchPortletRepository(
-			getGroupId(), Constants.JUKEBOX_PORTLET_REPOSITORY);
+				getGroupId(), Constants.JUKEBOX_PORTLET_REPOSITORY);
 
 		if (repository == null) {
 			return null;
@@ -70,7 +69,7 @@ public class ArtistImpl extends ArtistBaseImpl {
 				StringPool.BLANK);
 		}
 		else {
-			return themeDisplay.getPathContext() + 
+			return themeDisplay.getPathContext() +
 				"/o/jukebox-portlet/images/singer2.jpeg";
 		}
 	}

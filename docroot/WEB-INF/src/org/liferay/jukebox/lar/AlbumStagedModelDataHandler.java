@@ -43,6 +43,11 @@ public class AlbumStagedModelDataHandler
 	public static final String[] CLASS_NAMES = {Album.class.getName()};
 
 	@Override
+	public void deleteStagedModel(Album album) throws PortalException {
+		AlbumLocalServiceUtil.deleteAlbum(album);
+	}
+
+	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
 		throws PortalException {
@@ -53,6 +58,14 @@ public class AlbumStagedModelDataHandler
 		if (album != null) {
 			AlbumLocalServiceUtil.deleteAlbum(album);
 		}
+	}
+
+	@Override
+	public List<Album> fetchStagedModelsByUuidAndCompanyId(
+		String uuid, long companyId) {
+
+		return AlbumLocalServiceUtil.getAlbumsByUuidAndCompanyId(
+			uuid, companyId);
 	}
 
 	@Override
@@ -207,17 +220,6 @@ public class AlbumStagedModelDataHandler
 		if (trashHandler.isRestorable(existingAlbum.getAlbumId())) {
 			trashHandler.restoreTrashEntry(userId, existingAlbum.getAlbumId());
 		}
-	}
-
-	@Override
-	public void deleteStagedModel(Album album) throws PortalException {
-		AlbumLocalServiceUtil.deleteAlbum(album);
-		
-	}
-
-	@Override
-	public List<Album> fetchStagedModelsByUuidAndCompanyId(String uuid, long companyId) {
-		return AlbumLocalServiceUtil.getAlbumsByUuidAndCompanyId(uuid, companyId);
 	}
 
 }

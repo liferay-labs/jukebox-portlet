@@ -9,10 +9,10 @@
 * where the SM2 flash movie goes. by default, relative container.
 * set relative or absolute here, and don't touch it later or bad things will happen (see below comments.)
 */
-position: absolute;
-width: 1px;
 height: 1px;
 overflow: hidden;
+position: absolute;
+width: 1px;
 /* screw IE 6, just make it display nice */
 _overflow: hidden;
 }
@@ -25,18 +25,18 @@ _overflow: hidden;
 * changing display: or position: or overflow: here or on parent can cause SWF reload or other weird issues after unblock
 * e.g., SM2 starts but strange errors, no whileplaying() etc.
 */
-width: 48px;
 height: 48px;
+width: 48px;
 /* some flash blockers may also respect this rule */
-max-width: 48px;
 max-height: 48px;
+max-width: 48px;
 }
 
 #sm2-container.swf_timedout {
 /* expand to show the timed-out SWF content */
+height: 48px;
 position: relative;
 width: 48px;
-height: 48px;
 }
 
 #sm2-container.swf_timedout,
@@ -46,14 +46,14 @@ height: 48px;
 * when SM2 didn't start normally, time-out case. flash blocked, missing SWF, no flash?
 * 48px square flash placeholder is typically used by blockers.
 */
-min-width: 48px;
 min-height: 48px;
+min-width: 48px;
 }
 
 #sm2-container.swf_unblocked {
 /* SWF unblocked, or was never blocked to begin with; try to collapse container as much as possible. */
-width: 1px;
 height: 1px;
+width: 1px;
 }
 
 #sm2-container.swf_loaded object,
@@ -111,9 +111,9 @@ width: 8px;
 
 #sm2-container.high_performance.swf_loaded {
 /* stay bottom/left */
-top: auto;
 bottom: 0px;
 left: 0px;
+top: auto;
 }
 
 #sm2-container.high_performance.swf_loaded object,

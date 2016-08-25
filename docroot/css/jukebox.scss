@@ -19,8 +19,8 @@
 		.artist-image {
 			box-shadow:0px 3px 5px #CCC;
 			display: block;
-			width: 150px;
 			height: 150px;
+			width: 150px;
 		}
 
 		.artist-small-link {
@@ -36,9 +36,9 @@
 		box-shadow: 0px 3px 5px #CCC;
 		display: block;
 		float: left;
+		height: 250px;
 		margin-right: 3em;
 		width: 250px;
-		height: 250px;
 	}
 
 	.artist-metainfo {
@@ -76,8 +76,8 @@
 		.album-image {
 			box-shadow: 0px 3px 5px #CCC;
 			display: block;
-			width: 150px;
 			height: 150px;
+			width: 150px;
 		}
 
 		.album-small-link {
@@ -93,9 +93,9 @@
 		box-shadow: 0px 3px 5px #CCC;
 		display: block;
 		float: left;
+		height: 250px;
 		margin-right: 3em;
 		width: 250px;
-		height: 250px;
 	}
 
 	.album-artist {
@@ -103,10 +103,10 @@
 		margin-bottom: 2em;
 
 		.artist-image {
-			width: 50px;
+			float: left;
 			height: 50px;
 			margin-right: 2em;
-			float: left;
+			width: 50px;
 		}
 	}
 
@@ -156,23 +156,23 @@
 }
 
 .song-details {
-	overflow: auto;
 	margin: 0 4em 4em 0;
+	overflow: auto;
 
 	.song-info {
 		float: left;
 		margin-right: 3em;
 
 		.song-artist {
-			overflow: auto;
 			margin-bottom: 2em;
+			overflow: auto;
 		}
 
 		.album-image, .artist-image {
 			float: left;
-			width: 50px;
 			height: 50px;
 			margin-right: 1em;
+			width: 50px;
 		}
 	}
 

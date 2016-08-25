@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="../init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 
 <liferay-ui:success key="artistAdded" message="the-artist-was-added-successfully" />
 <liferay-ui:success key="artistUpdated" message="the-artist-was-updated-successfully" />

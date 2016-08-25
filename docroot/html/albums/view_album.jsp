@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="../init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 
 <%
 String redirect = ParamUtil.getString(request, "redirect");
@@ -110,12 +110,12 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 
 <div class="album-detail">
 	<div class="container-fluid">
-		<img alt="" class="img-rounded album-image" src="<%= album.getImageURL(themeDisplay) %>" />
+		<img alt="" class="album-image img-rounded" src="<%= album.getImageURL(themeDisplay) %>" />
 
 		<div class="album-metainfo">
 			<div class="album-artist">
 				<div>
-					<img alt="" class="img-circle artist-image" src="<%= artist.getImageURL(themeDisplay) %>" />
+					<img alt="" class="artist-image img-circle" src="<%= artist.getImageURL(themeDisplay) %>" />
 
 					<%= artist.getName() %>
 

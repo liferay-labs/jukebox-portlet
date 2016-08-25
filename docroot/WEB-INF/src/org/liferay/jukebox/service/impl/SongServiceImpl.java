@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.InputStream;
+
 import java.util.List;
 
 import org.liferay.jukebox.model.Song;
@@ -40,7 +41,7 @@ import org.liferay.jukebox.service.permission.SongPermission;
  * @author Julio Camarero
  * @author Sergio González
  * @author Eudaldo Alonso
- * @see org.liferay.jukebox.service.base.SongServiceBaseImpl
+ * @see SongServiceBaseImpl
  * @see org.liferay.jukebox.service.SongServiceUtil
  */
 public class SongServiceImpl extends SongServiceBaseImpl {

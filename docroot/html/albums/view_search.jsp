@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="../init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 
 <%
 String redirect = ParamUtil.getString(request, "redirect");
@@ -94,23 +94,23 @@ Hits hits = indexer.search(searchContext);
 				Album album = AlbumLocalServiceUtil.getAlbum(searchResult.getClassPK());
 			%>
 
-			<li class="search-result-info">
-				<portlet:renderURL var="viewAlbumURL">
-					<portlet:param name="jspPage" value="/html/albums/view_album.jsp" />
-					<portlet:param name="albumId" value="<%= String.valueOf(album.getAlbumId()) %>" />
-					<portlet:param name="redirect" value="<%= PortalUtil.getCurrentURL(renderRequest) %>" />
-				</portlet:renderURL>
+				<li class="search-result-info">
+					<portlet:renderURL var="viewAlbumURL">
+						<portlet:param name="jspPage" value="/html/albums/view_album.jsp" />
+						<portlet:param name="albumId" value="<%= String.valueOf(album.getAlbumId()) %>" />
+						<portlet:param name="redirect" value="<%= PortalUtil.getCurrentURL(renderRequest) %>" />
+					</portlet:renderURL>
 
-				<liferay-ui:app-view-search-entry
-					description="<%= (summary != null) ? HtmlUtil.escape(summary.getContent()) : StringPool.BLANK %>"
-					fileEntryRelatedSearchResults="<%= searchResult.getFileEntryRelatedSearchResults() %>"
-					commentRelatedSearchResults="<%= searchResult.getCommentRelatedSearchResults() %>"
-					queryTerms="<%= hits.getQueryTerms() %>"
-					thumbnailSrc="<%= album.getImageURL(themeDisplay) %>"
-					title="<%= (summary != null) ? HtmlUtil.escape(summary.getTitle()) : album.getName() %>"
-					url="<%= viewAlbumURL %>"
-				/>
-			</li>
+					<liferay-ui:app-view-search-entry
+						commentRelatedSearchResults="<%= searchResult.getCommentRelatedSearchResults() %>"
+						description="<%= (summary != null) ? HtmlUtil.escape(summary.getContent()) : StringPool.BLANK %>"
+						fileEntryRelatedSearchResults="<%= searchResult.getFileEntryRelatedSearchResults() %>"
+						queryTerms="<%= hits.getQueryTerms() %>"
+						thumbnailSrc="<%= album.getImageURL(themeDisplay) %>"
+						title="<%= (summary != null) ? HtmlUtil.escape(summary.getTitle()) : album.getName() %>"
+						url="<%= viewAlbumURL %>"
+					/>
+				</li>
 
 			<%
 			}

@@ -21,6 +21,6 @@ package org.liferay.jukebox.portlet;
  */
 public class AlbumsPortlet extends JukeboxPortlet {
 
-	public final static String PORTLET_ID = "albums_WAR_jukeboxportlet";
+	public static final String PORTLET_ID = "albums_WAR_jukeboxportlet";
 
 }

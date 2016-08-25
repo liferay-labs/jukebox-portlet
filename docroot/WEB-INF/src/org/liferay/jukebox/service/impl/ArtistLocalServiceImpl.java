@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.InputStream;
+
 import java.util.Date;
 import java.util.List;
 
@@ -54,7 +55,7 @@ import org.liferay.jukebox.util.Constants;
  * @author Julio Camarero
  * @author Sergio González
  * @author Eudaldo Alonso
- * @see org.liferay.jukebox.service.base.ArtistLocalServiceBaseImpl
+ * @see ArtistLocalServiceBaseImpl
  * @see org.liferay.jukebox.service.ArtistLocalServiceUtil
  */
 public class ArtistLocalServiceImpl extends ArtistLocalServiceBaseImpl {

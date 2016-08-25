@@ -28,14 +28,14 @@ import javax.portlet.PortletURL;
  */
 public class AlbumSearch extends SearchContainer<AssetEntry> {
 
-	static List<String> headerNames = new ArrayList<String>();
+	public static final String EMPTY_RESULTS_MESSAGE = "there-are-no-results";
+
+	public static List<String> headerNames = new ArrayList<>();
 
 	static {
 		headerNames.add("title");
 		headerNames.add("year");
 	}
-
-	public static final String EMPTY_RESULTS_MESSAGE = "there-are-no-results";
 
 	public AlbumSearch(
 		PortletRequest portletRequest, int delta, PortletURL iteratorURL) {

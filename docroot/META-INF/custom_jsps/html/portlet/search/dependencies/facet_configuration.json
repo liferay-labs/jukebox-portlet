@@ -136,9 +136,9 @@
 		{
 			"className": "com.liferay.portal.kernel.search.facet.MultiValueFacet",
 			"data": {
-				"maxTerms": 10,
 				"displayStyle": "list",
 				"frequencyThreshold": 1,
+				"maxTerms": 10,
 				"showAssetCount": true
 			},
 			"displayStyle": "artist",
