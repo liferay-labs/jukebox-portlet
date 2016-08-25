@@ -28,7 +28,7 @@ AlbumSearch searchContainer = new AlbumSearch(renderRequest, portletURL);
 
 AlbumDisplayTerms displayTerms = (AlbumDisplayTerms)searchContainer.getDisplayTerms();
 
-Indexer indexer = IndexerRegistryUtil.getIndexer(Album.class);
+Indexer<Album> indexer = IndexerRegistryUtil.getIndexer(Album.class);
 
 SearchContext searchContext = SearchContextFactory.getInstance(request);
 
@@ -80,9 +80,7 @@ Hits hits = indexer.search(searchContext);
 		<ul class="search-result">
 
 			<%
-			PortletURL hitURL = liferayPortletResponse.createRenderURL();
-
-			List<SearchResult> searchResultsList = SearchResultUtil.getSearchResults(hits, locale, hitURL);
+			List<SearchResult> searchResultsList = SearchResultUtil.getSearchResults(hits, locale);
 
 			for (int i = 0; i < searchResultsList.size(); i++) {
 				SearchResult searchResult = searchResultsList.get(i);
