@@ -16,6 +16,7 @@ package org.liferay.jukebox.asset;
 
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.model.BaseAssetRenderer;
+import com.liferay.asset.kernel.model.BaseJSPAssetRenderer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
@@ -38,6 +39,7 @@ import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
+import javax.servlet.http.HttpServletRequest;
 
 import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.portlet.AlbumsPortlet;
@@ -49,7 +51,7 @@ import org.liferay.jukebox.util.PortletKeys;
  */
 
 public class AlbumAssetRenderer
-	extends BaseAssetRenderer implements TrashRenderer {
+	extends BaseJSPAssetRenderer<Album> implements TrashRenderer {
 
 	public AlbumAssetRenderer(Album album) {
 		_album = album;
@@ -68,12 +70,6 @@ public class AlbumAssetRenderer
 	@Override
 	public long getGroupId() {
 		return _album.getGroupId();
-	}
-
-	@Override
-	public String getIconPath(ThemeDisplay themeDisplay) {
-		return themeDisplay.getPortalURL() +
-			"/jukebox-portlet/icons/albums.png";
 	}
 
 	public String getPortletId() {
@@ -129,22 +125,6 @@ public class AlbumAssetRenderer
 
 		portletURL.setParameter("jspPage", "/html/albums/edit_album.jsp");
 		portletURL.setParameter("albumId", String.valueOf(_album.getAlbumId()));
-
-		return portletURL;
-	}
-
-	@Override
-	public PortletURL getURLView(
-			LiferayPortletResponse liferayPortletResponse,
-			WindowState windowState)
-		throws Exception {
-
-		PortletURL portletURL = liferayPortletResponse.createLiferayPortletURL(
-			AlbumsPortlet.PORTLET_ID, PortletRequest.RENDER_PHASE);
-
-		portletURL.setParameter("jspPage", "/html/albums/view_album.jsp");
-		portletURL.setParameter("albumId", String.valueOf(_album.getAlbumId()));
-		portletURL.setWindowState(windowState);
 
 		return portletURL;
 	}
@@ -221,15 +201,30 @@ public class AlbumAssetRenderer
 	public boolean isPrintable() {
 		return true;
 	}
+	
+	private Album _album;
 
 	@Override
-	public String render(
-			RenderRequest renderRequest, RenderResponse renderResponse,
-			String template)
-		throws Exception {
+	public Album getAssetObject() {
+		return _album;
+	}
 
+	@Override
+	public String getURLView(LiferayPortletResponse liferayPortletResponse, WindowState windowState) throws Exception {
+		PortletURL portletURL = liferayPortletResponse.createLiferayPortletURL(
+			AlbumsPortlet.PORTLET_ID, PortletRequest.RENDER_PHASE);
+
+		portletURL.setParameter("jspPage", "/html/albums/view_album.jsp");
+		portletURL.setParameter("albumId", String.valueOf(_album.getAlbumId()));
+		portletURL.setWindowState(windowState);
+
+		return portletURL.toString();
+	}
+
+	@Override
+	public String getJspPath(HttpServletRequest request, String template) {
 		if (template.equals(TEMPLATE_FULL_CONTENT)) {
-			renderRequest.setAttribute("jukebox_album", _album);
+			request.setAttribute("jukebox_album", _album);
 
 			return "/html/albums/asset/" + template + ".jsp";
 		}
@@ -237,7 +232,5 @@ public class AlbumAssetRenderer
 			return null;
 		}
 	}
-
-	private Album _album;
 
 }

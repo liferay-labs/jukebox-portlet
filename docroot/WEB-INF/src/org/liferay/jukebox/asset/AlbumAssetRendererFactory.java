@@ -62,12 +62,6 @@ public class AlbumAssetRendererFactory extends BaseAssetRendererFactory {
 		return _LINKABLE;
 	}
 
-	@Override
-	protected String getIconPath(ThemeDisplay themeDisplay) {
-		return themeDisplay.getPortalURL() +
-			"/jukebox-portlet/icons/albums.png";
-	}
-
 	private static final boolean _LINKABLE = true;
 
 }

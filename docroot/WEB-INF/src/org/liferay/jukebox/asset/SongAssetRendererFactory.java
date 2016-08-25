@@ -62,12 +62,6 @@ public class SongAssetRendererFactory extends BaseAssetRendererFactory {
 		return _LINKABLE;
 	}
 
-	@Override
-	protected String getIconPath(ThemeDisplay themeDisplay) {
-		return themeDisplay.getPortalURL() +
-			"/jukebox-portlet/icons/songs.png";
-	}
-
 	private static final boolean _LINKABLE = true;
 
 }

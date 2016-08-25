@@ -62,12 +62,6 @@ public class ArtistAssetRendererFactory extends BaseAssetRendererFactory {
 		return _LINKABLE;
 	}
 
-	@Override
-	protected String getIconPath(ThemeDisplay themeDisplay) {
-		return themeDisplay.getPortalURL() +
-			"/jukebox-portlet/icons/artists.png";
-	}
-
 	private static final boolean _LINKABLE = true;
 
 }

@@ -16,6 +16,7 @@ package org.liferay.jukebox.asset;
 
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.model.BaseAssetRenderer;
+import com.liferay.asset.kernel.model.BaseJSPAssetRenderer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
@@ -25,6 +26,7 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.trash.TrashRenderer;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -38,6 +40,7 @@ import javax.portlet.PortletURL;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
+import javax.servlet.http.HttpServletRequest;
 
 import org.liferay.jukebox.model.Song;
 import org.liferay.jukebox.portlet.SongsPortlet;
@@ -49,7 +52,7 @@ import org.liferay.jukebox.util.PortletKeys;
  */
 
 public class SongAssetRenderer
-	extends BaseAssetRenderer implements TrashRenderer {
+	extends BaseJSPAssetRenderer<Song> implements TrashRenderer {
 
 	public SongAssetRenderer(Song song) {
 		_song = song;
@@ -68,12 +71,6 @@ public class SongAssetRenderer
 	@Override
 	public long getGroupId() {
 		return _song.getGroupId();
-	}
-
-	@Override
-	public String getIconPath(ThemeDisplay themeDisplay) {
-		return themeDisplay.getPortalURL() +
-			"/jukebox-portlet/icons/songs.png";
 	}
 
 	public String getPortletId() {
@@ -138,7 +135,7 @@ public class SongAssetRenderer
 	}
 
 	@Override
-	public PortletURL getURLView(
+	public String getURLView(
 			LiferayPortletResponse liferayPortletResponse,
 			WindowState windowState)
 		throws Exception {
@@ -150,7 +147,7 @@ public class SongAssetRenderer
 		portletURL.setParameter("songId", String.valueOf(_song.getSongId()));
 		portletURL.setWindowState(windowState);
 
-		return portletURL;
+		return portletURL.toString();
 	}
 
 	@Override
@@ -226,14 +223,17 @@ public class SongAssetRenderer
 		return true;
 	}
 
-	@Override
-	public String render(
-			RenderRequest renderRequest, RenderResponse renderResponse,
-			String template)
-		throws Exception {
+	private Song _song;
 
+	@Override
+	public Song getAssetObject() {
+		return _song;
+	}
+
+	@Override
+	public String getJspPath(HttpServletRequest request, String template) {
 		if (template.equals(TEMPLATE_FULL_CONTENT)) {
-			renderRequest.setAttribute("jukebox_song", _song);
+			request.setAttribute("jukebox_song", _song);
 
 			return "/html/songs/asset/" + template + ".jsp";
 		}
@@ -241,7 +241,5 @@ public class SongAssetRenderer
 			return null;
 		}
 	}
-
-	private Song _song;
 
 }
