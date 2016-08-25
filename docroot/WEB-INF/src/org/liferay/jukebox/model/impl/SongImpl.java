@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -44,8 +45,8 @@ import org.liferay.jukebox.util.Constants;
 public class SongImpl extends SongBaseImpl {
 
 	public String getImageURL(ThemeDisplay themeDisplay) {
-		return themeDisplay.getPortalURL() +
-			"/jukebox-portlet/images/song.png";
+		return themeDisplay.getPathContext() + 
+			"/o/jukebox-portlet/images/song.jpeg";
 	}
 
 	public String getLyricsURL(ThemeDisplay themeDisplay)
