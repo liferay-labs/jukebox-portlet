@@ -19,6 +19,8 @@ import com.liferay.asset.kernel.model.AssetLinkConstants;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.util.DLProcessorRegistryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Repository;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
@@ -27,6 +29,7 @@ import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -209,9 +212,9 @@ public class SongLocalServiceImpl extends SongLocalServiceBaseImpl {
 		if (repository != null) {
 			try {
 				Folder folder = PortletFileRepositoryUtil.getPortletFolder(
-					0, repository.getRepositoryId(),
+					repository.getRepositoryId(),
 					DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-					String.valueOf(songId), null);
+					String.valueOf(songId));
 
 				PortletFileRepositoryUtil.deleteFolder(folder.getFolderId());
 			}
@@ -530,7 +533,7 @@ public class SongLocalServiceImpl extends SongLocalServiceBaseImpl {
 	}
 
 	protected void triggerDLProcessors(final FileEntry fileEntry) {
-		TransactionCommitCallbackRegistryUtil.registerCallback(
+		TransactionCommitCallbackUtil.registerCallback(
 			new Callable<Void>() {
 
 				@Override

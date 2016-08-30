@@ -18,6 +18,7 @@ import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.util.AudioProcessorUtil;
 import com.liferay.document.library.kernel.util.DLUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
@@ -100,13 +101,13 @@ public class SongImpl extends SongBaseImpl {
 
 		try {
 			Folder folder = PortletFileRepositoryUtil.getPortletFolder(
-				0, repository.getRepositoryId(),
+				repository.getRepositoryId(),
 				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
-				String.valueOf(getSongId()), null);
+				String.valueOf(getSongId()));
 
 			Folder songFolder = PortletFileRepositoryUtil.getPortletFolder(
-				0, repository.getRepositoryId(), folder.getFolderId(),
-				folderName, null);
+				repository.getRepositoryId(), folder.getFolderId(),
+				folderName);
 
 			List<FileEntry> fileEntries =
 				PortletFileRepositoryUtil.getPortletFileEntries(
