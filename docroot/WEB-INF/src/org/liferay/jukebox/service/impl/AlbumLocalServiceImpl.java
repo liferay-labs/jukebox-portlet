@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
@@ -36,7 +37,7 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 
-import org.liferay.jukebox.AlbumNameException;
+import org.liferay.jukebox.exception.AlbumNameException;
 import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.model.Song;
 import org.liferay.jukebox.service.base.AlbumLocalServiceBaseImpl;

@@ -33,10 +33,10 @@ import java.util.Map;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 
-import org.liferay.jukebox.AlbumNameException;
-import org.liferay.jukebox.ArtistNameException;
-import org.liferay.jukebox.DuplicatedSongException;
-import org.liferay.jukebox.SongNameException;
+import org.liferay.jukebox.exception.AlbumNameException;
+import org.liferay.jukebox.exception.ArtistNameException;
+import org.liferay.jukebox.exception.DuplicatedSongException;
+import org.liferay.jukebox.exception.SongNameException;
 import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.model.Artist;
 import org.liferay.jukebox.model.Song;
