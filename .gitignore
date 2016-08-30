@@ -14,5 +14,11 @@ pluginsSDK/*/*/docroot/WEB-INF/classes/
 *.iml
 *.class
 
+.classpath
+.project
+.tern-project
+**/.settings
+
 Icon\r
 Icon
+/bin/
