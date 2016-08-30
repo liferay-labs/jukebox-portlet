@@ -12,28 +12,30 @@
  * details.
  */
 
-package org.liferay.jukebox;
+package org.liferay.jukebox.exception;
 
-import com.liferay.portal.NoSuchModelException;
+import aQute.bnd.annotation.ProviderType;
+
+import com.liferay.portal.kernel.exception.PortalException;
 
 /**
  * @author Julio Camarero
  */
-public class NoSuchSongException extends NoSuchModelException {
+@ProviderType
+public class SongNameException extends PortalException {
 
-	public NoSuchSongException() {
-		super();
+	public SongNameException() {
 	}
 
-	public NoSuchSongException(String msg) {
+	public SongNameException(String msg) {
 		super(msg);
 	}
 
-	public NoSuchSongException(String msg, Throwable cause) {
+	public SongNameException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
 
-	public NoSuchSongException(Throwable cause) {
+	public SongNameException(Throwable cause) {
 		super(cause);
 	}
 

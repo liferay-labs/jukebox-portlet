@@ -14,6 +14,8 @@
 
 package org.liferay.jukebox.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import org.liferay.jukebox.model.Song;
 import org.liferay.jukebox.service.SongLocalServiceUtil;
 
@@ -26,9 +28,10 @@ import org.liferay.jukebox.service.SongLocalServiceUtil;
  *
  * @author Julio Camarero
  * @see SongImpl
- * @see org.liferay.jukebox.model.Song
+ * @see Song
  * @generated
  */
+@ProviderType
 public abstract class SongBaseImpl extends SongModelImpl implements Song {
 	/*
 	 * NOTE FOR DEVELOPERS:

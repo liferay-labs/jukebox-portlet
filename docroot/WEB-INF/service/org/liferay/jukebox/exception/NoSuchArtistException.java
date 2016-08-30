@@ -12,17 +12,19 @@
  * details.
  */
 
-package org.liferay.jukebox;
+package org.liferay.jukebox.exception;
 
-import com.liferay.portal.NoSuchModelException;
+import aQute.bnd.annotation.ProviderType;
+
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 
 /**
  * @author Julio Camarero
  */
+@ProviderType
 public class NoSuchArtistException extends NoSuchModelException {
 
 	public NoSuchArtistException() {
-		super();
 	}
 
 	public NoSuchArtistException(String msg) {

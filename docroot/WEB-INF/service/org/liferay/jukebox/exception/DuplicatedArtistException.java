@@ -12,17 +12,19 @@
  * details.
  */
 
-package org.liferay.jukebox;
+package org.liferay.jukebox.exception;
+
+import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.exception.PortalException;
 
 /**
  * @author Julio Camarero
  */
+@ProviderType
 public class DuplicatedArtistException extends PortalException {
 
 	public DuplicatedArtistException() {
-		super();
 	}
 
 	public DuplicatedArtistException(String msg) {

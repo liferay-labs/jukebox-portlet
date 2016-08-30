@@ -14,14 +14,35 @@
 
 package org.liferay.jukebox.service;
 
+import aQute.bnd.annotation.ProviderType;
+
+import com.liferay.exportimport.kernel.lar.PortletDataContext;
+
+import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
+import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.model.PersistedModel;
+import com.liferay.portal.kernel.search.Indexable;
+import com.liferay.portal.kernel.search.IndexableType;
+import com.liferay.portal.kernel.service.BaseLocalService;
+import com.liferay.portal.kernel.service.InvokableLocalService;
+import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
-import com.liferay.portal.service.BaseLocalService;
-import com.liferay.portal.service.InvokableLocalService;
-import com.liferay.portal.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.util.OrderByComparator;
+
+import org.liferay.jukebox.model.Song;
+
+import java.io.InputStream;
+import java.io.Serializable;
+
+import java.util.List;
 
 /**
  * Provides the local service interface for Song. Methods of this
@@ -35,6 +56,7 @@ import com.liferay.portal.service.PersistedModelLocalService;
  * @see org.liferay.jukebox.service.impl.SongLocalServiceImpl
  * @generated
  */
+@ProviderType
 @Transactional(isolation = Isolation.PORTAL, rollbackFor =  {
 	PortalException.class, SystemException.class})
 public interface SongLocalService extends BaseLocalService, InvokableLocalService,
@@ -44,46 +66,55 @@ public interface SongLocalService extends BaseLocalService, InvokableLocalServic
 	 *
 	 * Never modify or reference this interface directly. Always use {@link SongLocalServiceUtil} to access the song local service. Add custom service methods to {@link org.liferay.jukebox.service.impl.SongLocalServiceImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public ActionableDynamicQuery getActionableDynamicQuery();
+
+	public DynamicQuery dynamicQuery();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		PortletDataContext portletDataContext);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
 
 	/**
-	* Adds the song to the database. Also notifies the appropriate model listeners.
-	*
-	* @param song the song
-	* @return the song that was added
+	* @throws PortalException
 	*/
-	public org.liferay.jukebox.model.Song addSong(
-		org.liferay.jukebox.model.Song song);
+	@Override
+	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
+		throws PortalException;
+
+	@Override
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getSongsByAlbumIdCount(long albumId);
 
 	/**
-	* Creates a new song with the primary key. Does not add the song to the database.
+	* Returns the number of songs.
 	*
-	* @param songId the primary key for the new song
-	* @return the new song
+	* @return the number of songs
 	*/
-	public org.liferay.jukebox.model.Song createSong(long songId);
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getSongsCount();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getSongsCount(long groupId);
+
+	@Override
+	public java.lang.Object invokeMethod(java.lang.String name,
+		java.lang.String[] parameterTypes, java.lang.Object[] arguments)
+		throws java.lang.Throwable;
 
 	/**
-	* Deletes the song with the primary key from the database. Also notifies the appropriate model listeners.
+	* Returns the OSGi service identifier.
 	*
-	* @param songId the primary key of the song
-	* @return the song that was removed
-	* @throws PortalException if a song with the primary key could not be found
-	* @throws SystemException
+	* @return the OSGi service identifier
 	*/
-	public org.liferay.jukebox.model.Song deleteSong(long songId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	/**
-	* Deletes the song from the database. Also notifies the appropriate model listeners.
-	*
-	* @param song the song
-	* @return the song that was removed
-	*/
-	public org.liferay.jukebox.model.Song deleteSong(
-		org.liferay.jukebox.model.Song song);
-
-	public com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery();
+	public java.lang.String getOSGiServiceIdentifier();
 
 	/**
 	* Performs a dynamic query on the database and returns the matching rows.
@@ -91,9 +122,7 @@ public interface SongLocalService extends BaseLocalService, InvokableLocalServic
 	* @param dynamicQuery the dynamic query
 	* @return the matching rows
 	*/
-	@SuppressWarnings("rawtypes")
-	public java.util.List dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery);
 
 	/**
 	* Performs a dynamic query on the database and returns a range of the matching rows.
@@ -107,9 +136,7 @@ public interface SongLocalService extends BaseLocalService, InvokableLocalServic
 	* @param end the upper bound of the range of model instances (not inclusive)
 	* @return the range of matching rows
 	*/
-	@SuppressWarnings("rawtypes")
-	public java.util.List dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery, int start,
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
 		int end);
 
 	/**
@@ -125,114 +152,8 @@ public interface SongLocalService extends BaseLocalService, InvokableLocalServic
 	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	* @return the ordered range of matching rows
 	*/
-	@SuppressWarnings("rawtypes")
-	public java.util.List dynamicQuery(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery, int start,
-		int end,
-		com.liferay.portal.kernel.util.OrderByComparator orderByComparator);
-
-	/**
-	* Returns the number of rows that match the dynamic query.
-	*
-	* @param dynamicQuery the dynamic query
-	* @return the number of rows that match the dynamic query
-	*/
-	public long dynamicQueryCount(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery);
-
-	/**
-	* Returns the number of rows that match the dynamic query.
-	*
-	* @param dynamicQuery the dynamic query
-	* @param projection the projection to apply to the query
-	* @return the number of rows that match the dynamic query
-	*/
-	public long dynamicQueryCount(
-		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
-		com.liferay.portal.kernel.dao.orm.Projection projection);
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public org.liferay.jukebox.model.Song fetchSong(long songId);
-
-	/**
-	* Returns the song with the matching UUID and company.
-	*
-	* @param uuid the song's UUID
-	* @param companyId the primary key of the company
-	* @return the matching song, or <code>null</code> if a matching song could not be found
-	*/
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public org.liferay.jukebox.model.Song fetchSongByUuidAndCompanyId(
-		java.lang.String uuid, long companyId);
-
-	/**
-	* Returns the song matching the UUID and group.
-	*
-	* @param uuid the song's UUID
-	* @param groupId the primary key of the group
-	* @return the matching song, or <code>null</code> if a matching song could not be found
-	*/
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public org.liferay.jukebox.model.Song fetchSongByUuidAndGroupId(
-		java.lang.String uuid, long groupId);
-
-	/**
-	* Returns the song with the primary key.
-	*
-	* @param songId the primary key of the song
-	* @return the song
-	* @throws PortalException if a song with the primary key could not be found
-	*/
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public org.liferay.jukebox.model.Song getSong(long songId)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery();
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
-		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext);
-
-	/**
-	* @throws PortalException
-	*/
-	@Override
-	public com.liferay.portal.model.PersistedModel deletePersistedModel(
-		com.liferay.portal.model.PersistedModel persistedModel)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	@Override
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public com.liferay.portal.model.PersistedModel getPersistedModel(
-		java.io.Serializable primaryKeyObj)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	/**
-	* Returns the song with the matching UUID and company.
-	*
-	* @param uuid the song's UUID
-	* @param companyId the primary key of the company
-	* @return the matching song
-	* @throws PortalException if a matching song could not be found
-	*/
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public org.liferay.jukebox.model.Song getSongByUuidAndCompanyId(
-		java.lang.String uuid, long companyId)
-		throws com.liferay.portal.kernel.exception.PortalException;
-
-	/**
-	* Returns the song matching the UUID and group.
-	*
-	* @param uuid the song's UUID
-	* @param groupId the primary key of the group
-	* @return the matching song
-	* @throws PortalException if a matching song could not be found
-	*/
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public org.liferay.jukebox.model.Song getSongByUuidAndGroupId(
-		java.lang.String uuid, long groupId)
-		throws com.liferay.portal.kernel.exception.PortalException;
+	public <T> List<T> dynamicQuery(DynamicQuery dynamicQuery, int start,
+		int end, OrderByComparator<T> orderByComparator);
 
 	/**
 	* Returns a range of all the songs.
@@ -246,16 +167,168 @@ public interface SongLocalService extends BaseLocalService, InvokableLocalServic
 	* @return the range of songs
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<org.liferay.jukebox.model.Song> getSongs(int start,
-		int end);
+	public List<Song> getSongs(int start, int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Song> getSongs(long groupId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Song> getSongs(long groupId, int start, int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Song> getSongsByAlbumId(long albumId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Song> getSongsByAlbumId(long albumId, int start, int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Song> getSongsByAlbumId(long groupId, long albumId, int status);
 
 	/**
-	* Returns the number of songs.
+	* Returns all the songs matching the UUID and company.
 	*
-	* @return the number of songs
+	* @param uuid the UUID of the songs
+	* @param companyId the primary key of the company
+	* @return the matching songs, or an empty list if no matches were found
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getSongsCount();
+	public List<Song> getSongsByUuidAndCompanyId(java.lang.String uuid,
+		long companyId);
+
+	/**
+	* Returns a range of songs matching the UUID and company.
+	*
+	* @param uuid the UUID of the songs
+	* @param companyId the primary key of the company
+	* @param start the lower bound of the range of songs
+	* @param end the upper bound of the range of songs (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the range of matching songs, or an empty list if no matches were found
+	*/
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Song> getSongsByUuidAndCompanyId(java.lang.String uuid,
+		long companyId, int start, int end,
+		OrderByComparator<Song> orderByComparator);
+
+	/**
+	* Returns the number of rows matching the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @return the number of rows matching the dynamic query
+	*/
+	public long dynamicQueryCount(DynamicQuery dynamicQuery);
+
+	/**
+	* Returns the number of rows matching the dynamic query.
+	*
+	* @param dynamicQuery the dynamic query
+	* @param projection the projection to apply to the query
+	* @return the number of rows matching the dynamic query
+	*/
+	public long dynamicQueryCount(DynamicQuery dynamicQuery,
+		Projection projection);
+
+	@Indexable(type = IndexableType.REINDEX)
+	public Song addSong(long userId, long albumId, java.lang.String name,
+		java.lang.String songFileName, InputStream songInputStream,
+		java.lang.String lyricsFileName, InputStream lyricsInputStream,
+		ServiceContext serviceContext) throws PortalException;
+
+	/**
+	* Adds the song to the database. Also notifies the appropriate model listeners.
+	*
+	* @param song the song
+	* @return the song that was added
+	*/
+	@Indexable(type = IndexableType.REINDEX)
+	public Song addSong(Song song);
+
+	/**
+	* Creates a new song with the primary key. Does not add the song to the database.
+	*
+	* @param songId the primary key for the new song
+	* @return the new song
+	*/
+	public Song createSong(long songId);
+
+	/**
+	* Deletes the song with the primary key from the database. Also notifies the appropriate model listeners.
+	*
+	* @param songId the primary key of the song
+	* @return the song that was removed
+	* @throws PortalException if a song with the primary key could not be found
+	*/
+	@Indexable(type = IndexableType.DELETE)
+	public Song deleteSong(long songId) throws PortalException;
+
+	/**
+	* Deletes the song from the database. Also notifies the appropriate model listeners.
+	*
+	* @param song the song
+	* @return the song that was removed
+	*/
+	@Indexable(type = IndexableType.DELETE)
+	public Song deleteSong(Song song);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public Song fetchSong(long songId);
+
+	/**
+	* Returns the song matching the UUID and group.
+	*
+	* @param uuid the song's UUID
+	* @param groupId the primary key of the group
+	* @return the matching song, or <code>null</code> if a matching song could not be found
+	*/
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public Song fetchSongByUuidAndGroupId(java.lang.String uuid, long groupId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public Song getSong(long groupId, long artistId, long albumId,
+		java.lang.String name);
+
+	/**
+	* Returns the song with the primary key.
+	*
+	* @param songId the primary key of the song
+	* @return the song
+	* @throws PortalException if a song with the primary key could not be found
+	*/
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public Song getSong(long songId) throws PortalException;
+
+	/**
+	* Returns the song matching the UUID and group.
+	*
+	* @param uuid the song's UUID
+	* @param groupId the primary key of the group
+	* @return the matching song
+	* @throws PortalException if a matching song could not be found
+	*/
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public Song getSongByUuidAndGroupId(java.lang.String uuid, long groupId)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.REINDEX)
+	public Song moveSong(long songId, long albumId) throws PortalException;
+
+	public Song moveSongFromTrash(long userId, long songId, long albumId)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.REINDEX)
+	public Song moveSongToTrash(long userId, Song song)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.REINDEX)
+	public Song restoreSongFromTrash(long userId, long songId)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.REINDEX)
+	public Song updateSong(long userId, long songId, long albumId,
+		java.lang.String name, java.lang.String songFileName,
+		InputStream songInputStream, java.lang.String lyricsFileName,
+		InputStream lyricsInputStream, ServiceContext serviceContext)
+		throws PortalException;
 
 	/**
 	* Updates the song in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
@@ -263,113 +336,17 @@ public interface SongLocalService extends BaseLocalService, InvokableLocalServic
 	* @param song the song
 	* @return the song that was updated
 	*/
-	public org.liferay.jukebox.model.Song updateSong(
-		org.liferay.jukebox.model.Song song);
+	@Indexable(type = IndexableType.REINDEX)
+	public Song updateSong(Song song);
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public java.lang.String getBeanIdentifier();
+	public void addEntryResources(Song song, boolean addGroupPermissions,
+		boolean addGuestPermissions) throws PortalException;
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
-
-	@Override
-	public java.lang.Object invokeMethod(java.lang.String name,
-		java.lang.String[] parameterTypes, java.lang.Object[] arguments)
-		throws java.lang.Throwable;
-
-	public void addEntryResources(org.liferay.jukebox.model.Song song,
-		boolean addGroupPermissions, boolean addGuestPermissions)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	public void addEntryResources(org.liferay.jukebox.model.Song song,
+	public void addEntryResources(Song song,
 		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+		throws PortalException;
 
-	public org.liferay.jukebox.model.Song addSong(long userId, long albumId,
-		java.lang.String name, java.lang.String songFileName,
-		java.io.InputStream songInputStream, java.lang.String lyricsFileName,
-		java.io.InputStream lyricsInputStream,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public org.liferay.jukebox.model.Song getSong(long groupId, long artistId,
-		long albumId, java.lang.String name)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<org.liferay.jukebox.model.Song> getSongs(long groupId)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<org.liferay.jukebox.model.Song> getSongs(
-		long groupId, int start, int end)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<org.liferay.jukebox.model.Song> getSongsByAlbumId(
-		long albumId)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<org.liferay.jukebox.model.Song> getSongsByAlbumId(
-		long albumId, int start, int end)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<org.liferay.jukebox.model.Song> getSongsByAlbumId(
-		long groupId, long albumId, int status)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getSongsByAlbumIdCount(long albumId)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getSongsCount(long groupId)
-		throws com.liferay.portal.kernel.exception.SystemException;
-
-	public org.liferay.jukebox.model.Song moveSong(long songId, long albumId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	public org.liferay.jukebox.model.Song moveSongFromTrash(long userId,
-		long songId, long albumId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	public org.liferay.jukebox.model.Song moveSongToTrash(long userId,
-		org.liferay.jukebox.model.Song song)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	public org.liferay.jukebox.model.Song restoreSongFromTrash(long userId,
-		long songId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	public void updateAsset(long userId, org.liferay.jukebox.model.Song song,
-		long[] assetCategoryIds, java.lang.String[] assetTagNames,
-		long[] assetLinkEntryIds)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	public org.liferay.jukebox.model.Song updateSong(long userId, long songId,
-		long albumId, java.lang.String name, java.lang.String songFileName,
-		java.io.InputStream songInputStream, java.lang.String lyricsFileName,
-		java.io.InputStream lyricsInputStream,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+	public void updateAsset(long userId, Song song, long[] assetCategoryIds,
+		java.lang.String[] assetTagNames, long[] assetLinkEntryIds)
+		throws PortalException;
 }

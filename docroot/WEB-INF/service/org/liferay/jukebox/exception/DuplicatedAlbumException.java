@@ -12,28 +12,30 @@
  * details.
  */
 
-package org.liferay.jukebox;
+package org.liferay.jukebox.exception;
 
-import com.liferay.portal.NoSuchModelException;
+import aQute.bnd.annotation.ProviderType;
+
+import com.liferay.portal.kernel.exception.PortalException;
 
 /**
  * @author Julio Camarero
  */
-public class NoSuchAlbumException extends NoSuchModelException {
+@ProviderType
+public class DuplicatedAlbumException extends PortalException {
 
-	public NoSuchAlbumException() {
-		super();
+	public DuplicatedAlbumException() {
 	}
 
-	public NoSuchAlbumException(String msg) {
+	public DuplicatedAlbumException(String msg) {
 		super(msg);
 	}
 
-	public NoSuchAlbumException(String msg, Throwable cause) {
+	public DuplicatedAlbumException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
 
-	public NoSuchAlbumException(Throwable cause) {
+	public DuplicatedAlbumException(Throwable cause) {
 		super(cause);
 	}
 

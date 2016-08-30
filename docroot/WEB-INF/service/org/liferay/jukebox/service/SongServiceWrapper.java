@@ -14,7 +14,9 @@
 
 package org.liferay.jukebox.service;
 
-import com.liferay.portal.service.ServiceWrapper;
+import aQute.bnd.annotation.ProviderType;
+
+import com.liferay.portal.kernel.service.ServiceWrapper;
 
 /**
  * Provides a wrapper for {@link SongService}.
@@ -23,30 +25,31 @@ import com.liferay.portal.service.ServiceWrapper;
  * @see SongService
  * @generated
  */
+@ProviderType
 public class SongServiceWrapper implements SongService,
 	ServiceWrapper<SongService> {
 	public SongServiceWrapper(SongService songService) {
 		_songService = songService;
 	}
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
 	@Override
-	public java.lang.String getBeanIdentifier() {
-		return _songService.getBeanIdentifier();
+	public int getSongsCount(long groupId) {
+		return _songService.getSongsCount(groupId);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
 	@Override
-	public void setBeanIdentifier(java.lang.String beanIdentifier) {
-		_songService.setBeanIdentifier(beanIdentifier);
+	public int getSongsCount(long groupId, java.lang.String keywords) {
+		return _songService.getSongsCount(groupId, keywords);
+	}
+
+	@Override
+	public int getSongsCountByAlbumId(long groupId, long albumId) {
+		return _songService.getSongsCountByAlbumId(groupId, albumId);
+	}
+
+	@Override
+	public int getSongsCountByAlbumId(long groupId, long albumId, int status) {
+		return _songService.getSongsCountByAlbumId(groupId, albumId, status);
 	}
 
 	@Override
@@ -56,95 +59,72 @@ public class SongServiceWrapper implements SongService,
 		return _songService.invokeMethod(name, parameterTypes, arguments);
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	@Override
+	public java.lang.String getOSGiServiceIdentifier() {
+		return _songService.getOSGiServiceIdentifier();
+	}
+
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Song> getSongs(long groupId) {
+		return _songService.getSongs(groupId);
+	}
+
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Song> getSongs(
+		long groupId, int start, int end) {
+		return _songService.getSongs(groupId, start, end);
+	}
+
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Song> getSongs(
+		long groupId, java.lang.String keywords) {
+		return _songService.getSongs(groupId, keywords);
+	}
+
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Song> getSongsByAlbumId(
+		long groupId, long albumId) {
+		return _songService.getSongsByAlbumId(groupId, albumId);
+	}
+
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Song> getSongsByAlbumId(
+		long groupId, long albumId, int status) {
+		return _songService.getSongsByAlbumId(groupId, albumId, status);
+	}
+
 	@Override
 	public org.liferay.jukebox.model.Song addSong(long albumId,
 		java.lang.String name, java.lang.String songFileName,
 		java.io.InputStream songInputStream, java.lang.String lyricsFileName,
 		java.io.InputStream lyricsInputStream,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return _songService.addSong(albumId, name, songFileName,
 			songInputStream, lyricsFileName, lyricsInputStream, serviceContext);
 	}
 
 	@Override
 	public org.liferay.jukebox.model.Song deleteSong(long songId,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return _songService.deleteSong(songId, serviceContext);
 	}
 
 	@Override
-	public java.util.List<org.liferay.jukebox.model.Song> getSongs(long groupId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _songService.getSongs(groupId);
-	}
-
-	@Override
-	public java.util.List<org.liferay.jukebox.model.Song> getSongs(
-		long groupId, int start, int end)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _songService.getSongs(groupId, start, end);
-	}
-
-	@Override
-	public java.util.List<org.liferay.jukebox.model.Song> getSongs(
-		long groupId, java.lang.String keywords)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _songService.getSongs(groupId, keywords);
-	}
-
-	@Override
-	public java.util.List<org.liferay.jukebox.model.Song> getSongsByAlbumId(
-		long groupId, long albumId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _songService.getSongsByAlbumId(groupId, albumId);
-	}
-
-	@Override
-	public java.util.List<org.liferay.jukebox.model.Song> getSongsByAlbumId(
-		long groupId, long albumId, int status)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _songService.getSongsByAlbumId(groupId, albumId, status);
-	}
-
-	@Override
-	public int getSongsCount(long groupId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _songService.getSongsCount(groupId);
-	}
-
-	@Override
-	public int getSongsCount(long groupId, java.lang.String keywords)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _songService.getSongsCount(groupId, keywords);
-	}
-
-	@Override
-	public int getSongsCountByAlbumId(long groupId, long albumId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _songService.getSongsCountByAlbumId(groupId, albumId);
-	}
-
-	@Override
-	public int getSongsCountByAlbumId(long groupId, long albumId, int status)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _songService.getSongsCountByAlbumId(groupId, albumId, status);
-	}
-
-	@Override
 	public org.liferay.jukebox.model.Song moveSongToTrash(long songId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return _songService.moveSongToTrash(songId);
 	}
 
 	@Override
 	public org.liferay.jukebox.model.Song restoreSongFromTrash(long songId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return _songService.restoreSongFromTrash(songId);
 	}
 
@@ -153,27 +133,10 @@ public class SongServiceWrapper implements SongService,
 		java.lang.String name, java.lang.String songFileName,
 		java.io.InputStream songInputStream, java.lang.String lyricsFileName,
 		java.io.InputStream lyricsInputStream,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return _songService.updateSong(songId, albumId, name, songFileName,
 			songInputStream, lyricsFileName, lyricsInputStream, serviceContext);
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedService}
-	 */
-	@Deprecated
-	public SongService getWrappedSongService() {
-		return _songService;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #setWrappedService}
-	 */
-	@Deprecated
-	public void setWrappedSongService(SongService songService) {
-		_songService = songService;
 	}
 
 	@Override

@@ -14,6 +14,8 @@
 
 package org.liferay.jukebox.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 
@@ -23,7 +25,7 @@ import java.rmi.RemoteException;
 
 /**
  * Provides the SOAP utility for the
- * {@link org.liferay.jukebox.service.AlbumServiceUtil} service utility. The
+ * {@link AlbumServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -58,12 +60,14 @@ import java.rmi.RemoteException;
  * @author Julio Camarero
  * @see AlbumServiceHttp
  * @see org.liferay.jukebox.model.AlbumSoap
- * @see org.liferay.jukebox.service.AlbumServiceUtil
+ * @see AlbumServiceUtil
  * @generated
  */
+@ProviderType
 public class AlbumServiceSoap {
 	public static org.liferay.jukebox.model.AlbumSoap deleteAlbum(
-		long albumId, com.liferay.portal.service.ServiceContext serviceContext)
+		long albumId,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws RemoteException {
 		try {
 			org.liferay.jukebox.model.Album returnValue = AlbumServiceUtil.deleteAlbum(albumId,

@@ -14,7 +14,11 @@
 
 package org.liferay.jukebox.model;
 
-import com.liferay.portal.model.PersistedModel;
+import aQute.bnd.annotation.ProviderType;
+
+import com.liferay.portal.kernel.annotation.ImplementationClassName;
+import com.liferay.portal.kernel.model.PersistedModel;
+import com.liferay.portal.kernel.util.Accessor;
 
 /**
  * The extended model interface for the Song service. Represents a row in the &quot;jukebox_Song&quot; database table, with each column mapped to a property of this class.
@@ -25,24 +29,40 @@ import com.liferay.portal.model.PersistedModel;
  * @see org.liferay.jukebox.model.impl.SongModelImpl
  * @generated
  */
+@ImplementationClassName("org.liferay.jukebox.model.impl.SongImpl")
+@ProviderType
 public interface Song extends SongModel, PersistedModel {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify this interface directly. Add methods to {@link org.liferay.jukebox.model.impl.SongImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	public static final Accessor<Song, Long> SONG_ID_ACCESSOR = new Accessor<Song, Long>() {
+			@Override
+			public Long get(Song song) {
+				return song.getSongId();
+			}
+
+			@Override
+			public Class<Long> getAttributeClass() {
+				return Long.class;
+			}
+
+			@Override
+			public Class<Song> getTypeClass() {
+				return Song.class;
+			}
+		};
+
 	public java.lang.String getImageURL(
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
-		throws com.liferay.portal.kernel.exception.SystemException;
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay);
 
 	public java.lang.String getLyricsURL(
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
+		throws com.liferay.portal.kernel.exception.PortalException;
 
 	public java.lang.String getSongURL(
-		com.liferay.portal.theme.ThemeDisplay themeDisplay,
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay,
 		java.lang.String audioContainer)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+		throws com.liferay.portal.kernel.exception.PortalException;
 }

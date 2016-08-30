@@ -14,9 +14,12 @@
 
 package org.liferay.jukebox.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
-import com.liferay.portal.model.CacheModel;
 
 import org.liferay.jukebox.model.Song;
 
@@ -34,7 +37,32 @@ import java.util.Date;
  * @see Song
  * @generated
  */
+@ProviderType
 public class SongCacheModel implements CacheModel<Song>, Externalizable {
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (!(obj instanceof SongCacheModel)) {
+			return false;
+		}
+
+		SongCacheModel songCacheModel = (SongCacheModel)obj;
+
+		if (songId == songCacheModel.songId) {
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return HashUtil.hash(0, songId);
+	}
+
 	@Override
 	public String toString() {
 		StringBundler sb = new StringBundler(31);
@@ -146,17 +174,25 @@ public class SongCacheModel implements CacheModel<Song>, Externalizable {
 	@Override
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		uuid = objectInput.readUTF();
+
 		songId = objectInput.readLong();
+
 		companyId = objectInput.readLong();
+
 		groupId = objectInput.readLong();
+
 		userId = objectInput.readLong();
 		userName = objectInput.readUTF();
 		createDate = objectInput.readLong();
 		modifiedDate = objectInput.readLong();
+
 		artistId = objectInput.readLong();
+
 		albumId = objectInput.readLong();
 		name = objectInput.readUTF();
+
 		status = objectInput.readInt();
+
 		statusByUserId = objectInput.readLong();
 		statusByUserName = objectInput.readUTF();
 		statusDate = objectInput.readLong();
@@ -173,8 +209,11 @@ public class SongCacheModel implements CacheModel<Song>, Externalizable {
 		}
 
 		objectOutput.writeLong(songId);
+
 		objectOutput.writeLong(companyId);
+
 		objectOutput.writeLong(groupId);
+
 		objectOutput.writeLong(userId);
 
 		if (userName == null) {
@@ -186,7 +225,9 @@ public class SongCacheModel implements CacheModel<Song>, Externalizable {
 
 		objectOutput.writeLong(createDate);
 		objectOutput.writeLong(modifiedDate);
+
 		objectOutput.writeLong(artistId);
+
 		objectOutput.writeLong(albumId);
 
 		if (name == null) {
@@ -197,6 +238,7 @@ public class SongCacheModel implements CacheModel<Song>, Externalizable {
 		}
 
 		objectOutput.writeInt(status);
+
 		objectOutput.writeLong(statusByUserId);
 
 		if (statusByUserName == null) {

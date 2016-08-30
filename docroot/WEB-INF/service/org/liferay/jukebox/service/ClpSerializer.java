@@ -14,14 +14,16 @@
 
 package org.liferay.jukebox.service;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.util.ClassLoaderObjectInputStream;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.BaseModel;
 
 import org.liferay.jukebox.model.AlbumClp;
 import org.liferay.jukebox.model.ArtistClp;
@@ -38,6 +40,7 @@ import java.util.List;
 /**
  * @author Julio Camarero
  */
+@ProviderType
 public class ClpSerializer {
 	public static String getServletContextName() {
 		if (Validator.isNotNull(_servletContextName)) {
@@ -179,14 +182,110 @@ public class ClpSerializer {
 		if (oldModelClassName.equals("org.liferay.jukebox.model.impl.AlbumImpl")) {
 			return translateOutputAlbum(oldModel);
 		}
+		else if (oldModelClassName.endsWith("Clp")) {
+			try {
+				ClassLoader classLoader = ClpSerializer.class.getClassLoader();
+
+				Method getClpSerializerClassMethod = oldModelClass.getMethod(
+						"getClpSerializerClass");
+
+				Class<?> oldClpSerializerClass = (Class<?>)getClpSerializerClassMethod.invoke(oldModel);
+
+				Class<?> newClpSerializerClass = classLoader.loadClass(oldClpSerializerClass.getName());
+
+				Method translateOutputMethod = newClpSerializerClass.getMethod("translateOutput",
+						BaseModel.class);
+
+				Class<?> oldModelModelClass = oldModel.getModelClass();
+
+				Method getRemoteModelMethod = oldModelClass.getMethod("get" +
+						oldModelModelClass.getSimpleName() + "RemoteModel");
+
+				Object oldRemoteModel = getRemoteModelMethod.invoke(oldModel);
+
+				BaseModel<?> newModel = (BaseModel<?>)translateOutputMethod.invoke(null,
+						oldRemoteModel);
+
+				return newModel;
+			}
+			catch (Throwable t) {
+				if (_log.isInfoEnabled()) {
+					_log.info("Unable to translate " + oldModelClassName, t);
+				}
+			}
+		}
 
 		if (oldModelClassName.equals(
 					"org.liferay.jukebox.model.impl.ArtistImpl")) {
 			return translateOutputArtist(oldModel);
 		}
+		else if (oldModelClassName.endsWith("Clp")) {
+			try {
+				ClassLoader classLoader = ClpSerializer.class.getClassLoader();
+
+				Method getClpSerializerClassMethod = oldModelClass.getMethod(
+						"getClpSerializerClass");
+
+				Class<?> oldClpSerializerClass = (Class<?>)getClpSerializerClassMethod.invoke(oldModel);
+
+				Class<?> newClpSerializerClass = classLoader.loadClass(oldClpSerializerClass.getName());
+
+				Method translateOutputMethod = newClpSerializerClass.getMethod("translateOutput",
+						BaseModel.class);
+
+				Class<?> oldModelModelClass = oldModel.getModelClass();
+
+				Method getRemoteModelMethod = oldModelClass.getMethod("get" +
+						oldModelModelClass.getSimpleName() + "RemoteModel");
+
+				Object oldRemoteModel = getRemoteModelMethod.invoke(oldModel);
+
+				BaseModel<?> newModel = (BaseModel<?>)translateOutputMethod.invoke(null,
+						oldRemoteModel);
+
+				return newModel;
+			}
+			catch (Throwable t) {
+				if (_log.isInfoEnabled()) {
+					_log.info("Unable to translate " + oldModelClassName, t);
+				}
+			}
+		}
 
 		if (oldModelClassName.equals("org.liferay.jukebox.model.impl.SongImpl")) {
 			return translateOutputSong(oldModel);
+		}
+		else if (oldModelClassName.endsWith("Clp")) {
+			try {
+				ClassLoader classLoader = ClpSerializer.class.getClassLoader();
+
+				Method getClpSerializerClassMethod = oldModelClass.getMethod(
+						"getClpSerializerClass");
+
+				Class<?> oldClpSerializerClass = (Class<?>)getClpSerializerClassMethod.invoke(oldModel);
+
+				Class<?> newClpSerializerClass = classLoader.loadClass(oldClpSerializerClass.getName());
+
+				Method translateOutputMethod = newClpSerializerClass.getMethod("translateOutput",
+						BaseModel.class);
+
+				Class<?> oldModelModelClass = oldModel.getModelClass();
+
+				Method getRemoteModelMethod = oldModelClass.getMethod("get" +
+						oldModelModelClass.getSimpleName() + "RemoteModel");
+
+				Object oldRemoteModel = getRemoteModelMethod.invoke(oldModel);
+
+				BaseModel<?> newModel = (BaseModel<?>)translateOutputMethod.invoke(null,
+						oldRemoteModel);
+
+				return newModel;
+			}
+			catch (Throwable t) {
+				if (_log.isInfoEnabled()) {
+					_log.info("Unable to translate " + oldModelClassName, t);
+				}
+			}
 		}
 
 		return oldModel;
@@ -268,63 +367,73 @@ public class ClpSerializer {
 
 		String className = clazz.getName();
 
-		if (className.equals("org.liferay.jukebox.AlbumNameException")) {
-			return new org.liferay.jukebox.AlbumNameException(throwable.getMessage(),
+		if (className.equals("org.liferay.jukebox.exception.AlbumNameException")) {
+			return new org.liferay.jukebox.exception.AlbumNameException(throwable.getMessage(),
 				throwable.getCause());
 		}
 
-		if (className.equals("org.liferay.jukebox.ArtistNameException")) {
-			return new org.liferay.jukebox.ArtistNameException(throwable.getMessage(),
+		if (className.equals(
+					"org.liferay.jukebox.exception.ArtistNameException")) {
+			return new org.liferay.jukebox.exception.ArtistNameException(throwable.getMessage(),
 				throwable.getCause());
 		}
 
-		if (className.equals("org.liferay.jukebox.DuplicatedAlbumException")) {
-			return new org.liferay.jukebox.DuplicatedAlbumException(throwable.getMessage(),
+		if (className.equals(
+					"org.liferay.jukebox.exception.DuplicatedAlbumException")) {
+			return new org.liferay.jukebox.exception.DuplicatedAlbumException(throwable.getMessage(),
 				throwable.getCause());
 		}
 
-		if (className.equals("org.liferay.jukebox.DuplicatedArtistException")) {
-			return new org.liferay.jukebox.DuplicatedArtistException(throwable.getMessage(),
+		if (className.equals(
+					"org.liferay.jukebox.exception.DuplicatedArtistException")) {
+			return new org.liferay.jukebox.exception.DuplicatedArtistException(throwable.getMessage(),
 				throwable.getCause());
 		}
 
-		if (className.equals("org.liferay.jukebox.DuplicatedSongException")) {
-			return new org.liferay.jukebox.DuplicatedSongException(throwable.getMessage(),
+		if (className.equals(
+					"org.liferay.jukebox.exception.DuplicatedSongException")) {
+			return new org.liferay.jukebox.exception.DuplicatedSongException(throwable.getMessage(),
 				throwable.getCause());
 		}
 
-		if (className.equals("org.liferay.jukebox.NoSuchAlbumException")) {
-			return new org.liferay.jukebox.NoSuchAlbumException(throwable.getMessage(),
+		if (className.equals(
+					"org.liferay.jukebox.exception.NoSuchAlbumException")) {
+			return new org.liferay.jukebox.exception.NoSuchAlbumException(throwable.getMessage(),
 				throwable.getCause());
 		}
 
-		if (className.equals("org.liferay.jukebox.NoSuchArtistException")) {
-			return new org.liferay.jukebox.NoSuchArtistException(throwable.getMessage(),
+		if (className.equals(
+					"org.liferay.jukebox.exception.NoSuchArtistException")) {
+			return new org.liferay.jukebox.exception.NoSuchArtistException(throwable.getMessage(),
 				throwable.getCause());
 		}
 
-		if (className.equals("org.liferay.jukebox.NoSuchSongException")) {
-			return new org.liferay.jukebox.NoSuchSongException(throwable.getMessage(),
+		if (className.equals(
+					"org.liferay.jukebox.exception.NoSuchSongException")) {
+			return new org.liferay.jukebox.exception.NoSuchSongException(throwable.getMessage(),
 				throwable.getCause());
 		}
 
-		if (className.equals("org.liferay.jukebox.SongNameException")) {
-			return new org.liferay.jukebox.SongNameException(throwable.getMessage(),
+		if (className.equals("org.liferay.jukebox.exception.SongNameException")) {
+			return new org.liferay.jukebox.exception.SongNameException(throwable.getMessage(),
 				throwable.getCause());
 		}
 
-		if (className.equals("org.liferay.jukebox.NoSuchAlbumException")) {
-			return new org.liferay.jukebox.NoSuchAlbumException(throwable.getMessage(),
+		if (className.equals(
+					"org.liferay.jukebox.exception.NoSuchAlbumException")) {
+			return new org.liferay.jukebox.exception.NoSuchAlbumException(throwable.getMessage(),
 				throwable.getCause());
 		}
 
-		if (className.equals("org.liferay.jukebox.NoSuchArtistException")) {
-			return new org.liferay.jukebox.NoSuchArtistException(throwable.getMessage(),
+		if (className.equals(
+					"org.liferay.jukebox.exception.NoSuchArtistException")) {
+			return new org.liferay.jukebox.exception.NoSuchArtistException(throwable.getMessage(),
 				throwable.getCause());
 		}
 
-		if (className.equals("org.liferay.jukebox.NoSuchSongException")) {
-			return new org.liferay.jukebox.NoSuchSongException(throwable.getMessage(),
+		if (className.equals(
+					"org.liferay.jukebox.exception.NoSuchSongException")) {
+			return new org.liferay.jukebox.exception.NoSuchSongException(throwable.getMessage(),
 				throwable.getCause());
 		}
 

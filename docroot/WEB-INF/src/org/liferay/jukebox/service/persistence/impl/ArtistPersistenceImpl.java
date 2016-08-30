@@ -14,8 +14,12 @@
 
 package org.liferay.jukebox.service.persistence.impl;
 
-import com.liferay.portal.kernel.cache.CacheRegistryUtil;
+import aQute.bnd.annotation.ProviderType;
+
+import com.liferay.portal.kernel.bean.BeanReference;
+import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
+import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
@@ -25,24 +29,23 @@ import com.liferay.portal.kernel.dao.orm.SQLQuery;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.service.persistence.CompanyProvider;
+import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
+import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.CharPool;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.security.permission.InlineSQLHelperUtil;
-import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
-import org.liferay.jukebox.NoSuchArtistException;
+import org.liferay.jukebox.exception.NoSuchArtistException;
 import org.liferay.jukebox.model.Artist;
 import org.liferay.jukebox.model.impl.ArtistImpl;
 import org.liferay.jukebox.model.impl.ArtistModelImpl;
@@ -50,13 +53,14 @@ import org.liferay.jukebox.service.persistence.ArtistPersistence;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -68,9 +72,10 @@ import java.util.Set;
  *
  * @author Julio Camarero
  * @see ArtistPersistence
- * @see ArtistUtil
+ * @see org.liferay.jukebox.service.persistence.ArtistUtil
  * @generated
  */
+@ProviderType
 public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	implements ArtistPersistence {
 	/*
@@ -126,7 +131,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns a range of all the artists where uuid = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -143,7 +148,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns an ordered range of all the artists where uuid = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -154,7 +159,27 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public List<Artist> findByUuid(String uuid, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
+		return findByUuid(uuid, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the artists where uuid = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param uuid the uuid
+	 * @param start the lower bound of the range of artists
+	 * @param end the upper bound of the range of artists (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching artists
+	 */
+	@Override
+	public List<Artist> findByUuid(String uuid, int start, int end,
+		OrderByComparator<Artist> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -170,15 +195,19 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 			finderArgs = new Object[] { uuid, start, end, orderByComparator };
 		}
 
-		List<Artist> list = (List<Artist>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Artist> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Artist artist : list) {
-				if (!Validator.equals(uuid, artist.getUuid())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Artist>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Artist artist : list) {
+					if (!Objects.equals(uuid, artist.getUuid())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -188,7 +217,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -249,10 +278,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -270,11 +299,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByUuid_First(String uuid,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByUuid_First(uuid, orderByComparator);
 
 		if (artist != null) {
@@ -302,7 +332,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByUuid_First(String uuid,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		List<Artist> list = findByUuid(uuid, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -318,11 +348,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByUuid_Last(String uuid,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByUuid_Last(uuid, orderByComparator);
 
 		if (artist != null) {
@@ -350,7 +381,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByUuid_Last(String uuid,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		int count = countByUuid(uuid);
 
 		if (count == 0) {
@@ -373,11 +404,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist[] findByUuid_PrevAndNext(long artistId, String uuid,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = findByPrimaryKey(artistId);
 
 		Session session = null;
@@ -406,12 +438,14 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	}
 
 	protected Artist getByUuid_PrevAndNext(Session session, Artist artist,
-		String uuid, OrderByComparator orderByComparator, boolean previous) {
+		String uuid, OrderByComparator<Artist> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -548,8 +582,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 		Object[] finderArgs = new Object[] { uuid };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -587,10 +620,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -617,12 +650,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 			new String[] { String.class.getName(), Long.class.getName() });
 
 	/**
-	 * Returns the artist where uuid = &#63; and groupId = &#63; or throws a {@link org.liferay.jukebox.NoSuchArtistException} if it could not be found.
+	 * Returns the artist where uuid = &#63; and groupId = &#63; or throws a {@link NoSuchArtistException} if it could not be found.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @return the matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByUUID_G(String uuid, long groupId)
@@ -642,8 +675,8 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 			msg.append(StringPool.CLOSE_CURLY_BRACE);
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(msg.toString());
+			if (_log.isDebugEnabled()) {
+				_log.debug(msg.toString());
 			}
 
 			throw new NoSuchArtistException(msg.toString());
@@ -669,7 +702,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @param retrieveFromCache whether to use the finder cache
+	 * @param retrieveFromCache whether to retrieve from the finder cache
 	 * @return the matching artist, or <code>null</code> if a matching artist could not be found
 	 */
 	@Override
@@ -680,14 +713,14 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 		Object result = null;
 
 		if (retrieveFromCache) {
-			result = FinderCacheUtil.getResult(FINDER_PATH_FETCH_BY_UUID_G,
+			result = finderCache.getResult(FINDER_PATH_FETCH_BY_UUID_G,
 					finderArgs, this);
 		}
 
 		if (result instanceof Artist) {
 			Artist artist = (Artist)result;
 
-			if (!Validator.equals(uuid, artist.getUuid()) ||
+			if (!Objects.equals(uuid, artist.getUuid()) ||
 					(groupId != artist.getGroupId())) {
 				result = null;
 			}
@@ -734,7 +767,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 				List<Artist> list = q.list();
 
 				if (list.isEmpty()) {
-					FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_UUID_G,
+					finderCache.putResult(FINDER_PATH_FETCH_BY_UUID_G,
 						finderArgs, list);
 				}
 				else {
@@ -747,14 +780,13 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 					if ((artist.getUuid() == null) ||
 							!artist.getUuid().equals(uuid) ||
 							(artist.getGroupId() != groupId)) {
-						FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_UUID_G,
+						finderCache.putResult(FINDER_PATH_FETCH_BY_UUID_G,
 							finderArgs, artist);
 					}
 				}
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_UUID_G,
-					finderArgs);
+				finderCache.removeResult(FINDER_PATH_FETCH_BY_UUID_G, finderArgs);
 
 				throw processException(e);
 			}
@@ -799,8 +831,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 		Object[] finderArgs = new Object[] { uuid, groupId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -842,10 +873,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -899,7 +930,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns a range of all the artists where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -918,7 +949,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns an ordered range of all the artists where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -930,7 +961,29 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public List<Artist> findByUuid_C(String uuid, long companyId, int start,
-		int end, OrderByComparator orderByComparator) {
+		int end, OrderByComparator<Artist> orderByComparator) {
+		return findByUuid_C(uuid, companyId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the artists where uuid = &#63; and companyId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param uuid the uuid
+	 * @param companyId the company ID
+	 * @param start the lower bound of the range of artists
+	 * @param end the upper bound of the range of artists (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching artists
+	 */
+	@Override
+	public List<Artist> findByUuid_C(String uuid, long companyId, int start,
+		int end, OrderByComparator<Artist> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -950,16 +1003,20 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 				};
 		}
 
-		List<Artist> list = (List<Artist>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Artist> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Artist artist : list) {
-				if (!Validator.equals(uuid, artist.getUuid()) ||
-						(companyId != artist.getCompanyId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Artist>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Artist artist : list) {
+					if (!Objects.equals(uuid, artist.getUuid()) ||
+							(companyId != artist.getCompanyId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -969,7 +1026,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -1034,10 +1091,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -1056,11 +1113,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByUuid_C_First(String uuid, long companyId,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByUuid_C_First(uuid, companyId, orderByComparator);
 
 		if (artist != null) {
@@ -1092,7 +1150,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByUuid_C_First(String uuid, long companyId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		List<Artist> list = findByUuid_C(uuid, companyId, 0, 1,
 				orderByComparator);
 
@@ -1110,11 +1168,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByUuid_C_Last(String uuid, long companyId,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByUuid_C_Last(uuid, companyId, orderByComparator);
 
 		if (artist != null) {
@@ -1146,7 +1205,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByUuid_C_Last(String uuid, long companyId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		int count = countByUuid_C(uuid, companyId);
 
 		if (count == 0) {
@@ -1171,11 +1230,11 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist[] findByUuid_C_PrevAndNext(long artistId, String uuid,
-		long companyId, OrderByComparator orderByComparator)
+		long companyId, OrderByComparator<Artist> orderByComparator)
 		throws NoSuchArtistException {
 		Artist artist = findByPrimaryKey(artistId);
 
@@ -1205,16 +1264,17 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	}
 
 	protected Artist getByUuid_C_PrevAndNext(Session session, Artist artist,
-		String uuid, long companyId, OrderByComparator orderByComparator,
-		boolean previous) {
+		String uuid, long companyId,
+		OrderByComparator<Artist> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_ARTIST_WHERE);
@@ -1354,8 +1414,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 		Object[] finderArgs = new Object[] { uuid, companyId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -1397,10 +1456,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -1451,7 +1510,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns a range of all the artists where groupId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -1468,7 +1527,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns an ordered range of all the artists where groupId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -1479,7 +1538,27 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public List<Artist> findByGroupId(long groupId, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
+		return findByGroupId(groupId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the artists where groupId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param start the lower bound of the range of artists
+	 * @param end the upper bound of the range of artists (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching artists
+	 */
+	@Override
+	public List<Artist> findByGroupId(long groupId, int start, int end,
+		OrderByComparator<Artist> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1495,15 +1574,19 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 			finderArgs = new Object[] { groupId, start, end, orderByComparator };
 		}
 
-		List<Artist> list = (List<Artist>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Artist> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Artist artist : list) {
-				if ((groupId != artist.getGroupId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Artist>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Artist artist : list) {
+					if ((groupId != artist.getGroupId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -1513,7 +1596,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -1560,10 +1643,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -1581,11 +1664,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByGroupId_First(long groupId,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByGroupId_First(groupId, orderByComparator);
 
 		if (artist != null) {
@@ -1613,7 +1697,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByGroupId_First(long groupId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		List<Artist> list = findByGroupId(groupId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -1629,11 +1713,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByGroupId_Last(groupId, orderByComparator);
 
 		if (artist != null) {
@@ -1661,7 +1746,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		int count = countByGroupId(groupId);
 
 		if (count == 0) {
@@ -1685,11 +1770,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist[] findByGroupId_PrevAndNext(long artistId, long groupId,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = findByPrimaryKey(artistId);
 
 		Session session = null;
@@ -1718,12 +1804,14 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	}
 
 	protected Artist getByGroupId_PrevAndNext(Session session, Artist artist,
-		long groupId, OrderByComparator orderByComparator, boolean previous) {
+		long groupId, OrderByComparator<Artist> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -1837,7 +1925,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns a range of all the artists that the user has permission to view where groupId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -1854,7 +1942,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns an ordered range of all the artists that the user has permissions to view where groupId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -1865,7 +1953,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public List<Artist> filterFindByGroupId(long groupId, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
@@ -1874,10 +1962,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(3 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -1951,11 +2039,11 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist[] filterFindByGroupId_PrevAndNext(long artistId,
-		long groupId, OrderByComparator orderByComparator)
+		long groupId, OrderByComparator<Artist> orderByComparator)
 		throws NoSuchArtistException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByGroupId_PrevAndNext(artistId, groupId,
@@ -1990,16 +2078,17 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	}
 
 	protected Artist filterGetByGroupId_PrevAndNext(Session session,
-		Artist artist, long groupId, OrderByComparator orderByComparator,
-		boolean previous) {
+		Artist artist, long groupId,
+		OrderByComparator<Artist> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -2154,8 +2243,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 		Object[] finderArgs = new Object[] { groupId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -2179,10 +2267,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2278,7 +2366,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns a range of all the artists where userId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -2295,7 +2383,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns an ordered range of all the artists where userId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -2306,7 +2394,27 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public List<Artist> findByUserId(long userId, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
+		return findByUserId(userId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the artists where userId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param userId the user ID
+	 * @param start the lower bound of the range of artists
+	 * @param end the upper bound of the range of artists (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching artists
+	 */
+	@Override
+	public List<Artist> findByUserId(long userId, int start, int end,
+		OrderByComparator<Artist> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2322,15 +2430,19 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 			finderArgs = new Object[] { userId, start, end, orderByComparator };
 		}
 
-		List<Artist> list = (List<Artist>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Artist> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Artist artist : list) {
-				if ((userId != artist.getUserId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Artist>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Artist artist : list) {
+					if ((userId != artist.getUserId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -2340,7 +2452,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -2387,10 +2499,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2408,11 +2520,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByUserId_First(long userId,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByUserId_First(userId, orderByComparator);
 
 		if (artist != null) {
@@ -2440,7 +2553,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByUserId_First(long userId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		List<Artist> list = findByUserId(userId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -2456,11 +2569,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByUserId_Last(long userId,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByUserId_Last(userId, orderByComparator);
 
 		if (artist != null) {
@@ -2488,7 +2602,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByUserId_Last(long userId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		int count = countByUserId(userId);
 
 		if (count == 0) {
@@ -2512,11 +2626,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist[] findByUserId_PrevAndNext(long artistId, long userId,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = findByPrimaryKey(artistId);
 
 		Session session = null;
@@ -2545,12 +2660,14 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	}
 
 	protected Artist getByUserId_PrevAndNext(Session session, Artist artist,
-		long userId, OrderByComparator orderByComparator, boolean previous) {
+		long userId, OrderByComparator<Artist> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -2673,8 +2790,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 		Object[] finderArgs = new Object[] { userId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -2698,10 +2814,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2751,7 +2867,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns a range of all the artists where companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -2768,7 +2884,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns an ordered range of all the artists where companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -2779,7 +2895,27 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public List<Artist> findByCompanyId(long companyId, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
+		return findByCompanyId(companyId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the artists where companyId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param start the lower bound of the range of artists
+	 * @param end the upper bound of the range of artists (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching artists
+	 */
+	@Override
+	public List<Artist> findByCompanyId(long companyId, int start, int end,
+		OrderByComparator<Artist> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2795,15 +2931,19 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 			finderArgs = new Object[] { companyId, start, end, orderByComparator };
 		}
 
-		List<Artist> list = (List<Artist>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Artist> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Artist artist : list) {
-				if ((companyId != artist.getCompanyId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Artist>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Artist artist : list) {
+					if ((companyId != artist.getCompanyId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -2813,7 +2953,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -2860,10 +3000,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2881,11 +3021,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByCompanyId_First(long companyId,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByCompanyId_First(companyId, orderByComparator);
 
 		if (artist != null) {
@@ -2913,7 +3054,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByCompanyId_First(long companyId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		List<Artist> list = findByCompanyId(companyId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -2929,11 +3070,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByCompanyId_Last(long companyId,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByCompanyId_Last(companyId, orderByComparator);
 
 		if (artist != null) {
@@ -2961,7 +3103,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByCompanyId_Last(long companyId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		int count = countByCompanyId(companyId);
 
 		if (count == 0) {
@@ -2985,11 +3127,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist[] findByCompanyId_PrevAndNext(long artistId, long companyId,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = findByPrimaryKey(artistId);
 
 		Session session = null;
@@ -3018,12 +3161,14 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	}
 
 	protected Artist getByCompanyId_PrevAndNext(Session session, Artist artist,
-		long companyId, OrderByComparator orderByComparator, boolean previous) {
+		long companyId, OrderByComparator<Artist> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -3146,8 +3291,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 		Object[] finderArgs = new Object[] { companyId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -3171,10 +3315,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -3224,7 +3368,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns a range of all the artists where userId = &#63; and groupId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -3242,7 +3386,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns an ordered range of all the artists where userId = &#63; and groupId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -3254,7 +3398,29 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public List<Artist> findByU_G(long userId, long groupId, int start,
-		int end, OrderByComparator orderByComparator) {
+		int end, OrderByComparator<Artist> orderByComparator) {
+		return findByU_G(userId, groupId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the artists where userId = &#63; and groupId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param userId the user ID
+	 * @param groupId the group ID
+	 * @param start the lower bound of the range of artists
+	 * @param end the upper bound of the range of artists (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching artists
+	 */
+	@Override
+	public List<Artist> findByU_G(long userId, long groupId, int start,
+		int end, OrderByComparator<Artist> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -3274,16 +3440,20 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 				};
 		}
 
-		List<Artist> list = (List<Artist>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Artist> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Artist artist : list) {
-				if ((userId != artist.getUserId()) ||
-						(groupId != artist.getGroupId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Artist>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Artist artist : list) {
+					if ((userId != artist.getUserId()) ||
+							(groupId != artist.getGroupId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -3293,7 +3463,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -3344,10 +3514,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -3366,11 +3536,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByU_G_First(long userId, long groupId,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByU_G_First(userId, groupId, orderByComparator);
 
 		if (artist != null) {
@@ -3402,7 +3573,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByU_G_First(long userId, long groupId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		List<Artist> list = findByU_G(userId, groupId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -3419,11 +3590,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByU_G_Last(long userId, long groupId,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByU_G_Last(userId, groupId, orderByComparator);
 
 		if (artist != null) {
@@ -3455,7 +3627,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByU_G_Last(long userId, long groupId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		int count = countByU_G(userId, groupId);
 
 		if (count == 0) {
@@ -3480,11 +3652,11 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist[] findByU_G_PrevAndNext(long artistId, long userId,
-		long groupId, OrderByComparator orderByComparator)
+		long groupId, OrderByComparator<Artist> orderByComparator)
 		throws NoSuchArtistException {
 		Artist artist = findByPrimaryKey(artistId);
 
@@ -3514,16 +3686,17 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	}
 
 	protected Artist getByU_G_PrevAndNext(Session session, Artist artist,
-		long userId, long groupId, OrderByComparator orderByComparator,
+		long userId, long groupId, OrderByComparator<Artist> orderByComparator,
 		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_ARTIST_WHERE);
@@ -3639,7 +3812,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns a range of all the artists that the user has permission to view where userId = &#63; and groupId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -3658,7 +3831,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns an ordered range of all the artists that the user has permissions to view where userId = &#63; and groupId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -3670,7 +3843,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public List<Artist> filterFindByU_G(long userId, long groupId, int start,
-		int end, OrderByComparator orderByComparator) {
+		int end, OrderByComparator<Artist> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByU_G(userId, groupId, start, end, orderByComparator);
 		}
@@ -3679,10 +3852,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(4 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(4);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -3761,11 +3934,11 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist[] filterFindByU_G_PrevAndNext(long artistId, long userId,
-		long groupId, OrderByComparator orderByComparator)
+		long groupId, OrderByComparator<Artist> orderByComparator)
 		throws NoSuchArtistException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByU_G_PrevAndNext(artistId, userId, groupId,
@@ -3800,16 +3973,17 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	}
 
 	protected Artist filterGetByU_G_PrevAndNext(Session session, Artist artist,
-		long userId, long groupId, OrderByComparator orderByComparator,
+		long userId, long groupId, OrderByComparator<Artist> orderByComparator,
 		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -3970,8 +4144,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 		Object[] finderArgs = new Object[] { userId, groupId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -3999,10 +4172,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -4106,7 +4279,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns a range of all the artists where groupId = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -4124,7 +4297,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns an ordered range of all the artists where groupId = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -4136,7 +4309,28 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public List<Artist> findByG_S(long groupId, int status, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
+		return findByG_S(groupId, status, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the artists where groupId = &#63; and status = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param status the status
+	 * @param start the lower bound of the range of artists
+	 * @param end the upper bound of the range of artists (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching artists
+	 */
+	@Override
+	public List<Artist> findByG_S(long groupId, int status, int start, int end,
+		OrderByComparator<Artist> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -4156,16 +4350,20 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 				};
 		}
 
-		List<Artist> list = (List<Artist>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Artist> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Artist artist : list) {
-				if ((groupId != artist.getGroupId()) ||
-						(status != artist.getStatus())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Artist>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Artist artist : list) {
+					if ((groupId != artist.getGroupId()) ||
+							(status != artist.getStatus())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -4175,7 +4373,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -4226,10 +4424,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -4248,11 +4446,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByG_S_First(long groupId, int status,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByG_S_First(groupId, status, orderByComparator);
 
 		if (artist != null) {
@@ -4284,7 +4483,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByG_S_First(long groupId, int status,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		List<Artist> list = findByG_S(groupId, status, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -4301,11 +4500,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByG_S_Last(long groupId, int status,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByG_S_Last(groupId, status, orderByComparator);
 
 		if (artist != null) {
@@ -4337,7 +4537,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByG_S_Last(long groupId, int status,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		int count = countByG_S(groupId, status);
 
 		if (count == 0) {
@@ -4362,11 +4562,11 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist[] findByG_S_PrevAndNext(long artistId, long groupId,
-		int status, OrderByComparator orderByComparator)
+		int status, OrderByComparator<Artist> orderByComparator)
 		throws NoSuchArtistException {
 		Artist artist = findByPrimaryKey(artistId);
 
@@ -4396,16 +4596,17 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	}
 
 	protected Artist getByG_S_PrevAndNext(Session session, Artist artist,
-		long groupId, int status, OrderByComparator orderByComparator,
+		long groupId, int status, OrderByComparator<Artist> orderByComparator,
 		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_ARTIST_WHERE);
@@ -4521,7 +4722,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns a range of all the artists that the user has permission to view where groupId = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -4540,7 +4741,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns an ordered range of all the artists that the user has permissions to view where groupId = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -4552,7 +4753,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public List<Artist> filterFindByG_S(long groupId, int status, int start,
-		int end, OrderByComparator orderByComparator) {
+		int end, OrderByComparator<Artist> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_S(groupId, status, start, end, orderByComparator);
 		}
@@ -4561,10 +4762,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(4 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(4);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -4643,11 +4844,11 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist[] filterFindByG_S_PrevAndNext(long artistId, long groupId,
-		int status, OrderByComparator orderByComparator)
+		int status, OrderByComparator<Artist> orderByComparator)
 		throws NoSuchArtistException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_S_PrevAndNext(artistId, groupId, status,
@@ -4682,16 +4883,17 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	}
 
 	protected Artist filterGetByG_S_PrevAndNext(Session session, Artist artist,
-		long groupId, int status, OrderByComparator orderByComparator,
+		long groupId, int status, OrderByComparator<Artist> orderByComparator,
 		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -4852,8 +5054,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 		Object[] finderArgs = new Object[] { groupId, status };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -4881,10 +5082,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -4989,7 +5190,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns a range of all the artists where groupId = &#63; and name LIKE &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -5009,7 +5210,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns an ordered range of all the artists where groupId = &#63; and name LIKE &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -5022,7 +5223,31 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public List<Artist> findByG_LikeN_S(long groupId, String name, int status,
-		int start, int end, OrderByComparator orderByComparator) {
+		int start, int end, OrderByComparator<Artist> orderByComparator) {
+		return findByG_LikeN_S(groupId, name, status, start, end,
+			orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the artists where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param name the name
+	 * @param status the status
+	 * @param start the lower bound of the range of artists
+	 * @param end the upper bound of the range of artists (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching artists
+	 */
+	@Override
+	public List<Artist> findByG_LikeN_S(long groupId, String name, int status,
+		int start, int end, OrderByComparator<Artist> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -5034,19 +5259,23 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 				start, end, orderByComparator
 			};
 
-		List<Artist> list = (List<Artist>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Artist> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Artist artist : list) {
-				if ((groupId != artist.getGroupId()) ||
-						!StringUtil.wildcardMatches(artist.getName(), name,
-							CharPool.UNDERLINE, CharPool.PERCENT,
-							CharPool.BACK_SLASH, false) ||
-						(status != artist.getStatus())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Artist>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Artist artist : list) {
+					if ((groupId != artist.getGroupId()) ||
+							!StringUtil.wildcardMatches(artist.getName(), name,
+								CharPool.UNDERLINE, CharPool.PERCENT,
+								CharPool.BACK_SLASH, false) ||
+							(status != artist.getStatus())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -5056,7 +5285,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(5 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(5);
@@ -5125,10 +5354,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -5148,11 +5377,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByG_LikeN_S_First(long groupId, String name, int status,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByG_LikeN_S_First(groupId, name, status,
 				orderByComparator);
 
@@ -5189,7 +5419,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByG_LikeN_S_First(long groupId, String name, int status,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		List<Artist> list = findByG_LikeN_S(groupId, name, status, 0, 1,
 				orderByComparator);
 
@@ -5208,11 +5438,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a matching artist could not be found
+	 * @throws NoSuchArtistException if a matching artist could not be found
 	 */
 	@Override
 	public Artist findByG_LikeN_S_Last(long groupId, String name, int status,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		Artist artist = fetchByG_LikeN_S_Last(groupId, name, status,
 				orderByComparator);
 
@@ -5249,7 +5480,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByG_LikeN_S_Last(long groupId, String name, int status,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
 		int count = countByG_LikeN_S(groupId, name, status);
 
 		if (count == 0) {
@@ -5275,11 +5506,11 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist[] findByG_LikeN_S_PrevAndNext(long artistId, long groupId,
-		String name, int status, OrderByComparator orderByComparator)
+		String name, int status, OrderByComparator<Artist> orderByComparator)
 		throws NoSuchArtistException {
 		Artist artist = findByPrimaryKey(artistId);
 
@@ -5310,15 +5541,16 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 	protected Artist getByG_LikeN_S_PrevAndNext(Session session, Artist artist,
 		long groupId, String name, int status,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<Artist> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		query.append(_SQL_SELECT_ARTIST_WHERE);
@@ -5454,7 +5686,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns a range of all the artists that the user has permission to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -5474,7 +5706,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns an ordered range of all the artists that the user has permissions to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -5487,7 +5719,8 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public List<Artist> filterFindByG_LikeN_S(long groupId, String name,
-		int status, int start, int end, OrderByComparator orderByComparator) {
+		int status, int start, int end,
+		OrderByComparator<Artist> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_LikeN_S(groupId, name, status, start, end,
 				orderByComparator);
@@ -5497,10 +5730,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(5 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(5);
+			query = new StringBundler(6);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -5598,12 +5831,13 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist[] filterFindByG_LikeN_S_PrevAndNext(long artistId,
 		long groupId, String name, int status,
-		OrderByComparator orderByComparator) throws NoSuchArtistException {
+		OrderByComparator<Artist> orderByComparator)
+		throws NoSuchArtistException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_LikeN_S_PrevAndNext(artistId, groupId, name, status,
 				orderByComparator);
@@ -5638,15 +5872,16 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 	protected Artist filterGetByG_LikeN_S_PrevAndNext(Session session,
 		Artist artist, long groupId, String name, int status,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<Artist> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(7 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(6);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -5827,8 +6062,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 		Object[] finderArgs = new Object[] { groupId, name, status };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(4);
@@ -5874,10 +6108,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -5962,7 +6196,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	}
 
 	private static final String _FINDER_COLUMN_G_LIKEN_S_GROUPID_2 = "artist.groupId = ? AND ";
-	private static final String _FINDER_COLUMN_G_LIKEN_S_NAME_1 = "artist.name LIKE NULL AND ";
+	private static final String _FINDER_COLUMN_G_LIKEN_S_NAME_1 = "artist.name IS NULL AND ";
 	private static final String _FINDER_COLUMN_G_LIKEN_S_NAME_2 = "lower(artist.name) LIKE ? AND ";
 	private static final String _FINDER_COLUMN_G_LIKEN_S_NAME_3 = "(artist.name IS NULL OR artist.name LIKE '') AND ";
 	private static final String _FINDER_COLUMN_G_LIKEN_S_STATUS_2 = "artist.status = ?";
@@ -5978,10 +6212,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public void cacheResult(Artist artist) {
-		EntityCacheUtil.putResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
+		entityCache.putResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
 			ArtistImpl.class, artist.getPrimaryKey(), artist);
 
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_UUID_G,
+		finderCache.putResult(FINDER_PATH_FETCH_BY_UUID_G,
 			new Object[] { artist.getUuid(), artist.getGroupId() }, artist);
 
 		artist.resetOriginalValues();
@@ -5995,9 +6229,8 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	@Override
 	public void cacheResult(List<Artist> artists) {
 		for (Artist artist : artists) {
-			if (EntityCacheUtil.getResult(
-						ArtistModelImpl.ENTITY_CACHE_ENABLED, ArtistImpl.class,
-						artist.getPrimaryKey()) == null) {
+			if (entityCache.getResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
+						ArtistImpl.class, artist.getPrimaryKey()) == null) {
 				cacheResult(artist);
 			}
 			else {
@@ -6010,85 +6243,83 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Clears the cache for all artists.
 	 *
 	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * The {@link EntityCache} and {@link FinderCache} are both cleared by this method.
 	 * </p>
 	 */
 	@Override
 	public void clearCache() {
-		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			CacheRegistryUtil.clear(ArtistImpl.class.getName());
-		}
+		entityCache.clearCache(ArtistImpl.class);
 
-		EntityCacheUtil.clearCache(ArtistImpl.class);
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_ENTITY);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
 	/**
 	 * Clears the cache for the artist.
 	 *
 	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * The {@link EntityCache} and {@link FinderCache} are both cleared by this method.
 	 * </p>
 	 */
 	@Override
 	public void clearCache(Artist artist) {
-		EntityCacheUtil.removeResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
+		entityCache.removeResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
 			ArtistImpl.class, artist.getPrimaryKey());
 
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 
-		clearUniqueFindersCache(artist);
+		clearUniqueFindersCache((ArtistModelImpl)artist);
 	}
 
 	@Override
 	public void clearCache(List<Artist> artists) {
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 
 		for (Artist artist : artists) {
-			EntityCacheUtil.removeResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
+			entityCache.removeResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
 				ArtistImpl.class, artist.getPrimaryKey());
 
-			clearUniqueFindersCache(artist);
+			clearUniqueFindersCache((ArtistModelImpl)artist);
 		}
 	}
 
-	protected void cacheUniqueFindersCache(Artist artist) {
-		if (artist.isNew()) {
-			Object[] args = new Object[] { artist.getUuid(), artist.getGroupId() };
+	protected void cacheUniqueFindersCache(ArtistModelImpl artistModelImpl,
+		boolean isNew) {
+		if (isNew) {
+			Object[] args = new Object[] {
+					artistModelImpl.getUuid(), artistModelImpl.getGroupId()
+				};
 
-			FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_UUID_G, args,
+			finderCache.putResult(FINDER_PATH_COUNT_BY_UUID_G, args,
 				Long.valueOf(1));
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_UUID_G, args, artist);
+			finderCache.putResult(FINDER_PATH_FETCH_BY_UUID_G, args,
+				artistModelImpl);
 		}
 		else {
-			ArtistModelImpl artistModelImpl = (ArtistModelImpl)artist;
-
 			if ((artistModelImpl.getColumnBitmask() &
 					FINDER_PATH_FETCH_BY_UUID_G.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] {
-						artist.getUuid(), artist.getGroupId()
+						artistModelImpl.getUuid(), artistModelImpl.getGroupId()
 					};
 
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_UUID_G, args,
+				finderCache.putResult(FINDER_PATH_COUNT_BY_UUID_G, args,
 					Long.valueOf(1));
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_UUID_G, args,
-					artist);
+				finderCache.putResult(FINDER_PATH_FETCH_BY_UUID_G, args,
+					artistModelImpl);
 			}
 		}
 	}
 
-	protected void clearUniqueFindersCache(Artist artist) {
-		ArtistModelImpl artistModelImpl = (ArtistModelImpl)artist;
+	protected void clearUniqueFindersCache(ArtistModelImpl artistModelImpl) {
+		Object[] args = new Object[] {
+				artistModelImpl.getUuid(), artistModelImpl.getGroupId()
+			};
 
-		Object[] args = new Object[] { artist.getUuid(), artist.getGroupId() };
-
-		FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID_G, args);
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_UUID_G, args);
+		finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_G, args);
+		finderCache.removeResult(FINDER_PATH_FETCH_BY_UUID_G, args);
 
 		if ((artistModelImpl.getColumnBitmask() &
 				FINDER_PATH_FETCH_BY_UUID_G.getColumnBitmask()) != 0) {
@@ -6097,8 +6328,8 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 					artistModelImpl.getOriginalGroupId()
 				};
 
-			FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID_G, args);
-			FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_UUID_G, args);
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_G, args);
+			finderCache.removeResult(FINDER_PATH_FETCH_BY_UUID_G, args);
 		}
 	}
 
@@ -6119,6 +6350,8 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 		artist.setUuid(uuid);
 
+		artist.setCompanyId(companyProvider.getCompanyId());
+
 		return artist;
 	}
 
@@ -6127,7 +6360,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 *
 	 * @param artistId the primary key of the artist
 	 * @return the artist that was removed
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist remove(long artistId) throws NoSuchArtistException {
@@ -6139,7 +6372,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 *
 	 * @param primaryKey the primary key of the artist
 	 * @return the artist that was removed
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist remove(Serializable primaryKey) throws NoSuchArtistException {
@@ -6151,8 +6384,8 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 			Artist artist = (Artist)session.get(ArtistImpl.class, primaryKey);
 
 			if (artist == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				if (_log.isDebugEnabled()) {
+					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
 				throw new NoSuchArtistException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -6205,7 +6438,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	}
 
 	@Override
-	public Artist updateImpl(org.liferay.jukebox.model.Artist artist) {
+	public Artist updateImpl(Artist artist) {
 		artist = toUnwrappedModel(artist);
 
 		boolean isNew = artist.isNew();
@@ -6216,6 +6449,28 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 			String uuid = PortalUUIDUtil.generate();
 
 			artist.setUuid(uuid);
+		}
+
+		ServiceContext serviceContext = ServiceContextThreadLocal.getServiceContext();
+
+		Date now = new Date();
+
+		if (isNew && (artist.getCreateDate() == null)) {
+			if (serviceContext == null) {
+				artist.setCreateDate(now);
+			}
+			else {
+				artist.setCreateDate(serviceContext.getCreateDate(now));
+			}
+		}
+
+		if (!artistModelImpl.hasSetModifiedDate()) {
+			if (serviceContext == null) {
+				artist.setModifiedDate(now);
+			}
+			else {
+				artist.setModifiedDate(serviceContext.getModifiedDate(now));
+			}
 		}
 
 		Session session = null;
@@ -6229,7 +6484,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 				artist.setNew(false);
 			}
 			else {
-				session.merge(artist);
+				artist = (Artist)session.merge(artist);
 			}
 		}
 		catch (Exception e) {
@@ -6239,10 +6494,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 			closeSession(session);
 		}
 
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 
 		if (isNew || !ArtistModelImpl.COLUMN_BITMASK_ENABLED) {
-			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 		}
 
 		else {
@@ -6250,14 +6505,14 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] { artistModelImpl.getOriginalUuid() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
 					args);
 
 				args = new Object[] { artistModelImpl.getUuid() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
 					args);
 			}
 
@@ -6268,8 +6523,8 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 						artistModelImpl.getOriginalCompanyId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
 					args);
 
 				args = new Object[] {
@@ -6277,8 +6532,8 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 						artistModelImpl.getCompanyId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
 					args);
 			}
 
@@ -6288,14 +6543,14 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 						artistModelImpl.getOriginalGroupId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_GROUPID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_GROUPID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID,
 					args);
 
 				args = new Object[] { artistModelImpl.getGroupId() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_GROUPID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_GROUPID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID,
 					args);
 			}
 
@@ -6303,14 +6558,14 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] { artistModelImpl.getOriginalUserId() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
 					args);
 
 				args = new Object[] { artistModelImpl.getUserId() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
 					args);
 			}
 
@@ -6320,16 +6575,14 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 						artistModelImpl.getOriginalCompanyId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_COMPANYID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
 					args);
 
 				args = new Object[] { artistModelImpl.getCompanyId() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_COMPANYID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
 					args);
 			}
 
@@ -6340,8 +6593,8 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 						artistModelImpl.getOriginalGroupId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_G, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_G,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_G, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_G,
 					args);
 
 				args = new Object[] {
@@ -6349,8 +6602,8 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 						artistModelImpl.getGroupId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_U_G, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_G,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_U_G, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_U_G,
 					args);
 			}
 
@@ -6361,8 +6614,8 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 						artistModelImpl.getOriginalStatus()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_G_S, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_S,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_G_S, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_S,
 					args);
 
 				args = new Object[] {
@@ -6370,17 +6623,17 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 						artistModelImpl.getStatus()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_G_S, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_S,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_G_S, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_S,
 					args);
 			}
 		}
 
-		EntityCacheUtil.putResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
+		entityCache.putResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
 			ArtistImpl.class, artist.getPrimaryKey(), artist, false);
 
-		clearUniqueFindersCache(artist);
-		cacheUniqueFindersCache(artist);
+		clearUniqueFindersCache(artistModelImpl);
+		cacheUniqueFindersCache(artistModelImpl, isNew);
 
 		artist.resetOriginalValues();
 
@@ -6416,11 +6669,11 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	}
 
 	/**
-	 * Returns the artist with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the artist with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the artist
 	 * @return the artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist findByPrimaryKey(Serializable primaryKey)
@@ -6428,8 +6681,8 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 		Artist artist = fetchByPrimaryKey(primaryKey);
 
 		if (artist == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+			if (_log.isDebugEnabled()) {
+				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			throw new NoSuchArtistException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -6440,11 +6693,11 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	}
 
 	/**
-	 * Returns the artist with the primary key or throws a {@link org.liferay.jukebox.NoSuchArtistException} if it could not be found.
+	 * Returns the artist with the primary key or throws a {@link NoSuchArtistException} if it could not be found.
 	 *
 	 * @param artistId the primary key of the artist
 	 * @return the artist
-	 * @throws org.liferay.jukebox.NoSuchArtistException if a artist with the primary key could not be found
+	 * @throws NoSuchArtistException if a artist with the primary key could not be found
 	 */
 	@Override
 	public Artist findByPrimaryKey(long artistId) throws NoSuchArtistException {
@@ -6459,7 +6712,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public Artist fetchByPrimaryKey(Serializable primaryKey) {
-		Artist artist = (Artist)EntityCacheUtil.getResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
+		Artist artist = (Artist)entityCache.getResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
 				ArtistImpl.class, primaryKey);
 
 		if (artist == _nullArtist) {
@@ -6478,12 +6731,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 					cacheResult(artist);
 				}
 				else {
-					EntityCacheUtil.putResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
+					entityCache.putResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
 						ArtistImpl.class, primaryKey, _nullArtist);
 				}
 			}
 			catch (Exception e) {
-				EntityCacheUtil.removeResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
+				entityCache.removeResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
 					ArtistImpl.class, primaryKey);
 
 				throw processException(e);
@@ -6533,7 +6786,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 		Set<Serializable> uncachedPrimaryKeys = null;
 
 		for (Serializable primaryKey : primaryKeys) {
-			Artist artist = (Artist)EntityCacheUtil.getResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
+			Artist artist = (Artist)entityCache.getResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
 					ArtistImpl.class, primaryKey);
 
 			if (artist == null) {
@@ -6585,7 +6838,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 			}
 
 			for (Serializable primaryKey : uncachedPrimaryKeys) {
-				EntityCacheUtil.putResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
+				entityCache.putResult(ArtistModelImpl.ENTITY_CACHE_ENABLED,
 					ArtistImpl.class, primaryKey, _nullArtist);
 			}
 		}
@@ -6613,7 +6866,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns a range of all the artists.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param start the lower bound of the range of artists
@@ -6629,7 +6882,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 * Returns an ordered range of all the artists.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param start the lower bound of the range of artists
@@ -6639,7 +6892,26 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public List<Artist> findAll(int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Artist> orderByComparator) {
+		return findAll(start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the artists.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param start the lower bound of the range of artists
+	 * @param end the upper bound of the range of artists (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of artists
+	 */
+	@Override
+	public List<Artist> findAll(int start, int end,
+		OrderByComparator<Artist> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -6655,8 +6927,12 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 			finderArgs = new Object[] { start, end, orderByComparator };
 		}
 
-		List<Artist> list = (List<Artist>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Artist> list = null;
+
+		if (retrieveFromCache) {
+			list = (List<Artist>)finderCache.getResult(finderPath, finderArgs,
+					this);
+		}
 
 		if (list == null) {
 			StringBundler query = null;
@@ -6664,7 +6940,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(2 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 
 				query.append(_SQL_SELECT_ARTIST);
 
@@ -6703,10 +6979,10 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -6736,7 +7012,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	 */
 	@Override
 	public int countAll() {
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
+		Long count = (Long)finderCache.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
@@ -6749,11 +7025,11 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_ALL,
-					FINDER_ARGS_EMPTY, count);
+				finderCache.putResult(FINDER_PATH_COUNT_ALL, FINDER_ARGS_EMPTY,
+					count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_ALL,
+				finderCache.removeResult(FINDER_PATH_COUNT_ALL,
 					FINDER_ARGS_EMPTY);
 
 				throw processException(e);
@@ -6767,42 +7043,32 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	}
 
 	@Override
-	protected Set<String> getBadColumnNames() {
+	public Set<String> getBadColumnNames() {
 		return _badColumnNames;
+	}
+
+	@Override
+	protected Map<String, Integer> getTableColumnsMap() {
+		return ArtistModelImpl.TABLE_COLUMNS_MAP;
 	}
 
 	/**
 	 * Initializes the artist persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.util.service.ServiceProps.get(
-						"value.object.listener.org.liferay.jukebox.model.Artist")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<Artist>> listenersList = new ArrayList<ModelListener<Artist>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<Artist>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
-		EntityCacheUtil.removeCache(ArtistImpl.class.getName());
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		entityCache.removeCache(ArtistImpl.class.getName());
+		finderCache.removeCache(FINDER_CLASS_NAME_ENTITY);
+		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
+	@BeanReference(type = CompanyProviderWrapper.class)
+	protected CompanyProvider companyProvider;
+	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
+	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();
 	private static final String _SQL_SELECT_ARTIST = "SELECT artist FROM Artist artist";
 	private static final String _SQL_SELECT_ARTIST_WHERE_PKS_IN = "SELECT artist FROM Artist artist WHERE artistId IN (";
 	private static final String _SQL_SELECT_ARTIST_WHERE = "SELECT artist FROM Artist artist WHERE ";
@@ -6821,13 +7087,11 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 	private static final String _ORDER_BY_ENTITY_TABLE = "jukebox_Artist.";
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No Artist exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No Artist exists with the key {";
-	private static final boolean _HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE = GetterUtil.getBoolean(PropsUtil.get(
-				PropsKeys.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE));
-	private static Log _log = LogFactoryUtil.getLog(ArtistPersistenceImpl.class);
-	private static Set<String> _badColumnNames = SetUtil.fromArray(new String[] {
+	private static final Log _log = LogFactoryUtil.getLog(ArtistPersistenceImpl.class);
+	private static final Set<String> _badColumnNames = SetUtil.fromArray(new String[] {
 				"uuid"
 			});
-	private static Artist _nullArtist = new ArtistImpl() {
+	private static final Artist _nullArtist = new ArtistImpl() {
 			@Override
 			public Object clone() {
 				return this;
@@ -6839,7 +7103,7 @@ public class ArtistPersistenceImpl extends BasePersistenceImpl<Artist>
 			}
 		};
 
-	private static CacheModel<Artist> _nullArtistCacheModel = new CacheModel<Artist>() {
+	private static final CacheModel<Artist> _nullArtistCacheModel = new CacheModel<Artist>() {
 			@Override
 			public Artist toEntityModel() {
 				return _nullArtist;

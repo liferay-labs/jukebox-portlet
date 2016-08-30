@@ -14,13 +14,21 @@
 
 package org.liferay.jukebox.model;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
-import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.ModelWrapper;
+import aQute.bnd.annotation.ProviderType;
+
+import com.liferay.expando.kernel.model.ExpandoBridge;
+
+import com.liferay.exportimport.kernel.lar.StagedModelType;
+
+import com.liferay.portal.kernel.model.ModelWrapper;
+import com.liferay.portal.kernel.service.ServiceContext;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * <p>
@@ -31,6 +39,7 @@ import java.util.Map;
  * @see Album
  * @generated
  */
+@ProviderType
 public class AlbumWrapper implements Album, ModelWrapper<Album> {
 	public AlbumWrapper(Album album) {
 		_album = album;
@@ -162,395 +171,70 @@ public class AlbumWrapper implements Album, ModelWrapper<Album> {
 		}
 	}
 
-	/**
-	* Returns the primary key of this album.
-	*
-	* @return the primary key of this album
-	*/
 	@Override
-	public long getPrimaryKey() {
-		return _album.getPrimaryKey();
+	public Album toEscapedModel() {
+		return new AlbumWrapper(_album.toEscapedModel());
 	}
 
-	/**
-	* Sets the primary key of this album.
-	*
-	* @param primaryKey the primary key of this album
-	*/
 	@Override
-	public void setPrimaryKey(long primaryKey) {
-		_album.setPrimaryKey(primaryKey);
+	public Album toUnescapedModel() {
+		return new AlbumWrapper(_album.toUnescapedModel());
 	}
 
-	/**
-	* Returns the uuid of this album.
-	*
-	* @return the uuid of this album
-	*/
 	@Override
-	public java.lang.String getUuid() {
-		return _album.getUuid();
-	}
-
-	/**
-	* Sets the uuid of this album.
-	*
-	* @param uuid the uuid of this album
-	*/
-	@Override
-	public void setUuid(java.lang.String uuid) {
-		_album.setUuid(uuid);
-	}
-
-	/**
-	* Returns the album ID of this album.
-	*
-	* @return the album ID of this album
-	*/
-	@Override
-	public long getAlbumId() {
-		return _album.getAlbumId();
-	}
-
-	/**
-	* Sets the album ID of this album.
-	*
-	* @param albumId the album ID of this album
-	*/
-	@Override
-	public void setAlbumId(long albumId) {
-		_album.setAlbumId(albumId);
-	}
-
-	/**
-	* Returns the company ID of this album.
-	*
-	* @return the company ID of this album
-	*/
-	@Override
-	public long getCompanyId() {
-		return _album.getCompanyId();
-	}
-
-	/**
-	* Sets the company ID of this album.
-	*
-	* @param companyId the company ID of this album
-	*/
-	@Override
-	public void setCompanyId(long companyId) {
-		_album.setCompanyId(companyId);
-	}
-
-	/**
-	* Returns the group ID of this album.
-	*
-	* @return the group ID of this album
-	*/
-	@Override
-	public long getGroupId() {
-		return _album.getGroupId();
-	}
-
-	/**
-	* Sets the group ID of this album.
-	*
-	* @param groupId the group ID of this album
-	*/
-	@Override
-	public void setGroupId(long groupId) {
-		_album.setGroupId(groupId);
-	}
-
-	/**
-	* Returns the user ID of this album.
-	*
-	* @return the user ID of this album
-	*/
-	@Override
-	public long getUserId() {
-		return _album.getUserId();
-	}
-
-	/**
-	* Sets the user ID of this album.
-	*
-	* @param userId the user ID of this album
-	*/
-	@Override
-	public void setUserId(long userId) {
-		_album.setUserId(userId);
-	}
-
-	/**
-	* Returns the user uuid of this album.
-	*
-	* @return the user uuid of this album
-	*/
-	@Override
-	public java.lang.String getUserUuid() {
-		return _album.getUserUuid();
-	}
-
-	/**
-	* Sets the user uuid of this album.
-	*
-	* @param userUuid the user uuid of this album
-	*/
-	@Override
-	public void setUserUuid(java.lang.String userUuid) {
-		_album.setUserUuid(userUuid);
-	}
-
-	/**
-	* Returns the user name of this album.
-	*
-	* @return the user name of this album
-	*/
-	@Override
-	public java.lang.String getUserName() {
-		return _album.getUserName();
-	}
-
-	/**
-	* Sets the user name of this album.
-	*
-	* @param userName the user name of this album
-	*/
-	@Override
-	public void setUserName(java.lang.String userName) {
-		_album.setUserName(userName);
-	}
-
-	/**
-	* Returns the create date of this album.
-	*
-	* @return the create date of this album
-	*/
-	@Override
-	public java.util.Date getCreateDate() {
-		return _album.getCreateDate();
-	}
-
-	/**
-	* Sets the create date of this album.
-	*
-	* @param createDate the create date of this album
-	*/
-	@Override
-	public void setCreateDate(java.util.Date createDate) {
-		_album.setCreateDate(createDate);
-	}
-
-	/**
-	* Returns the modified date of this album.
-	*
-	* @return the modified date of this album
-	*/
-	@Override
-	public java.util.Date getModifiedDate() {
-		return _album.getModifiedDate();
-	}
-
-	/**
-	* Sets the modified date of this album.
-	*
-	* @param modifiedDate the modified date of this album
-	*/
-	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
-		_album.setModifiedDate(modifiedDate);
-	}
-
-	/**
-	* Returns the artist ID of this album.
-	*
-	* @return the artist ID of this album
-	*/
-	@Override
-	public long getArtistId() {
-		return _album.getArtistId();
-	}
-
-	/**
-	* Sets the artist ID of this album.
-	*
-	* @param artistId the artist ID of this album
-	*/
-	@Override
-	public void setArtistId(long artistId) {
-		_album.setArtistId(artistId);
-	}
-
-	/**
-	* Returns the name of this album.
-	*
-	* @return the name of this album
-	*/
-	@Override
-	public java.lang.String getName() {
-		return _album.getName();
-	}
-
-	/**
-	* Sets the name of this album.
-	*
-	* @param name the name of this album
-	*/
-	@Override
-	public void setName(java.lang.String name) {
-		_album.setName(name);
-	}
-
-	/**
-	* Returns the year of this album.
-	*
-	* @return the year of this album
-	*/
-	@Override
-	public int getYear() {
-		return _album.getYear();
-	}
-
-	/**
-	* Sets the year of this album.
-	*
-	* @param year the year of this album
-	*/
-	@Override
-	public void setYear(int year) {
-		_album.setYear(year);
-	}
-
-	/**
-	* Returns the status of this album.
-	*
-	* @return the status of this album
-	*/
-	@Override
-	public int getStatus() {
-		return _album.getStatus();
-	}
-
-	/**
-	* Sets the status of this album.
-	*
-	* @param status the status of this album
-	*/
-	@Override
-	public void setStatus(int status) {
-		_album.setStatus(status);
-	}
-
-	/**
-	* Returns the status by user ID of this album.
-	*
-	* @return the status by user ID of this album
-	*/
-	@Override
-	public long getStatusByUserId() {
-		return _album.getStatusByUserId();
-	}
-
-	/**
-	* Sets the status by user ID of this album.
-	*
-	* @param statusByUserId the status by user ID of this album
-	*/
-	@Override
-	public void setStatusByUserId(long statusByUserId) {
-		_album.setStatusByUserId(statusByUserId);
-	}
-
-	/**
-	* Returns the status by user uuid of this album.
-	*
-	* @return the status by user uuid of this album
-	*/
-	@Override
-	public java.lang.String getStatusByUserUuid() {
-		return _album.getStatusByUserUuid();
-	}
-
-	/**
-	* Sets the status by user uuid of this album.
-	*
-	* @param statusByUserUuid the status by user uuid of this album
-	*/
-	@Override
-	public void setStatusByUserUuid(java.lang.String statusByUserUuid) {
-		_album.setStatusByUserUuid(statusByUserUuid);
-	}
-
-	/**
-	* Returns the status by user name of this album.
-	*
-	* @return the status by user name of this album
-	*/
-	@Override
-	public java.lang.String getStatusByUserName() {
-		return _album.getStatusByUserName();
-	}
-
-	/**
-	* Sets the status by user name of this album.
-	*
-	* @param statusByUserName the status by user name of this album
-	*/
-	@Override
-	public void setStatusByUserName(java.lang.String statusByUserName) {
-		_album.setStatusByUserName(statusByUserName);
-	}
-
-	/**
-	* Returns the status date of this album.
-	*
-	* @return the status date of this album
-	*/
-	@Override
-	public java.util.Date getStatusDate() {
-		return _album.getStatusDate();
-	}
-
-	/**
-	* Sets the status date of this album.
-	*
-	* @param statusDate the status date of this album
-	*/
-	@Override
-	public void setStatusDate(java.util.Date statusDate) {
-		_album.setStatusDate(statusDate);
-	}
-
-	/**
-	* Returns the trash entry created when this album was moved to the Recycle Bin. The trash entry may belong to one of the ancestors of this album.
-	*
-	* @return the trash entry created when this album was moved to the Recycle Bin
-	*/
-	@Override
-	public com.liferay.portlet.trash.model.TrashEntry getTrashEntry()
+	public boolean hasCustomImage()
 		throws com.liferay.portal.kernel.exception.PortalException {
-		return _album.getTrashEntry();
+		return _album.hasCustomImage();
 	}
 
 	/**
-	* Returns the class primary key of the trash entry for this album.
+	* Returns <code>true</code> if this album is approved.
 	*
-	* @return the class primary key of the trash entry for this album
+	* @return <code>true</code> if this album is approved; <code>false</code> otherwise
 	*/
 	@Override
-	public long getTrashEntryClassPK() {
-		return _album.getTrashEntryClassPK();
+	public boolean isApproved() {
+		return _album.isApproved();
+	}
+
+	@Override
+	public boolean isCachedModel() {
+		return _album.isCachedModel();
 	}
 
 	/**
-	* Returns the trash handler for this album.
+	* Returns <code>true</code> if this album is denied.
 	*
-	* @return the trash handler for this album
+	* @return <code>true</code> if this album is denied; <code>false</code> otherwise
 	*/
 	@Override
-	public com.liferay.portal.kernel.trash.TrashHandler getTrashHandler() {
-		return _album.getTrashHandler();
+	public boolean isDenied() {
+		return _album.isDenied();
+	}
+
+	/**
+	* Returns <code>true</code> if this album is a draft.
+	*
+	* @return <code>true</code> if this album is a draft; <code>false</code> otherwise
+	*/
+	@Override
+	public boolean isDraft() {
+		return _album.isDraft();
+	}
+
+	@Override
+	public boolean isEscapedModel() {
+		return _album.isEscapedModel();
+	}
+
+	/**
+	* Returns <code>true</code> if this album is expired.
+	*
+	* @return <code>true</code> if this album is expired; <code>false</code> otherwise
+	*/
+	@Override
+	public boolean isExpired() {
+		return _album.isExpired();
 	}
 
 	/**
@@ -584,55 +268,6 @@ public class AlbumWrapper implements Album, ModelWrapper<Album> {
 	}
 
 	/**
-	* @deprecated As of 6.1.0, replaced by {@link #isApproved()}
-	*/
-	@Deprecated
-	@Override
-	public boolean getApproved() {
-		return _album.getApproved();
-	}
-
-	/**
-	* Returns <code>true</code> if this album is approved.
-	*
-	* @return <code>true</code> if this album is approved; <code>false</code> otherwise
-	*/
-	@Override
-	public boolean isApproved() {
-		return _album.isApproved();
-	}
-
-	/**
-	* Returns <code>true</code> if this album is denied.
-	*
-	* @return <code>true</code> if this album is denied; <code>false</code> otherwise
-	*/
-	@Override
-	public boolean isDenied() {
-		return _album.isDenied();
-	}
-
-	/**
-	* Returns <code>true</code> if this album is a draft.
-	*
-	* @return <code>true</code> if this album is a draft; <code>false</code> otherwise
-	*/
-	@Override
-	public boolean isDraft() {
-		return _album.isDraft();
-	}
-
-	/**
-	* Returns <code>true</code> if this album is expired.
-	*
-	* @return <code>true</code> if this album is expired; <code>false</code> otherwise
-	*/
-	@Override
-	public boolean isExpired() {
-		return _album.isExpired();
-	}
-
-	/**
 	* Returns <code>true</code> if this album is inactive.
 	*
 	* @return <code>true</code> if this album is inactive; <code>false</code> otherwise
@@ -650,6 +285,11 @@ public class AlbumWrapper implements Album, ModelWrapper<Album> {
 	@Override
 	public boolean isIncomplete() {
 		return _album.isIncomplete();
+	}
+
+	@Override
+	public boolean isNew() {
+		return _album.isNew();
 	}
 
 	/**
@@ -672,6 +312,229 @@ public class AlbumWrapper implements Album, ModelWrapper<Album> {
 		return _album.isScheduled();
 	}
 
+	@Override
+	public ExpandoBridge getExpandoBridge() {
+		return _album.getExpandoBridge();
+	}
+
+	@Override
+	public com.liferay.portal.kernel.model.CacheModel<Album> toCacheModel() {
+		return _album.toCacheModel();
+	}
+
+	@Override
+	public com.liferay.portal.kernel.repository.model.FileEntry getCustomImage() {
+		return _album.getCustomImage();
+	}
+
+	/**
+	* Returns the trash handler for this album.
+	*
+	* @return the trash handler for this album
+	*/
+	@Override
+	public com.liferay.portal.kernel.trash.TrashHandler getTrashHandler() {
+		return _album.getTrashHandler();
+	}
+
+	/**
+	* Returns the trash entry created when this album was moved to the Recycle Bin. The trash entry may belong to one of the ancestors of this album.
+	*
+	* @return the trash entry created when this album was moved to the Recycle Bin
+	*/
+	@Override
+	public com.liferay.trash.kernel.model.TrashEntry getTrashEntry()
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _album.getTrashEntry();
+	}
+
+	@Override
+	public int compareTo(Album album) {
+		return _album.compareTo(album);
+	}
+
+	/**
+	* Returns the status of this album.
+	*
+	* @return the status of this album
+	*/
+	@Override
+	public int getStatus() {
+		return _album.getStatus();
+	}
+
+	/**
+	* Returns the year of this album.
+	*
+	* @return the year of this album
+	*/
+	@Override
+	public int getYear() {
+		return _album.getYear();
+	}
+
+	@Override
+	public int hashCode() {
+		return _album.hashCode();
+	}
+
+	@Override
+	public Serializable getPrimaryKeyObj() {
+		return _album.getPrimaryKeyObj();
+	}
+
+	@Override
+	public java.lang.Object clone() {
+		return new AlbumWrapper((Album)_album.clone());
+	}
+
+	/**
+	* Returns the container name of this album.
+	*
+	* @return the container name of this album
+	*/
+	@Override
+	public java.lang.String getContainerModelName() {
+		return _album.getContainerModelName();
+	}
+
+	@Override
+	public java.lang.String getImageURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _album.getImageURL(themeDisplay);
+	}
+
+	/**
+	* Returns the name of this album.
+	*
+	* @return the name of this album
+	*/
+	@Override
+	public java.lang.String getName() {
+		return _album.getName();
+	}
+
+	/**
+	* Returns the status by user name of this album.
+	*
+	* @return the status by user name of this album
+	*/
+	@Override
+	public java.lang.String getStatusByUserName() {
+		return _album.getStatusByUserName();
+	}
+
+	/**
+	* Returns the status by user uuid of this album.
+	*
+	* @return the status by user uuid of this album
+	*/
+	@Override
+	public java.lang.String getStatusByUserUuid() {
+		return _album.getStatusByUserUuid();
+	}
+
+	/**
+	* Returns the user name of this album.
+	*
+	* @return the user name of this album
+	*/
+	@Override
+	public java.lang.String getUserName() {
+		return _album.getUserName();
+	}
+
+	/**
+	* Returns the user uuid of this album.
+	*
+	* @return the user uuid of this album
+	*/
+	@Override
+	public java.lang.String getUserUuid() {
+		return _album.getUserUuid();
+	}
+
+	/**
+	* Returns the uuid of this album.
+	*
+	* @return the uuid of this album
+	*/
+	@Override
+	public java.lang.String getUuid() {
+		return _album.getUuid();
+	}
+
+	@Override
+	public java.lang.String toString() {
+		return _album.toString();
+	}
+
+	@Override
+	public java.lang.String toXmlString() {
+		return _album.toXmlString();
+	}
+
+	/**
+	* Returns the create date of this album.
+	*
+	* @return the create date of this album
+	*/
+	@Override
+	public Date getCreateDate() {
+		return _album.getCreateDate();
+	}
+
+	/**
+	* Returns the modified date of this album.
+	*
+	* @return the modified date of this album
+	*/
+	@Override
+	public Date getModifiedDate() {
+		return _album.getModifiedDate();
+	}
+
+	/**
+	* Returns the status date of this album.
+	*
+	* @return the status date of this album
+	*/
+	@Override
+	public Date getStatusDate() {
+		return _album.getStatusDate();
+	}
+
+	/**
+	* Returns the album ID of this album.
+	*
+	* @return the album ID of this album
+	*/
+	@Override
+	public long getAlbumId() {
+		return _album.getAlbumId();
+	}
+
+	/**
+	* Returns the artist ID of this album.
+	*
+	* @return the artist ID of this album
+	*/
+	@Override
+	public long getArtistId() {
+		return _album.getArtistId();
+	}
+
+	/**
+	* Returns the company ID of this album.
+	*
+	* @return the company ID of this album
+	*/
+	@Override
+	public long getCompanyId() {
+		return _album.getCompanyId();
+	}
+
 	/**
 	* Returns the container model ID of this album.
 	*
@@ -683,23 +546,13 @@ public class AlbumWrapper implements Album, ModelWrapper<Album> {
 	}
 
 	/**
-	* Sets the container model ID of this album.
+	* Returns the group ID of this album.
 	*
-	* @param containerModelId the container model ID of this album
+	* @return the group ID of this album
 	*/
 	@Override
-	public void setContainerModelId(long containerModelId) {
-		_album.setContainerModelId(containerModelId);
-	}
-
-	/**
-	* Returns the container name of this album.
-	*
-	* @return the container name of this album
-	*/
-	@Override
-	public java.lang.String getContainerModelName() {
-		return _album.getContainerModelName();
+	public long getGroupId() {
+		return _album.getGroupId();
 	}
 
 	/**
@@ -713,6 +566,157 @@ public class AlbumWrapper implements Album, ModelWrapper<Album> {
 	}
 
 	/**
+	* Returns the primary key of this album.
+	*
+	* @return the primary key of this album
+	*/
+	@Override
+	public long getPrimaryKey() {
+		return _album.getPrimaryKey();
+	}
+
+	/**
+	* Returns the status by user ID of this album.
+	*
+	* @return the status by user ID of this album
+	*/
+	@Override
+	public long getStatusByUserId() {
+		return _album.getStatusByUserId();
+	}
+
+	/**
+	* Returns the class primary key of the trash entry for this album.
+	*
+	* @return the class primary key of the trash entry for this album
+	*/
+	@Override
+	public long getTrashEntryClassPK() {
+		return _album.getTrashEntryClassPK();
+	}
+
+	/**
+	* Returns the user ID of this album.
+	*
+	* @return the user ID of this album
+	*/
+	@Override
+	public long getUserId() {
+		return _album.getUserId();
+	}
+
+	@Override
+	public void persist() {
+		_album.persist();
+	}
+
+	/**
+	* Sets the album ID of this album.
+	*
+	* @param albumId the album ID of this album
+	*/
+	@Override
+	public void setAlbumId(long albumId) {
+		_album.setAlbumId(albumId);
+	}
+
+	/**
+	* Sets the artist ID of this album.
+	*
+	* @param artistId the artist ID of this album
+	*/
+	@Override
+	public void setArtistId(long artistId) {
+		_album.setArtistId(artistId);
+	}
+
+	@Override
+	public void setCachedModel(boolean cachedModel) {
+		_album.setCachedModel(cachedModel);
+	}
+
+	/**
+	* Sets the company ID of this album.
+	*
+	* @param companyId the company ID of this album
+	*/
+	@Override
+	public void setCompanyId(long companyId) {
+		_album.setCompanyId(companyId);
+	}
+
+	/**
+	* Sets the container model ID of this album.
+	*
+	* @param containerModelId the container model ID of this album
+	*/
+	@Override
+	public void setContainerModelId(long containerModelId) {
+		_album.setContainerModelId(containerModelId);
+	}
+
+	/**
+	* Sets the create date of this album.
+	*
+	* @param createDate the create date of this album
+	*/
+	@Override
+	public void setCreateDate(Date createDate) {
+		_album.setCreateDate(createDate);
+	}
+
+	@Override
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
+		_album.setExpandoBridgeAttributes(expandoBridge);
+	}
+
+	@Override
+	public void setExpandoBridgeAttributes(
+		com.liferay.portal.kernel.model.BaseModel<?> baseModel) {
+		_album.setExpandoBridgeAttributes(baseModel);
+	}
+
+	@Override
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
+		_album.setExpandoBridgeAttributes(serviceContext);
+	}
+
+	/**
+	* Sets the group ID of this album.
+	*
+	* @param groupId the group ID of this album
+	*/
+	@Override
+	public void setGroupId(long groupId) {
+		_album.setGroupId(groupId);
+	}
+
+	/**
+	* Sets the modified date of this album.
+	*
+	* @param modifiedDate the modified date of this album
+	*/
+	@Override
+	public void setModifiedDate(Date modifiedDate) {
+		_album.setModifiedDate(modifiedDate);
+	}
+
+	/**
+	* Sets the name of this album.
+	*
+	* @param name the name of this album
+	*/
+	@Override
+	public void setName(java.lang.String name) {
+		_album.setName(name);
+	}
+
+	@Override
+	public void setNew(boolean n) {
+		_album.setNew(n);
+	}
+
+	/**
 	* Sets the parent container model ID of this album.
 	*
 	* @param parentContainerModelId the parent container model ID of this album
@@ -722,128 +726,119 @@ public class AlbumWrapper implements Album, ModelWrapper<Album> {
 		_album.setParentContainerModelId(parentContainerModelId);
 	}
 
+	/**
+	* Sets the primary key of this album.
+	*
+	* @param primaryKey the primary key of this album
+	*/
 	@Override
-	public boolean isNew() {
-		return _album.isNew();
+	public void setPrimaryKey(long primaryKey) {
+		_album.setPrimaryKey(primaryKey);
 	}
 
 	@Override
-	public void setNew(boolean n) {
-		_album.setNew(n);
-	}
-
-	@Override
-	public boolean isCachedModel() {
-		return _album.isCachedModel();
-	}
-
-	@Override
-	public void setCachedModel(boolean cachedModel) {
-		_album.setCachedModel(cachedModel);
-	}
-
-	@Override
-	public boolean isEscapedModel() {
-		return _album.isEscapedModel();
-	}
-
-	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
-		return _album.getPrimaryKeyObj();
-	}
-
-	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
 		_album.setPrimaryKeyObj(primaryKeyObj);
 	}
 
+	/**
+	* Sets the status of this album.
+	*
+	* @param status the status of this album
+	*/
 	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
-		return _album.getExpandoBridge();
+	public void setStatus(int status) {
+		_album.setStatus(status);
 	}
 
+	/**
+	* Sets the status by user ID of this album.
+	*
+	* @param statusByUserId the status by user ID of this album
+	*/
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
-		_album.setExpandoBridgeAttributes(baseModel);
+	public void setStatusByUserId(long statusByUserId) {
+		_album.setStatusByUserId(statusByUserId);
 	}
 
+	/**
+	* Sets the status by user name of this album.
+	*
+	* @param statusByUserName the status by user name of this album
+	*/
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
-		_album.setExpandoBridgeAttributes(expandoBridge);
+	public void setStatusByUserName(java.lang.String statusByUserName) {
+		_album.setStatusByUserName(statusByUserName);
 	}
 
+	/**
+	* Sets the status by user uuid of this album.
+	*
+	* @param statusByUserUuid the status by user uuid of this album
+	*/
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
-		_album.setExpandoBridgeAttributes(serviceContext);
+	public void setStatusByUserUuid(java.lang.String statusByUserUuid) {
+		_album.setStatusByUserUuid(statusByUserUuid);
 	}
 
+	/**
+	* Sets the status date of this album.
+	*
+	* @param statusDate the status date of this album
+	*/
 	@Override
-	public java.lang.Object clone() {
-		return new AlbumWrapper((Album)_album.clone());
+	public void setStatusDate(Date statusDate) {
+		_album.setStatusDate(statusDate);
 	}
 
+	/**
+	* Sets the user ID of this album.
+	*
+	* @param userId the user ID of this album
+	*/
 	@Override
-	public int compareTo(org.liferay.jukebox.model.Album album) {
-		return _album.compareTo(album);
+	public void setUserId(long userId) {
+		_album.setUserId(userId);
 	}
 
+	/**
+	* Sets the user name of this album.
+	*
+	* @param userName the user name of this album
+	*/
 	@Override
-	public int hashCode() {
-		return _album.hashCode();
+	public void setUserName(java.lang.String userName) {
+		_album.setUserName(userName);
 	}
 
+	/**
+	* Sets the user uuid of this album.
+	*
+	* @param userUuid the user uuid of this album
+	*/
 	@Override
-	public com.liferay.portal.model.CacheModel<org.liferay.jukebox.model.Album> toCacheModel() {
-		return _album.toCacheModel();
+	public void setUserUuid(java.lang.String userUuid) {
+		_album.setUserUuid(userUuid);
 	}
 
+	/**
+	* Sets the uuid of this album.
+	*
+	* @param uuid the uuid of this album
+	*/
 	@Override
-	public org.liferay.jukebox.model.Album toEscapedModel() {
-		return new AlbumWrapper(_album.toEscapedModel());
+	public void setUuid(java.lang.String uuid) {
+		_album.setUuid(uuid);
 	}
 
+	/**
+	* Sets the year of this album.
+	*
+	* @param year the year of this album
+	*/
 	@Override
-	public org.liferay.jukebox.model.Album toUnescapedModel() {
-		return new AlbumWrapper(_album.toUnescapedModel());
-	}
-
-	@Override
-	public java.lang.String toString() {
-		return _album.toString();
-	}
-
-	@Override
-	public java.lang.String toXmlString() {
-		return _album.toXmlString();
-	}
-
-	@Override
-	public void persist() {
-		_album.persist();
-	}
-
-	@Override
-	public com.liferay.portal.kernel.repository.model.FileEntry getCustomImage()
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _album.getCustomImage();
-	}
-
-	@Override
-	public java.lang.String getImageURL(
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return _album.getImageURL(themeDisplay);
-	}
-
-	@Override
-	public boolean hasCustomImage()
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return _album.hasCustomImage();
+	public void setYear(int year) {
+		_album.setYear(year);
 	}
 
 	@Override
@@ -858,7 +853,7 @@ public class AlbumWrapper implements Album, ModelWrapper<Album> {
 
 		AlbumWrapper albumWrapper = (AlbumWrapper)obj;
 
-		if (Validator.equals(_album, albumWrapper._album)) {
+		if (Objects.equals(_album, albumWrapper._album)) {
 			return true;
 		}
 
@@ -868,14 +863,6 @@ public class AlbumWrapper implements Album, ModelWrapper<Album> {
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _album.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Album getWrappedAlbum() {
-		return _album;
 	}
 
 	@Override
@@ -898,5 +885,5 @@ public class AlbumWrapper implements Album, ModelWrapper<Album> {
 		_album.resetOriginalValues();
 	}
 
-	private Album _album;
+	private final Album _album;
 }

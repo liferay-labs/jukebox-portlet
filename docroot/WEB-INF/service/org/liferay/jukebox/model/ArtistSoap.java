@@ -14,6 +14,8 @@
 
 package org.liferay.jukebox.model;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.io.Serializable;
 
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ import java.util.List;
  * @see org.liferay.jukebox.service.http.ArtistServiceSoap
  * @generated
  */
+@ProviderType
 public class ArtistSoap implements Serializable {
 	public static ArtistSoap toSoapModel(Artist model) {
 		ArtistSoap soapModel = new ArtistSoap();

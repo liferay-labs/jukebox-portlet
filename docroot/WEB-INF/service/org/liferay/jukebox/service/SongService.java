@@ -14,15 +14,24 @@
 
 package org.liferay.jukebox.service;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
+import com.liferay.portal.kernel.security.access.control.AccessControlled;
+import com.liferay.portal.kernel.service.BaseService;
+import com.liferay.portal.kernel.service.InvokableService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
-import com.liferay.portal.security.ac.AccessControlled;
-import com.liferay.portal.service.BaseService;
-import com.liferay.portal.service.InvokableService;
+
+import org.liferay.jukebox.model.Song;
+
+import java.io.InputStream;
+
+import java.util.List;
 
 /**
  * Provides the remote service interface for Song. Methods of this
@@ -37,6 +46,7 @@ import com.liferay.portal.service.InvokableService;
  */
 @AccessControlled
 @JSONWebService
+@ProviderType
 @Transactional(isolation = Isolation.PORTAL, rollbackFor =  {
 	PortalException.class, SystemException.class})
 public interface SongService extends BaseService, InvokableService {
@@ -45,92 +55,59 @@ public interface SongService extends BaseService, InvokableService {
 	 *
 	 * Never modify or reference this interface directly. Always use {@link SongServiceUtil} to access the song remote service. Add custom service methods to {@link org.liferay.jukebox.service.impl.SongServiceImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getSongsCount(long groupId);
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public java.lang.String getBeanIdentifier();
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getSongsCount(long groupId, java.lang.String keywords);
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getSongsCountByAlbumId(long groupId, long albumId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getSongsCountByAlbumId(long groupId, long albumId, int status);
 
 	@Override
 	public java.lang.Object invokeMethod(java.lang.String name,
 		java.lang.String[] parameterTypes, java.lang.Object[] arguments)
 		throws java.lang.Throwable;
 
-	public org.liferay.jukebox.model.Song addSong(long albumId,
-		java.lang.String name, java.lang.String songFileName,
-		java.io.InputStream songInputStream, java.lang.String lyricsFileName,
-		java.io.InputStream lyricsInputStream,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	public org.liferay.jukebox.model.Song deleteSong(long songId,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public java.lang.String getOSGiServiceIdentifier();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<org.liferay.jukebox.model.Song> getSongs(long groupId)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public List<Song> getSongs(long groupId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<org.liferay.jukebox.model.Song> getSongs(
-		long groupId, int start, int end)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public List<Song> getSongs(long groupId, int start, int end);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<org.liferay.jukebox.model.Song> getSongs(
-		long groupId, java.lang.String keywords)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public List<Song> getSongs(long groupId, java.lang.String keywords);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<org.liferay.jukebox.model.Song> getSongsByAlbumId(
-		long groupId, long albumId)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public List<Song> getSongsByAlbumId(long groupId, long albumId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<org.liferay.jukebox.model.Song> getSongsByAlbumId(
-		long groupId, long albumId, int status)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public List<Song> getSongsByAlbumId(long groupId, long albumId, int status);
 
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getSongsCount(long groupId)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public Song addSong(long albumId, java.lang.String name,
+		java.lang.String songFileName, InputStream songInputStream,
+		java.lang.String lyricsFileName, InputStream lyricsInputStream,
+		ServiceContext serviceContext) throws PortalException;
 
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getSongsCount(long groupId, java.lang.String keywords)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public Song deleteSong(long songId, ServiceContext serviceContext)
+		throws PortalException;
 
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getSongsCountByAlbumId(long groupId, long albumId)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public Song moveSongToTrash(long songId) throws PortalException;
 
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getSongsCountByAlbumId(long groupId, long albumId, int status)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public Song restoreSongFromTrash(long songId) throws PortalException;
 
-	public org.liferay.jukebox.model.Song moveSongToTrash(long songId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	public org.liferay.jukebox.model.Song restoreSongFromTrash(long songId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	public org.liferay.jukebox.model.Song updateSong(long songId, long albumId,
-		java.lang.String name, java.lang.String songFileName,
-		java.io.InputStream songInputStream, java.lang.String lyricsFileName,
-		java.io.InputStream lyricsInputStream,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+	public Song updateSong(long songId, long albumId, java.lang.String name,
+		java.lang.String songFileName, InputStream songInputStream,
+		java.lang.String lyricsFileName, InputStream lyricsInputStream,
+		ServiceContext serviceContext) throws PortalException;
 }

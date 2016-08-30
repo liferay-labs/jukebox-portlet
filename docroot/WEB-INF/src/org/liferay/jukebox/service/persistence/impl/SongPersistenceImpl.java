@@ -14,8 +14,12 @@
 
 package org.liferay.jukebox.service.persistence.impl;
 
-import com.liferay.portal.kernel.cache.CacheRegistryUtil;
+import aQute.bnd.annotation.ProviderType;
+
+import com.liferay.portal.kernel.bean.BeanReference;
+import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
+import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
@@ -25,24 +29,23 @@ import com.liferay.portal.kernel.dao.orm.SQLQuery;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.service.persistence.CompanyProvider;
+import com.liferay.portal.kernel.service.persistence.CompanyProviderWrapper;
+import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.CharPool;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.InstanceFactory;
 import com.liferay.portal.kernel.util.OrderByComparator;
-import com.liferay.portal.kernel.util.PropsKeys;
-import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
-import com.liferay.portal.model.CacheModel;
-import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.security.permission.InlineSQLHelperUtil;
-import com.liferay.portal.service.persistence.impl.BasePersistenceImpl;
 
-import org.liferay.jukebox.NoSuchSongException;
+import org.liferay.jukebox.exception.NoSuchSongException;
 import org.liferay.jukebox.model.Song;
 import org.liferay.jukebox.model.impl.SongImpl;
 import org.liferay.jukebox.model.impl.SongModelImpl;
@@ -50,13 +53,14 @@ import org.liferay.jukebox.service.persistence.SongPersistence;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -68,9 +72,10 @@ import java.util.Set;
  *
  * @author Julio Camarero
  * @see SongPersistence
- * @see SongUtil
+ * @see org.liferay.jukebox.service.persistence.SongUtil
  * @generated
  */
+@ProviderType
 public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	implements SongPersistence {
 	/*
@@ -126,7 +131,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs where uuid = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -143,7 +148,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs where uuid = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -154,7 +159,27 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> findByUuid(String uuid, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
+		return findByUuid(uuid, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs where uuid = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param uuid the uuid
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching songs
+	 */
+	@Override
+	public List<Song> findByUuid(String uuid, int start, int end,
+		OrderByComparator<Song> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -170,15 +195,19 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 			finderArgs = new Object[] { uuid, start, end, orderByComparator };
 		}
 
-		List<Song> list = (List<Song>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Song> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Song song : list) {
-				if (!Validator.equals(uuid, song.getUuid())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Song>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Song song : list) {
+					if (!Objects.equals(uuid, song.getUuid())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -188,7 +217,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -249,10 +278,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -270,11 +299,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByUuid_First(String uuid,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByUuid_First(uuid, orderByComparator);
 
 		if (song != null) {
@@ -302,7 +331,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByUuid_First(String uuid,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		List<Song> list = findByUuid(uuid, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -318,11 +347,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
-	public Song findByUuid_Last(String uuid, OrderByComparator orderByComparator)
-		throws NoSuchSongException {
+	public Song findByUuid_Last(String uuid,
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByUuid_Last(uuid, orderByComparator);
 
 		if (song != null) {
@@ -350,7 +379,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByUuid_Last(String uuid,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		int count = countByUuid(uuid);
 
 		if (count == 0) {
@@ -373,11 +402,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] findByUuid_PrevAndNext(long songId, String uuid,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = findByPrimaryKey(songId);
 
 		Session session = null;
@@ -406,12 +435,13 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	protected Song getByUuid_PrevAndNext(Session session, Song song,
-		String uuid, OrderByComparator orderByComparator, boolean previous) {
+		String uuid, OrderByComparator<Song> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -548,8 +578,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		Object[] finderArgs = new Object[] { uuid };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -587,10 +616,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -617,12 +646,12 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 			new String[] { String.class.getName(), Long.class.getName() });
 
 	/**
-	 * Returns the song where uuid = &#63; and groupId = &#63; or throws a {@link org.liferay.jukebox.NoSuchSongException} if it could not be found.
+	 * Returns the song where uuid = &#63; and groupId = &#63; or throws a {@link NoSuchSongException} if it could not be found.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @return the matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByUUID_G(String uuid, long groupId)
@@ -642,8 +671,8 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 			msg.append(StringPool.CLOSE_CURLY_BRACE);
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(msg.toString());
+			if (_log.isDebugEnabled()) {
+				_log.debug(msg.toString());
 			}
 
 			throw new NoSuchSongException(msg.toString());
@@ -669,7 +698,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @param retrieveFromCache whether to use the finder cache
+	 * @param retrieveFromCache whether to retrieve from the finder cache
 	 * @return the matching song, or <code>null</code> if a matching song could not be found
 	 */
 	@Override
@@ -680,14 +709,14 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 		Object result = null;
 
 		if (retrieveFromCache) {
-			result = FinderCacheUtil.getResult(FINDER_PATH_FETCH_BY_UUID_G,
+			result = finderCache.getResult(FINDER_PATH_FETCH_BY_UUID_G,
 					finderArgs, this);
 		}
 
 		if (result instanceof Song) {
 			Song song = (Song)result;
 
-			if (!Validator.equals(uuid, song.getUuid()) ||
+			if (!Objects.equals(uuid, song.getUuid()) ||
 					(groupId != song.getGroupId())) {
 				result = null;
 			}
@@ -734,7 +763,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 				List<Song> list = q.list();
 
 				if (list.isEmpty()) {
-					FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_UUID_G,
+					finderCache.putResult(FINDER_PATH_FETCH_BY_UUID_G,
 						finderArgs, list);
 				}
 				else {
@@ -747,14 +776,13 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 					if ((song.getUuid() == null) ||
 							!song.getUuid().equals(uuid) ||
 							(song.getGroupId() != groupId)) {
-						FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_UUID_G,
+						finderCache.putResult(FINDER_PATH_FETCH_BY_UUID_G,
 							finderArgs, song);
 					}
 				}
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_UUID_G,
-					finderArgs);
+				finderCache.removeResult(FINDER_PATH_FETCH_BY_UUID_G, finderArgs);
 
 				throw processException(e);
 			}
@@ -799,8 +827,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		Object[] finderArgs = new Object[] { uuid, groupId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -842,10 +869,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -899,7 +926,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -918,7 +945,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param uuid the uuid
@@ -930,7 +957,29 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> findByUuid_C(String uuid, long companyId, int start,
-		int end, OrderByComparator orderByComparator) {
+		int end, OrderByComparator<Song> orderByComparator) {
+		return findByUuid_C(uuid, companyId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs where uuid = &#63; and companyId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param uuid the uuid
+	 * @param companyId the company ID
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching songs
+	 */
+	@Override
+	public List<Song> findByUuid_C(String uuid, long companyId, int start,
+		int end, OrderByComparator<Song> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -950,16 +999,20 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 				};
 		}
 
-		List<Song> list = (List<Song>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Song> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Song song : list) {
-				if (!Validator.equals(uuid, song.getUuid()) ||
-						(companyId != song.getCompanyId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Song>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Song song : list) {
+					if (!Objects.equals(uuid, song.getUuid()) ||
+							(companyId != song.getCompanyId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -969,7 +1022,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -1034,10 +1087,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -1056,11 +1109,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByUuid_C_First(String uuid, long companyId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByUuid_C_First(uuid, companyId, orderByComparator);
 
 		if (song != null) {
@@ -1092,7 +1145,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByUuid_C_First(String uuid, long companyId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		List<Song> list = findByUuid_C(uuid, companyId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -1109,11 +1162,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByUuid_C_Last(String uuid, long companyId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByUuid_C_Last(uuid, companyId, orderByComparator);
 
 		if (song != null) {
@@ -1145,7 +1198,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByUuid_C_Last(String uuid, long companyId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		int count = countByUuid_C(uuid, companyId);
 
 		if (count == 0) {
@@ -1170,11 +1223,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] findByUuid_C_PrevAndNext(long songId, String uuid,
-		long companyId, OrderByComparator orderByComparator)
+		long companyId, OrderByComparator<Song> orderByComparator)
 		throws NoSuchSongException {
 		Song song = findByPrimaryKey(songId);
 
@@ -1204,16 +1257,17 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	protected Song getByUuid_C_PrevAndNext(Session session, Song song,
-		String uuid, long companyId, OrderByComparator orderByComparator,
+		String uuid, long companyId, OrderByComparator<Song> orderByComparator,
 		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_SONG_WHERE);
@@ -1353,8 +1407,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		Object[] finderArgs = new Object[] { uuid, companyId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -1396,10 +1449,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -1450,7 +1503,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs where groupId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -1467,7 +1520,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs where groupId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -1478,7 +1531,27 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> findByGroupId(long groupId, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
+		return findByGroupId(groupId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs where groupId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching songs
+	 */
+	@Override
+	public List<Song> findByGroupId(long groupId, int start, int end,
+		OrderByComparator<Song> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1494,15 +1567,19 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 			finderArgs = new Object[] { groupId, start, end, orderByComparator };
 		}
 
-		List<Song> list = (List<Song>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Song> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Song song : list) {
-				if ((groupId != song.getGroupId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Song>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Song song : list) {
+					if ((groupId != song.getGroupId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -1512,7 +1589,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -1559,10 +1636,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -1580,11 +1657,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByGroupId_First(long groupId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByGroupId_First(groupId, orderByComparator);
 
 		if (song != null) {
@@ -1612,7 +1689,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByGroupId_First(long groupId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		List<Song> list = findByGroupId(groupId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -1628,11 +1705,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByGroupId_Last(groupId, orderByComparator);
 
 		if (song != null) {
@@ -1660,7 +1737,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		int count = countByGroupId(groupId);
 
 		if (count == 0) {
@@ -1684,11 +1761,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] findByGroupId_PrevAndNext(long songId, long groupId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = findByPrimaryKey(songId);
 
 		Session session = null;
@@ -1717,12 +1794,14 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	protected Song getByGroupId_PrevAndNext(Session session, Song song,
-		long groupId, OrderByComparator orderByComparator, boolean previous) {
+		long groupId, OrderByComparator<Song> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -1836,7 +1915,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs that the user has permission to view where groupId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -1853,7 +1932,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs that the user has permissions to view where groupId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -1864,7 +1943,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> filterFindByGroupId(long groupId, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
@@ -1873,10 +1952,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(3 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -1950,11 +2029,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] filterFindByGroupId_PrevAndNext(long songId, long groupId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByGroupId_PrevAndNext(songId, groupId, orderByComparator);
 		}
@@ -1987,15 +2066,17 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	protected Song filterGetByGroupId_PrevAndNext(Session session, Song song,
-		long groupId, OrderByComparator orderByComparator, boolean previous) {
+		long groupId, OrderByComparator<Song> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -2150,8 +2231,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		Object[] finderArgs = new Object[] { groupId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -2175,10 +2255,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2274,7 +2354,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs where userId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -2291,7 +2371,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs where userId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param userId the user ID
@@ -2302,7 +2382,27 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> findByUserId(long userId, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
+		return findByUserId(userId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs where userId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param userId the user ID
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching songs
+	 */
+	@Override
+	public List<Song> findByUserId(long userId, int start, int end,
+		OrderByComparator<Song> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2318,15 +2418,19 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 			finderArgs = new Object[] { userId, start, end, orderByComparator };
 		}
 
-		List<Song> list = (List<Song>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Song> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Song song : list) {
-				if ((userId != song.getUserId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Song>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Song song : list) {
+					if ((userId != song.getUserId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -2336,7 +2440,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -2383,10 +2487,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2404,11 +2508,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByUserId_First(long userId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByUserId_First(userId, orderByComparator);
 
 		if (song != null) {
@@ -2436,7 +2540,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByUserId_First(long userId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		List<Song> list = findByUserId(userId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -2452,11 +2556,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByUserId_Last(long userId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByUserId_Last(userId, orderByComparator);
 
 		if (song != null) {
@@ -2484,7 +2588,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByUserId_Last(long userId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		int count = countByUserId(userId);
 
 		if (count == 0) {
@@ -2508,11 +2612,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] findByUserId_PrevAndNext(long songId, long userId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = findByPrimaryKey(songId);
 
 		Session session = null;
@@ -2541,12 +2645,13 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	protected Song getByUserId_PrevAndNext(Session session, Song song,
-		long userId, OrderByComparator orderByComparator, boolean previous) {
+		long userId, OrderByComparator<Song> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -2669,8 +2774,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		Object[] finderArgs = new Object[] { userId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -2694,10 +2798,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2747,7 +2851,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs where companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -2764,7 +2868,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs where companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param companyId the company ID
@@ -2775,7 +2879,27 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> findByCompanyId(long companyId, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
+		return findByCompanyId(companyId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs where companyId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param companyId the company ID
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching songs
+	 */
+	@Override
+	public List<Song> findByCompanyId(long companyId, int start, int end,
+		OrderByComparator<Song> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2791,15 +2915,19 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 			finderArgs = new Object[] { companyId, start, end, orderByComparator };
 		}
 
-		List<Song> list = (List<Song>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Song> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Song song : list) {
-				if ((companyId != song.getCompanyId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Song>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Song song : list) {
+					if ((companyId != song.getCompanyId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -2809,7 +2937,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -2856,10 +2984,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -2877,11 +3005,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByCompanyId_First(long companyId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByCompanyId_First(companyId, orderByComparator);
 
 		if (song != null) {
@@ -2909,7 +3037,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByCompanyId_First(long companyId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		List<Song> list = findByCompanyId(companyId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -2925,11 +3053,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByCompanyId_Last(long companyId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByCompanyId_Last(companyId, orderByComparator);
 
 		if (song != null) {
@@ -2957,7 +3085,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByCompanyId_Last(long companyId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		int count = countByCompanyId(companyId);
 
 		if (count == 0) {
@@ -2981,11 +3109,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] findByCompanyId_PrevAndNext(long songId, long companyId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = findByPrimaryKey(songId);
 
 		Session session = null;
@@ -3014,12 +3142,14 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	protected Song getByCompanyId_PrevAndNext(Session session, Song song,
-		long companyId, OrderByComparator orderByComparator, boolean previous) {
+		long companyId, OrderByComparator<Song> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -3142,8 +3272,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		Object[] finderArgs = new Object[] { companyId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -3167,10 +3296,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -3219,7 +3348,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs where artistId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param artistId the artist ID
@@ -3236,7 +3365,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs where artistId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param artistId the artist ID
@@ -3247,7 +3376,27 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> findByArtistId(long artistId, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
+		return findByArtistId(artistId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs where artistId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param artistId the artist ID
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching songs
+	 */
+	@Override
+	public List<Song> findByArtistId(long artistId, int start, int end,
+		OrderByComparator<Song> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -3263,15 +3412,19 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 			finderArgs = new Object[] { artistId, start, end, orderByComparator };
 		}
 
-		List<Song> list = (List<Song>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Song> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Song song : list) {
-				if ((artistId != song.getArtistId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Song>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Song song : list) {
+					if ((artistId != song.getArtistId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -3281,7 +3434,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -3328,10 +3481,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -3349,11 +3502,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param artistId the artist ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByArtistId_First(long artistId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByArtistId_First(artistId, orderByComparator);
 
 		if (song != null) {
@@ -3381,7 +3534,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByArtistId_First(long artistId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		List<Song> list = findByArtistId(artistId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -3397,11 +3550,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param artistId the artist ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByArtistId_Last(long artistId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByArtistId_Last(artistId, orderByComparator);
 
 		if (song != null) {
@@ -3429,7 +3582,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByArtistId_Last(long artistId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		int count = countByArtistId(artistId);
 
 		if (count == 0) {
@@ -3453,11 +3606,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param artistId the artist ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] findByArtistId_PrevAndNext(long songId, long artistId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = findByPrimaryKey(songId);
 
 		Session session = null;
@@ -3486,12 +3639,14 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	protected Song getByArtistId_PrevAndNext(Session session, Song song,
-		long artistId, OrderByComparator orderByComparator, boolean previous) {
+		long artistId, OrderByComparator<Song> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -3614,8 +3769,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		Object[] finderArgs = new Object[] { artistId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -3639,10 +3793,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -3690,7 +3844,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs where albumId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param albumId the album ID
@@ -3707,7 +3861,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs where albumId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param albumId the album ID
@@ -3718,7 +3872,27 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> findByAlbumId(long albumId, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
+		return findByAlbumId(albumId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs where albumId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param albumId the album ID
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching songs
+	 */
+	@Override
+	public List<Song> findByAlbumId(long albumId, int start, int end,
+		OrderByComparator<Song> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -3734,15 +3908,19 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 			finderArgs = new Object[] { albumId, start, end, orderByComparator };
 		}
 
-		List<Song> list = (List<Song>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Song> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Song song : list) {
-				if ((albumId != song.getAlbumId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Song>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Song song : list) {
+					if ((albumId != song.getAlbumId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -3752,7 +3930,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(3 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(3);
@@ -3799,10 +3977,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -3820,11 +3998,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param albumId the album ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByAlbumId_First(long albumId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByAlbumId_First(albumId, orderByComparator);
 
 		if (song != null) {
@@ -3852,7 +4030,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByAlbumId_First(long albumId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		List<Song> list = findByAlbumId(albumId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -3868,11 +4046,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param albumId the album ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByAlbumId_Last(long albumId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByAlbumId_Last(albumId, orderByComparator);
 
 		if (song != null) {
@@ -3900,7 +4078,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByAlbumId_Last(long albumId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		int count = countByAlbumId(albumId);
 
 		if (count == 0) {
@@ -3924,11 +4102,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param albumId the album ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] findByAlbumId_PrevAndNext(long songId, long albumId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = findByPrimaryKey(songId);
 
 		Session session = null;
@@ -3957,12 +4135,14 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	protected Song getByAlbumId_PrevAndNext(Session session, Song song,
-		long albumId, OrderByComparator orderByComparator, boolean previous) {
+		long albumId, OrderByComparator<Song> orderByComparator,
+		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
 			query = new StringBundler(3);
@@ -4085,8 +4265,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		Object[] finderArgs = new Object[] { albumId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(2);
@@ -4110,10 +4289,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -4163,7 +4342,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs where groupId = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -4181,7 +4360,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs where groupId = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -4193,7 +4372,28 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> findByG_S(long groupId, int status, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
+		return findByG_S(groupId, status, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs where groupId = &#63; and status = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param status the status
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching songs
+	 */
+	@Override
+	public List<Song> findByG_S(long groupId, int status, int start, int end,
+		OrderByComparator<Song> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -4213,16 +4413,20 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 				};
 		}
 
-		List<Song> list = (List<Song>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Song> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Song song : list) {
-				if ((groupId != song.getGroupId()) ||
-						(status != song.getStatus())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Song>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Song song : list) {
+					if ((groupId != song.getGroupId()) ||
+							(status != song.getStatus())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -4232,7 +4436,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -4283,10 +4487,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -4305,11 +4509,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByG_S_First(long groupId, int status,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByG_S_First(groupId, status, orderByComparator);
 
 		if (song != null) {
@@ -4341,7 +4545,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByG_S_First(long groupId, int status,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		List<Song> list = findByG_S(groupId, status, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -4358,11 +4562,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByG_S_Last(long groupId, int status,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByG_S_Last(groupId, status, orderByComparator);
 
 		if (song != null) {
@@ -4394,7 +4598,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByG_S_Last(long groupId, int status,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		int count = countByG_S(groupId, status);
 
 		if (count == 0) {
@@ -4419,11 +4623,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] findByG_S_PrevAndNext(long songId, long groupId, int status,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = findByPrimaryKey(songId);
 
 		Session session = null;
@@ -4452,16 +4656,17 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	protected Song getByG_S_PrevAndNext(Session session, Song song,
-		long groupId, int status, OrderByComparator orderByComparator,
+		long groupId, int status, OrderByComparator<Song> orderByComparator,
 		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_SONG_WHERE);
@@ -4577,7 +4782,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs that the user has permission to view where groupId = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -4596,7 +4801,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs that the user has permissions to view where groupId = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -4608,7 +4813,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> filterFindByG_S(long groupId, int status, int start,
-		int end, OrderByComparator orderByComparator) {
+		int end, OrderByComparator<Song> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_S(groupId, status, start, end, orderByComparator);
 		}
@@ -4617,10 +4822,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(4 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(4);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -4699,11 +4904,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] filterFindByG_S_PrevAndNext(long songId, long groupId,
-		int status, OrderByComparator orderByComparator)
+		int status, OrderByComparator<Song> orderByComparator)
 		throws NoSuchSongException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_S_PrevAndNext(songId, groupId, status,
@@ -4738,16 +4943,17 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	protected Song filterGetByG_S_PrevAndNext(Session session, Song song,
-		long groupId, int status, OrderByComparator orderByComparator,
+		long groupId, int status, OrderByComparator<Song> orderByComparator,
 		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -4908,8 +5114,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		Object[] finderArgs = new Object[] { groupId, status };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -4937,10 +5142,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -5044,7 +5249,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs where groupId = &#63; and albumId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -5062,7 +5267,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs where groupId = &#63; and albumId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -5074,7 +5279,28 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> findByG_A(long groupId, long albumId, int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
+		return findByG_A(groupId, albumId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs where groupId = &#63; and albumId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param albumId the album ID
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching songs
+	 */
+	@Override
+	public List<Song> findByG_A(long groupId, long albumId, int start, int end,
+		OrderByComparator<Song> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -5094,16 +5320,20 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 				};
 		}
 
-		List<Song> list = (List<Song>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Song> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Song song : list) {
-				if ((groupId != song.getGroupId()) ||
-						(albumId != song.getAlbumId())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Song>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Song song : list) {
+					if ((groupId != song.getGroupId()) ||
+							(albumId != song.getAlbumId())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -5113,7 +5343,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(4 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(4);
@@ -5164,10 +5394,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -5186,11 +5416,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param albumId the album ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByG_A_First(long groupId, long albumId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByG_A_First(groupId, albumId, orderByComparator);
 
 		if (song != null) {
@@ -5222,7 +5452,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByG_A_First(long groupId, long albumId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		List<Song> list = findByG_A(groupId, albumId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -5239,11 +5469,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param albumId the album ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByG_A_Last(long groupId, long albumId,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByG_A_Last(groupId, albumId, orderByComparator);
 
 		if (song != null) {
@@ -5275,7 +5505,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByG_A_Last(long groupId, long albumId,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		int count = countByG_A(groupId, albumId);
 
 		if (count == 0) {
@@ -5300,11 +5530,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param albumId the album ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] findByG_A_PrevAndNext(long songId, long groupId,
-		long albumId, OrderByComparator orderByComparator)
+		long albumId, OrderByComparator<Song> orderByComparator)
 		throws NoSuchSongException {
 		Song song = findByPrimaryKey(songId);
 
@@ -5334,16 +5564,17 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	protected Song getByG_A_PrevAndNext(Session session, Song song,
-		long groupId, long albumId, OrderByComparator orderByComparator,
+		long groupId, long albumId, OrderByComparator<Song> orderByComparator,
 		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(4);
 		}
 
 		query.append(_SQL_SELECT_SONG_WHERE);
@@ -5459,7 +5690,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs that the user has permission to view where groupId = &#63; and albumId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -5478,7 +5709,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs that the user has permissions to view where groupId = &#63; and albumId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -5490,7 +5721,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> filterFindByG_A(long groupId, long albumId, int start,
-		int end, OrderByComparator orderByComparator) {
+		int end, OrderByComparator<Song> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_A(groupId, albumId, start, end, orderByComparator);
 		}
@@ -5499,10 +5730,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(4 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(4);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -5581,11 +5812,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param albumId the album ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] filterFindByG_A_PrevAndNext(long songId, long groupId,
-		long albumId, OrderByComparator orderByComparator)
+		long albumId, OrderByComparator<Song> orderByComparator)
 		throws NoSuchSongException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_A_PrevAndNext(songId, groupId, albumId,
@@ -5620,16 +5851,17 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	protected Song filterGetByG_A_PrevAndNext(Session session, Song song,
-		long groupId, long albumId, OrderByComparator orderByComparator,
+		long groupId, long albumId, OrderByComparator<Song> orderByComparator,
 		boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -5790,8 +6022,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		Object[] finderArgs = new Object[] { groupId, albumId };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(3);
@@ -5819,10 +6050,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -5935,7 +6166,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs where groupId = &#63; and albumId = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -5955,7 +6186,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs where groupId = &#63; and albumId = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -5968,7 +6199,31 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> findByG_A_S(long groupId, long albumId, int status,
-		int start, int end, OrderByComparator orderByComparator) {
+		int start, int end, OrderByComparator<Song> orderByComparator) {
+		return findByG_A_S(groupId, albumId, status, start, end,
+			orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs where groupId = &#63; and albumId = &#63; and status = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param albumId the album ID
+	 * @param status the status
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching songs
+	 */
+	@Override
+	public List<Song> findByG_A_S(long groupId, long albumId, int status,
+		int start, int end, OrderByComparator<Song> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -5988,17 +6243,21 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 				};
 		}
 
-		List<Song> list = (List<Song>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Song> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Song song : list) {
-				if ((groupId != song.getGroupId()) ||
-						(albumId != song.getAlbumId()) ||
-						(status != song.getStatus())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Song>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Song song : list) {
+					if ((groupId != song.getGroupId()) ||
+							(albumId != song.getAlbumId()) ||
+							(status != song.getStatus())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -6008,7 +6267,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(5 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(5);
@@ -6063,10 +6322,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -6086,11 +6345,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByG_A_S_First(long groupId, long albumId, int status,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByG_A_S_First(groupId, albumId, status,
 				orderByComparator);
 
@@ -6127,7 +6386,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByG_A_S_First(long groupId, long albumId, int status,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		List<Song> list = findByG_A_S(groupId, albumId, status, 0, 1,
 				orderByComparator);
 
@@ -6146,11 +6405,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByG_A_S_Last(long groupId, long albumId, int status,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByG_A_S_Last(groupId, albumId, status,
 				orderByComparator);
 
@@ -6187,7 +6446,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByG_A_S_Last(long groupId, long albumId, int status,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		int count = countByG_A_S(groupId, albumId, status);
 
 		if (count == 0) {
@@ -6213,11 +6472,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] findByG_A_S_PrevAndNext(long songId, long groupId,
-		long albumId, int status, OrderByComparator orderByComparator)
+		long albumId, int status, OrderByComparator<Song> orderByComparator)
 		throws NoSuchSongException {
 		Song song = findByPrimaryKey(songId);
 
@@ -6248,15 +6507,16 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 	protected Song getByG_A_S_PrevAndNext(Session session, Song song,
 		long groupId, long albumId, int status,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<Song> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		query.append(_SQL_SELECT_SONG_WHERE);
@@ -6377,7 +6637,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs that the user has permission to view where groupId = &#63; and albumId = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -6397,7 +6657,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs that the user has permissions to view where groupId = &#63; and albumId = &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -6410,7 +6670,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> filterFindByG_A_S(long groupId, long albumId, int status,
-		int start, int end, OrderByComparator orderByComparator) {
+		int start, int end, OrderByComparator<Song> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_A_S(groupId, albumId, status, start, end,
 				orderByComparator);
@@ -6420,10 +6680,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(5 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(5);
+			query = new StringBundler(6);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -6507,11 +6767,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] filterFindByG_A_S_PrevAndNext(long songId, long groupId,
-		long albumId, int status, OrderByComparator orderByComparator)
+		long albumId, int status, OrderByComparator<Song> orderByComparator)
 		throws NoSuchSongException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_A_S_PrevAndNext(songId, groupId, albumId, status,
@@ -6547,15 +6807,16 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 	protected Song filterGetByG_A_S_PrevAndNext(Session session, Song song,
 		long groupId, long albumId, int status,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<Song> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(7 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(6);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -6722,8 +6983,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		Object[] finderArgs = new Object[] { groupId, albumId, status };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(4);
@@ -6755,10 +7015,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -6869,7 +7129,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs where groupId = &#63; and name LIKE &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -6889,7 +7149,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs where groupId = &#63; and name LIKE &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -6902,7 +7162,31 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> findByG_LikeN_S(long groupId, String name, int status,
-		int start, int end, OrderByComparator orderByComparator) {
+		int start, int end, OrderByComparator<Song> orderByComparator) {
+		return findByG_LikeN_S(groupId, name, status, start, end,
+			orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param name the name
+	 * @param status the status
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of matching songs
+	 */
+	@Override
+	public List<Song> findByG_LikeN_S(long groupId, String name, int status,
+		int start, int end, OrderByComparator<Song> orderByComparator,
+		boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -6914,19 +7198,23 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 				start, end, orderByComparator
 			};
 
-		List<Song> list = (List<Song>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Song> list = null;
 
-		if ((list != null) && !list.isEmpty()) {
-			for (Song song : list) {
-				if ((groupId != song.getGroupId()) ||
-						!StringUtil.wildcardMatches(song.getName(), name,
-							CharPool.UNDERLINE, CharPool.PERCENT,
-							CharPool.BACK_SLASH, false) ||
-						(status != song.getStatus())) {
-					list = null;
+		if (retrieveFromCache) {
+			list = (List<Song>)finderCache.getResult(finderPath, finderArgs,
+					this);
 
-					break;
+			if ((list != null) && !list.isEmpty()) {
+				for (Song song : list) {
+					if ((groupId != song.getGroupId()) ||
+							!StringUtil.wildcardMatches(song.getName(), name,
+								CharPool.UNDERLINE, CharPool.PERCENT,
+								CharPool.BACK_SLASH, false) ||
+							(status != song.getStatus())) {
+						list = null;
+
+						break;
+					}
 				}
 			}
 		}
@@ -6936,7 +7224,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(5 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 			}
 			else {
 				query = new StringBundler(5);
@@ -7005,10 +7293,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -7028,11 +7316,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByG_LikeN_S_First(long groupId, String name, int status,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByG_LikeN_S_First(groupId, name, status,
 				orderByComparator);
 
@@ -7069,7 +7357,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByG_LikeN_S_First(long groupId, String name, int status,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		List<Song> list = findByG_LikeN_S(groupId, name, status, 0, 1,
 				orderByComparator);
 
@@ -7088,11 +7376,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByG_LikeN_S_Last(long groupId, String name, int status,
-		OrderByComparator orderByComparator) throws NoSuchSongException {
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
 		Song song = fetchByG_LikeN_S_Last(groupId, name, status,
 				orderByComparator);
 
@@ -7129,7 +7417,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByG_LikeN_S_Last(long groupId, String name, int status,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
 		int count = countByG_LikeN_S(groupId, name, status);
 
 		if (count == 0) {
@@ -7155,11 +7443,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] findByG_LikeN_S_PrevAndNext(long songId, long groupId,
-		String name, int status, OrderByComparator orderByComparator)
+		String name, int status, OrderByComparator<Song> orderByComparator)
 		throws NoSuchSongException {
 		Song song = findByPrimaryKey(songId);
 
@@ -7190,15 +7478,16 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 	protected Song getByG_LikeN_S_PrevAndNext(Session session, Song song,
 		long groupId, String name, int status,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<Song> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
 			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(5);
 		}
 
 		query.append(_SQL_SELECT_SONG_WHERE);
@@ -7334,7 +7623,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs that the user has permission to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -7354,7 +7643,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs that the user has permissions to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param groupId the group ID
@@ -7367,7 +7656,8 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> filterFindByG_LikeN_S(long groupId, String name,
-		int status, int start, int end, OrderByComparator orderByComparator) {
+		int status, int start, int end,
+		OrderByComparator<Song> orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_LikeN_S(groupId, name, status, start, end,
 				orderByComparator);
@@ -7377,10 +7667,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		if (orderByComparator != null) {
 			query = new StringBundler(5 +
-					(orderByComparator.getOrderByFields().length * 3));
+					(orderByComparator.getOrderByFields().length * 2));
 		}
 		else {
-			query = new StringBundler(5);
+			query = new StringBundler(6);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -7478,11 +7768,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song[] filterFindByG_LikeN_S_PrevAndNext(long songId, long groupId,
-		String name, int status, OrderByComparator orderByComparator)
+		String name, int status, OrderByComparator<Song> orderByComparator)
 		throws NoSuchSongException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_LikeN_S_PrevAndNext(songId, groupId, name, status,
@@ -7518,15 +7808,16 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 	protected Song filterGetByG_LikeN_S_PrevAndNext(Session session, Song song,
 		long groupId, String name, int status,
-		OrderByComparator orderByComparator, boolean previous) {
+		OrderByComparator<Song> orderByComparator, boolean previous) {
 		StringBundler query = null;
 
 		if (orderByComparator != null) {
-			query = new StringBundler(6 +
-					(orderByComparator.getOrderByFields().length * 6));
+			query = new StringBundler(7 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
 		}
 		else {
-			query = new StringBundler(3);
+			query = new StringBundler(6);
 		}
 
 		if (getDB().isSupportsInlineDistinct()) {
@@ -7707,8 +7998,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		Object[] finderArgs = new Object[] { groupId, name, status };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(4);
@@ -7754,10 +8044,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -7842,7 +8132,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	private static final String _FINDER_COLUMN_G_LIKEN_S_GROUPID_2 = "song.groupId = ? AND ";
-	private static final String _FINDER_COLUMN_G_LIKEN_S_NAME_1 = "song.name LIKE NULL AND ";
+	private static final String _FINDER_COLUMN_G_LIKEN_S_NAME_1 = "song.name IS NULL AND ";
 	private static final String _FINDER_COLUMN_G_LIKEN_S_NAME_2 = "lower(song.name) LIKE ? AND ";
 	private static final String _FINDER_COLUMN_G_LIKEN_S_NAME_3 = "(song.name IS NULL OR song.name LIKE '') AND ";
 	private static final String _FINDER_COLUMN_G_LIKEN_S_STATUS_2 = "song.status = ?";
@@ -7866,14 +8156,14 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 			});
 
 	/**
-	 * Returns the song where groupId = &#63; and artistId = &#63; and albumId = &#63; and name = &#63; or throws a {@link org.liferay.jukebox.NoSuchSongException} if it could not be found.
+	 * Returns the song where groupId = &#63; and artistId = &#63; and albumId = &#63; and name = &#63; or throws a {@link NoSuchSongException} if it could not be found.
 	 *
 	 * @param groupId the group ID
 	 * @param artistId the artist ID
 	 * @param albumId the album ID
 	 * @param name the name
 	 * @return the matching song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a matching song could not be found
+	 * @throws NoSuchSongException if a matching song could not be found
 	 */
 	@Override
 	public Song findByG_A_A_N(long groupId, long artistId, long albumId,
@@ -7899,8 +8189,8 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 			msg.append(StringPool.CLOSE_CURLY_BRACE);
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(msg.toString());
+			if (_log.isDebugEnabled()) {
+				_log.debug(msg.toString());
 			}
 
 			throw new NoSuchSongException(msg.toString());
@@ -7931,7 +8221,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * @param artistId the artist ID
 	 * @param albumId the album ID
 	 * @param name the name
-	 * @param retrieveFromCache whether to use the finder cache
+	 * @param retrieveFromCache whether to retrieve from the finder cache
 	 * @return the matching song, or <code>null</code> if a matching song could not be found
 	 */
 	@Override
@@ -7942,7 +8232,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 		Object result = null;
 
 		if (retrieveFromCache) {
-			result = FinderCacheUtil.getResult(FINDER_PATH_FETCH_BY_G_A_A_N,
+			result = finderCache.getResult(FINDER_PATH_FETCH_BY_G_A_A_N,
 					finderArgs, this);
 		}
 
@@ -7952,7 +8242,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 			if ((groupId != song.getGroupId()) ||
 					(artistId != song.getArtistId()) ||
 					(albumId != song.getAlbumId()) ||
-					!Validator.equals(name, song.getName())) {
+					!Objects.equals(name, song.getName())) {
 				result = null;
 			}
 		}
@@ -8006,7 +8296,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 				List<Song> list = q.list();
 
 				if (list.isEmpty()) {
-					FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_G_A_A_N,
+					finderCache.putResult(FINDER_PATH_FETCH_BY_G_A_A_N,
 						finderArgs, list);
 				}
 				else {
@@ -8021,13 +8311,13 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 							(song.getAlbumId() != albumId) ||
 							(song.getName() == null) ||
 							!song.getName().equals(name)) {
-						FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_G_A_A_N,
+						finderCache.putResult(FINDER_PATH_FETCH_BY_G_A_A_N,
 							finderArgs, song);
 					}
 				}
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_G_A_A_N,
+				finderCache.removeResult(FINDER_PATH_FETCH_BY_G_A_A_N,
 					finderArgs);
 
 				throw processException(e);
@@ -8078,8 +8368,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		Object[] finderArgs = new Object[] { groupId, artistId, albumId, name };
 
-		Long count = (Long)FinderCacheUtil.getResult(finderPath, finderArgs,
-				this);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler query = new StringBundler(5);
@@ -8129,10 +8418,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				finderCache.putResult(finderPath, finderArgs, count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -8162,13 +8451,13 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public void cacheResult(Song song) {
-		EntityCacheUtil.putResult(SongModelImpl.ENTITY_CACHE_ENABLED,
+		entityCache.putResult(SongModelImpl.ENTITY_CACHE_ENABLED,
 			SongImpl.class, song.getPrimaryKey(), song);
 
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_UUID_G,
+		finderCache.putResult(FINDER_PATH_FETCH_BY_UUID_G,
 			new Object[] { song.getUuid(), song.getGroupId() }, song);
 
-		FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_G_A_A_N,
+		finderCache.putResult(FINDER_PATH_FETCH_BY_G_A_A_N,
 			new Object[] {
 				song.getGroupId(), song.getArtistId(), song.getAlbumId(),
 				song.getName()
@@ -8185,7 +8474,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	@Override
 	public void cacheResult(List<Song> songs) {
 		for (Song song : songs) {
-			if (EntityCacheUtil.getResult(SongModelImpl.ENTITY_CACHE_ENABLED,
+			if (entityCache.getResult(SongModelImpl.ENTITY_CACHE_ENABLED,
 						SongImpl.class, song.getPrimaryKey()) == null) {
 				cacheResult(song);
 			}
@@ -8199,105 +8488,106 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Clears the cache for all songs.
 	 *
 	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * The {@link EntityCache} and {@link FinderCache} are both cleared by this method.
 	 * </p>
 	 */
 	@Override
 	public void clearCache() {
-		if (_HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE) {
-			CacheRegistryUtil.clear(SongImpl.class.getName());
-		}
+		entityCache.clearCache(SongImpl.class);
 
-		EntityCacheUtil.clearCache(SongImpl.class);
-
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_ENTITY);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
 	/**
 	 * Clears the cache for the song.
 	 *
 	 * <p>
-	 * The {@link com.liferay.portal.kernel.dao.orm.EntityCache} and {@link com.liferay.portal.kernel.dao.orm.FinderCache} are both cleared by this method.
+	 * The {@link EntityCache} and {@link FinderCache} are both cleared by this method.
 	 * </p>
 	 */
 	@Override
 	public void clearCache(Song song) {
-		EntityCacheUtil.removeResult(SongModelImpl.ENTITY_CACHE_ENABLED,
+		entityCache.removeResult(SongModelImpl.ENTITY_CACHE_ENABLED,
 			SongImpl.class, song.getPrimaryKey());
 
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 
-		clearUniqueFindersCache(song);
+		clearUniqueFindersCache((SongModelImpl)song);
 	}
 
 	@Override
 	public void clearCache(List<Song> songs) {
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 
 		for (Song song : songs) {
-			EntityCacheUtil.removeResult(SongModelImpl.ENTITY_CACHE_ENABLED,
+			entityCache.removeResult(SongModelImpl.ENTITY_CACHE_ENABLED,
 				SongImpl.class, song.getPrimaryKey());
 
-			clearUniqueFindersCache(song);
+			clearUniqueFindersCache((SongModelImpl)song);
 		}
 	}
 
-	protected void cacheUniqueFindersCache(Song song) {
-		if (song.isNew()) {
-			Object[] args = new Object[] { song.getUuid(), song.getGroupId() };
-
-			FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_UUID_G, args,
-				Long.valueOf(1));
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_UUID_G, args, song);
-
-			args = new Object[] {
-					song.getGroupId(), song.getArtistId(), song.getAlbumId(),
-					song.getName()
+	protected void cacheUniqueFindersCache(SongModelImpl songModelImpl,
+		boolean isNew) {
+		if (isNew) {
+			Object[] args = new Object[] {
+					songModelImpl.getUuid(), songModelImpl.getGroupId()
 				};
 
-			FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_G_A_A_N, args,
+			finderCache.putResult(FINDER_PATH_COUNT_BY_UUID_G, args,
 				Long.valueOf(1));
-			FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_G_A_A_N, args, song);
+			finderCache.putResult(FINDER_PATH_FETCH_BY_UUID_G, args,
+				songModelImpl);
+
+			args = new Object[] {
+					songModelImpl.getGroupId(), songModelImpl.getArtistId(),
+					songModelImpl.getAlbumId(), songModelImpl.getName()
+				};
+
+			finderCache.putResult(FINDER_PATH_COUNT_BY_G_A_A_N, args,
+				Long.valueOf(1));
+			finderCache.putResult(FINDER_PATH_FETCH_BY_G_A_A_N, args,
+				songModelImpl);
 		}
 		else {
-			SongModelImpl songModelImpl = (SongModelImpl)song;
-
 			if ((songModelImpl.getColumnBitmask() &
 					FINDER_PATH_FETCH_BY_UUID_G.getColumnBitmask()) != 0) {
-				Object[] args = new Object[] { song.getUuid(), song.getGroupId() };
+				Object[] args = new Object[] {
+						songModelImpl.getUuid(), songModelImpl.getGroupId()
+					};
 
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_UUID_G, args,
+				finderCache.putResult(FINDER_PATH_COUNT_BY_UUID_G, args,
 					Long.valueOf(1));
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_UUID_G, args,
-					song);
+				finderCache.putResult(FINDER_PATH_FETCH_BY_UUID_G, args,
+					songModelImpl);
 			}
 
 			if ((songModelImpl.getColumnBitmask() &
 					FINDER_PATH_FETCH_BY_G_A_A_N.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] {
-						song.getGroupId(), song.getArtistId(), song.getAlbumId(),
-						song.getName()
+						songModelImpl.getGroupId(), songModelImpl.getArtistId(),
+						songModelImpl.getAlbumId(), songModelImpl.getName()
 					};
 
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_BY_G_A_A_N, args,
+				finderCache.putResult(FINDER_PATH_COUNT_BY_G_A_A_N, args,
 					Long.valueOf(1));
-				FinderCacheUtil.putResult(FINDER_PATH_FETCH_BY_G_A_A_N, args,
-					song);
+				finderCache.putResult(FINDER_PATH_FETCH_BY_G_A_A_N, args,
+					songModelImpl);
 			}
 		}
 	}
 
-	protected void clearUniqueFindersCache(Song song) {
-		SongModelImpl songModelImpl = (SongModelImpl)song;
+	protected void clearUniqueFindersCache(SongModelImpl songModelImpl) {
+		Object[] args = new Object[] {
+				songModelImpl.getUuid(), songModelImpl.getGroupId()
+			};
 
-		Object[] args = new Object[] { song.getUuid(), song.getGroupId() };
-
-		FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID_G, args);
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_UUID_G, args);
+		finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_G, args);
+		finderCache.removeResult(FINDER_PATH_FETCH_BY_UUID_G, args);
 
 		if ((songModelImpl.getColumnBitmask() &
 				FINDER_PATH_FETCH_BY_UUID_G.getColumnBitmask()) != 0) {
@@ -8306,17 +8596,17 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 					songModelImpl.getOriginalGroupId()
 				};
 
-			FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID_G, args);
-			FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_UUID_G, args);
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_G, args);
+			finderCache.removeResult(FINDER_PATH_FETCH_BY_UUID_G, args);
 		}
 
 		args = new Object[] {
-				song.getGroupId(), song.getArtistId(), song.getAlbumId(),
-				song.getName()
+				songModelImpl.getGroupId(), songModelImpl.getArtistId(),
+				songModelImpl.getAlbumId(), songModelImpl.getName()
 			};
 
-		FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_G_A_A_N, args);
-		FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_G_A_A_N, args);
+		finderCache.removeResult(FINDER_PATH_COUNT_BY_G_A_A_N, args);
+		finderCache.removeResult(FINDER_PATH_FETCH_BY_G_A_A_N, args);
 
 		if ((songModelImpl.getColumnBitmask() &
 				FINDER_PATH_FETCH_BY_G_A_A_N.getColumnBitmask()) != 0) {
@@ -8327,8 +8617,8 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 					songModelImpl.getOriginalName()
 				};
 
-			FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_G_A_A_N, args);
-			FinderCacheUtil.removeResult(FINDER_PATH_FETCH_BY_G_A_A_N, args);
+			finderCache.removeResult(FINDER_PATH_COUNT_BY_G_A_A_N, args);
+			finderCache.removeResult(FINDER_PATH_FETCH_BY_G_A_A_N, args);
 		}
 	}
 
@@ -8349,6 +8639,8 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 		song.setUuid(uuid);
 
+		song.setCompanyId(companyProvider.getCompanyId());
+
 		return song;
 	}
 
@@ -8357,7 +8649,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 *
 	 * @param songId the primary key of the song
 	 * @return the song that was removed
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song remove(long songId) throws NoSuchSongException {
@@ -8369,7 +8661,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 *
 	 * @param primaryKey the primary key of the song
 	 * @return the song that was removed
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song remove(Serializable primaryKey) throws NoSuchSongException {
@@ -8381,8 +8673,8 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 			Song song = (Song)session.get(SongImpl.class, primaryKey);
 
 			if (song == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				if (_log.isDebugEnabled()) {
+					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
 				throw new NoSuchSongException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -8434,7 +8726,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	@Override
-	public Song updateImpl(org.liferay.jukebox.model.Song song) {
+	public Song updateImpl(Song song) {
 		song = toUnwrappedModel(song);
 
 		boolean isNew = song.isNew();
@@ -8445,6 +8737,28 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 			String uuid = PortalUUIDUtil.generate();
 
 			song.setUuid(uuid);
+		}
+
+		ServiceContext serviceContext = ServiceContextThreadLocal.getServiceContext();
+
+		Date now = new Date();
+
+		if (isNew && (song.getCreateDate() == null)) {
+			if (serviceContext == null) {
+				song.setCreateDate(now);
+			}
+			else {
+				song.setCreateDate(serviceContext.getCreateDate(now));
+			}
+		}
+
+		if (!songModelImpl.hasSetModifiedDate()) {
+			if (serviceContext == null) {
+				song.setModifiedDate(now);
+			}
+			else {
+				song.setModifiedDate(serviceContext.getModifiedDate(now));
+			}
 		}
 
 		Session session = null;
@@ -8458,7 +8772,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 				song.setNew(false);
 			}
 			else {
-				session.merge(song);
+				song = (Song)session.merge(song);
 			}
 		}
 		catch (Exception e) {
@@ -8468,10 +8782,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 			closeSession(session);
 		}
 
-		FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 
 		if (isNew || !SongModelImpl.COLUMN_BITMASK_ENABLED) {
-			FinderCacheUtil.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+			finderCache.clearCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 		}
 
 		else {
@@ -8479,14 +8793,14 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] { songModelImpl.getOriginalUuid() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
 					args);
 
 				args = new Object[] { songModelImpl.getUuid() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID,
 					args);
 			}
 
@@ -8497,16 +8811,16 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 						songModelImpl.getOriginalCompanyId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
 					args);
 
 				args = new Object[] {
 						songModelImpl.getUuid(), songModelImpl.getCompanyId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_UUID_C, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_UUID_C,
 					args);
 			}
 
@@ -8514,14 +8828,14 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] { songModelImpl.getOriginalGroupId() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_GROUPID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_GROUPID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID,
 					args);
 
 				args = new Object[] { songModelImpl.getGroupId() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_GROUPID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_GROUPID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_GROUPID,
 					args);
 			}
 
@@ -8529,14 +8843,14 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] { songModelImpl.getOriginalUserId() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
 					args);
 
 				args = new Object[] { songModelImpl.getUserId() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_USERID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_USERID,
 					args);
 			}
 
@@ -8546,16 +8860,14 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 						songModelImpl.getOriginalCompanyId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_COMPANYID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
 					args);
 
 				args = new Object[] { songModelImpl.getCompanyId() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_COMPANYID,
-					args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_COMPANYID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_COMPANYID,
 					args);
 			}
 
@@ -8563,14 +8875,14 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ARTISTID.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] { songModelImpl.getOriginalArtistId() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_ARTISTID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ARTISTID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_ARTISTID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ARTISTID,
 					args);
 
 				args = new Object[] { songModelImpl.getArtistId() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_ARTISTID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ARTISTID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_ARTISTID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ARTISTID,
 					args);
 			}
 
@@ -8578,14 +8890,14 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 					FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ALBUMID.getColumnBitmask()) != 0) {
 				Object[] args = new Object[] { songModelImpl.getOriginalAlbumId() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_ALBUMID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ALBUMID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_ALBUMID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ALBUMID,
 					args);
 
 				args = new Object[] { songModelImpl.getAlbumId() };
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_ALBUMID, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ALBUMID,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_ALBUMID, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_ALBUMID,
 					args);
 			}
 
@@ -8596,16 +8908,16 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 						songModelImpl.getOriginalStatus()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_G_S, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_S,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_G_S, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_S,
 					args);
 
 				args = new Object[] {
 						songModelImpl.getGroupId(), songModelImpl.getStatus()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_G_S, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_S,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_G_S, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_S,
 					args);
 			}
 
@@ -8616,16 +8928,16 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 						songModelImpl.getOriginalAlbumId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_G_A, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_A,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_G_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_A,
 					args);
 
 				args = new Object[] {
 						songModelImpl.getGroupId(), songModelImpl.getAlbumId()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_G_A, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_A,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_G_A, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_A,
 					args);
 			}
 
@@ -8637,8 +8949,8 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 						songModelImpl.getOriginalStatus()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_G_A_S, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_A_S,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_G_A_S, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_A_S,
 					args);
 
 				args = new Object[] {
@@ -8646,17 +8958,17 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 						songModelImpl.getStatus()
 					};
 
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_BY_G_A_S, args);
-				FinderCacheUtil.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_A_S,
+				finderCache.removeResult(FINDER_PATH_COUNT_BY_G_A_S, args);
+				finderCache.removeResult(FINDER_PATH_WITHOUT_PAGINATION_FIND_BY_G_A_S,
 					args);
 			}
 		}
 
-		EntityCacheUtil.putResult(SongModelImpl.ENTITY_CACHE_ENABLED,
+		entityCache.putResult(SongModelImpl.ENTITY_CACHE_ENABLED,
 			SongImpl.class, song.getPrimaryKey(), song, false);
 
-		clearUniqueFindersCache(song);
-		cacheUniqueFindersCache(song);
+		clearUniqueFindersCache(songModelImpl);
+		cacheUniqueFindersCache(songModelImpl, isNew);
 
 		song.resetOriginalValues();
 
@@ -8693,11 +9005,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	/**
-	 * Returns the song with the primary key or throws a {@link com.liferay.portal.NoSuchModelException} if it could not be found.
+	 * Returns the song with the primary key or throws a {@link com.liferay.portal.kernel.exception.NoSuchModelException} if it could not be found.
 	 *
 	 * @param primaryKey the primary key of the song
 	 * @return the song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song findByPrimaryKey(Serializable primaryKey)
@@ -8705,8 +9017,8 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 		Song song = fetchByPrimaryKey(primaryKey);
 
 		if (song == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+			if (_log.isDebugEnabled()) {
+				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			throw new NoSuchSongException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -8717,11 +9029,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	/**
-	 * Returns the song with the primary key or throws a {@link org.liferay.jukebox.NoSuchSongException} if it could not be found.
+	 * Returns the song with the primary key or throws a {@link NoSuchSongException} if it could not be found.
 	 *
 	 * @param songId the primary key of the song
 	 * @return the song
-	 * @throws org.liferay.jukebox.NoSuchSongException if a song with the primary key could not be found
+	 * @throws NoSuchSongException if a song with the primary key could not be found
 	 */
 	@Override
 	public Song findByPrimaryKey(long songId) throws NoSuchSongException {
@@ -8736,7 +9048,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public Song fetchByPrimaryKey(Serializable primaryKey) {
-		Song song = (Song)EntityCacheUtil.getResult(SongModelImpl.ENTITY_CACHE_ENABLED,
+		Song song = (Song)entityCache.getResult(SongModelImpl.ENTITY_CACHE_ENABLED,
 				SongImpl.class, primaryKey);
 
 		if (song == _nullSong) {
@@ -8755,12 +9067,12 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 					cacheResult(song);
 				}
 				else {
-					EntityCacheUtil.putResult(SongModelImpl.ENTITY_CACHE_ENABLED,
+					entityCache.putResult(SongModelImpl.ENTITY_CACHE_ENABLED,
 						SongImpl.class, primaryKey, _nullSong);
 				}
 			}
 			catch (Exception e) {
-				EntityCacheUtil.removeResult(SongModelImpl.ENTITY_CACHE_ENABLED,
+				entityCache.removeResult(SongModelImpl.ENTITY_CACHE_ENABLED,
 					SongImpl.class, primaryKey);
 
 				throw processException(e);
@@ -8810,7 +9122,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 		Set<Serializable> uncachedPrimaryKeys = null;
 
 		for (Serializable primaryKey : primaryKeys) {
-			Song song = (Song)EntityCacheUtil.getResult(SongModelImpl.ENTITY_CACHE_ENABLED,
+			Song song = (Song)entityCache.getResult(SongModelImpl.ENTITY_CACHE_ENABLED,
 					SongImpl.class, primaryKey);
 
 			if (song == null) {
@@ -8862,7 +9174,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 			}
 
 			for (Serializable primaryKey : uncachedPrimaryKeys) {
-				EntityCacheUtil.putResult(SongModelImpl.ENTITY_CACHE_ENABLED,
+				entityCache.putResult(SongModelImpl.ENTITY_CACHE_ENABLED,
 					SongImpl.class, primaryKey, _nullSong);
 			}
 		}
@@ -8890,7 +9202,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns a range of all the songs.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param start the lower bound of the range of songs
@@ -8906,7 +9218,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 * Returns an ordered range of all the songs.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link org.liferay.jukebox.model.impl.SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
 	 * </p>
 	 *
 	 * @param start the lower bound of the range of songs
@@ -8916,7 +9228,26 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public List<Song> findAll(int start, int end,
-		OrderByComparator orderByComparator) {
+		OrderByComparator<Song> orderByComparator) {
+		return findAll(start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param retrieveFromCache whether to retrieve from the finder cache
+	 * @return the ordered range of songs
+	 */
+	@Override
+	public List<Song> findAll(int start, int end,
+		OrderByComparator<Song> orderByComparator, boolean retrieveFromCache) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -8932,8 +9263,12 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 			finderArgs = new Object[] { start, end, orderByComparator };
 		}
 
-		List<Song> list = (List<Song>)FinderCacheUtil.getResult(finderPath,
-				finderArgs, this);
+		List<Song> list = null;
+
+		if (retrieveFromCache) {
+			list = (List<Song>)finderCache.getResult(finderPath, finderArgs,
+					this);
+		}
 
 		if (list == null) {
 			StringBundler query = null;
@@ -8941,7 +9276,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 			if (orderByComparator != null) {
 				query = new StringBundler(2 +
-						(orderByComparator.getOrderByFields().length * 3));
+						(orderByComparator.getOrderByFields().length * 2));
 
 				query.append(_SQL_SELECT_SONG);
 
@@ -8980,10 +9315,10 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				cacheResult(list);
 
-				FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				finderCache.putResult(finderPath, finderArgs, list);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(finderPath, finderArgs);
+				finderCache.removeResult(finderPath, finderArgs);
 
 				throw processException(e);
 			}
@@ -9013,7 +9348,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	 */
 	@Override
 	public int countAll() {
-		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
+		Long count = (Long)finderCache.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
@@ -9026,11 +9361,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 
 				count = (Long)q.uniqueResult();
 
-				FinderCacheUtil.putResult(FINDER_PATH_COUNT_ALL,
-					FINDER_ARGS_EMPTY, count);
+				finderCache.putResult(FINDER_PATH_COUNT_ALL, FINDER_ARGS_EMPTY,
+					count);
 			}
 			catch (Exception e) {
-				FinderCacheUtil.removeResult(FINDER_PATH_COUNT_ALL,
+				finderCache.removeResult(FINDER_PATH_COUNT_ALL,
 					FINDER_ARGS_EMPTY);
 
 				throw processException(e);
@@ -9044,42 +9379,32 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	@Override
-	protected Set<String> getBadColumnNames() {
+	public Set<String> getBadColumnNames() {
 		return _badColumnNames;
+	}
+
+	@Override
+	protected Map<String, Integer> getTableColumnsMap() {
+		return SongModelImpl.TABLE_COLUMNS_MAP;
 	}
 
 	/**
 	 * Initializes the song persistence.
 	 */
 	public void afterPropertiesSet() {
-		String[] listenerClassNames = StringUtil.split(GetterUtil.getString(
-					com.liferay.util.service.ServiceProps.get(
-						"value.object.listener.org.liferay.jukebox.model.Song")));
-
-		if (listenerClassNames.length > 0) {
-			try {
-				List<ModelListener<Song>> listenersList = new ArrayList<ModelListener<Song>>();
-
-				for (String listenerClassName : listenerClassNames) {
-					listenersList.add((ModelListener<Song>)InstanceFactory.newInstance(
-							getClassLoader(), listenerClassName));
-				}
-
-				listeners = listenersList.toArray(new ModelListener[listenersList.size()]);
-			}
-			catch (Exception e) {
-				_log.error(e);
-			}
-		}
 	}
 
 	public void destroy() {
-		EntityCacheUtil.removeCache(SongImpl.class.getName());
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_ENTITY);
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
-		FinderCacheUtil.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
+		entityCache.removeCache(SongImpl.class.getName());
+		finderCache.removeCache(FINDER_CLASS_NAME_ENTITY);
+		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
+		finderCache.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
 	}
 
+	@BeanReference(type = CompanyProviderWrapper.class)
+	protected CompanyProvider companyProvider;
+	protected EntityCache entityCache = EntityCacheUtil.getEntityCache();
+	protected FinderCache finderCache = FinderCacheUtil.getFinderCache();
 	private static final String _SQL_SELECT_SONG = "SELECT song FROM Song song";
 	private static final String _SQL_SELECT_SONG_WHERE_PKS_IN = "SELECT song FROM Song song WHERE songId IN (";
 	private static final String _SQL_SELECT_SONG_WHERE = "SELECT song FROM Song song WHERE ";
@@ -9098,13 +9423,11 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	private static final String _ORDER_BY_ENTITY_TABLE = "jukebox_Song.";
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No Song exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No Song exists with the key {";
-	private static final boolean _HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE = GetterUtil.getBoolean(PropsUtil.get(
-				PropsKeys.HIBERNATE_CACHE_USE_SECOND_LEVEL_CACHE));
-	private static Log _log = LogFactoryUtil.getLog(SongPersistenceImpl.class);
-	private static Set<String> _badColumnNames = SetUtil.fromArray(new String[] {
+	private static final Log _log = LogFactoryUtil.getLog(SongPersistenceImpl.class);
+	private static final Set<String> _badColumnNames = SetUtil.fromArray(new String[] {
 				"uuid"
 			});
-	private static Song _nullSong = new SongImpl() {
+	private static final Song _nullSong = new SongImpl() {
 			@Override
 			public Object clone() {
 				return this;
@@ -9116,7 +9439,7 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 			}
 		};
 
-	private static CacheModel<Song> _nullSongCacheModel = new CacheModel<Song>() {
+	private static final CacheModel<Song> _nullSongCacheModel = new CacheModel<Song>() {
 			@Override
 			public Song toEntityModel() {
 				return _nullSong;

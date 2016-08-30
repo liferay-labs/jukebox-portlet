@@ -14,15 +14,24 @@
 
 package org.liferay.jukebox.service;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
+import com.liferay.portal.kernel.security.access.control.AccessControlled;
+import com.liferay.portal.kernel.service.BaseService;
+import com.liferay.portal.kernel.service.InvokableService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
-import com.liferay.portal.security.ac.AccessControlled;
-import com.liferay.portal.service.BaseService;
-import com.liferay.portal.service.InvokableService;
+
+import org.liferay.jukebox.model.Album;
+
+import java.io.InputStream;
+
+import java.util.List;
 
 /**
  * Provides the remote service interface for Album. Methods of this
@@ -37,6 +46,7 @@ import com.liferay.portal.service.InvokableService;
  */
 @AccessControlled
 @JSONWebService
+@ProviderType
 @Transactional(isolation = Isolation.PORTAL, rollbackFor =  {
 	PortalException.class, SystemException.class})
 public interface AlbumService extends BaseService, InvokableService {
@@ -45,81 +55,51 @@ public interface AlbumService extends BaseService, InvokableService {
 	 *
 	 * Never modify or reference this interface directly. Always use {@link AlbumServiceUtil} to access the album remote service. Add custom service methods to {@link org.liferay.jukebox.service.impl.AlbumServiceImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getAlbumsCount(long groupId);
 
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public java.lang.String getBeanIdentifier();
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getAlbumsCount(long groupId, java.lang.String keywords);
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public void setBeanIdentifier(java.lang.String beanIdentifier);
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getAlbumsCountByArtistId(long groupId, long artistId);
 
 	@Override
 	public java.lang.Object invokeMethod(java.lang.String name,
 		java.lang.String[] parameterTypes, java.lang.Object[] arguments)
 		throws java.lang.Throwable;
 
-	public org.liferay.jukebox.model.Album addAlbum(long artistId,
-		java.lang.String name, int year, java.io.InputStream inputStream,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	public org.liferay.jukebox.model.Album deleteAlbum(long albumId,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public java.lang.String getOSGiServiceIdentifier();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<org.liferay.jukebox.model.Album> getAlbums(
-		long groupId)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public List<Album> getAlbums(long groupId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<org.liferay.jukebox.model.Album> getAlbums(
-		long groupId, int start, int end)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public List<Album> getAlbums(long groupId, int start, int end);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<org.liferay.jukebox.model.Album> getAlbums(
-		long groupId, java.lang.String keywords)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public List<Album> getAlbums(long groupId, java.lang.String keywords);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public java.util.List<org.liferay.jukebox.model.Album> getAlbumsByArtistId(
-		long groupId, long artistId)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public List<Album> getAlbumsByArtistId(long groupId, long artistId);
 
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getAlbumsCount(long groupId)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public Album addAlbum(long artistId, java.lang.String name, int year,
+		InputStream inputStream, ServiceContext serviceContext)
+		throws PortalException;
 
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getAlbumsCount(long groupId, java.lang.String keywords)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public Album deleteAlbum(long albumId, ServiceContext serviceContext)
+		throws PortalException;
 
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getAlbumsCountByArtistId(long groupId, long artistId)
-		throws com.liferay.portal.kernel.exception.SystemException;
+	public Album moveAlbumToTrash(long albumId) throws PortalException;
 
-	public org.liferay.jukebox.model.Album moveAlbumToTrash(long albumId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+	public Album restoreAlbumFromTrash(long albumId) throws PortalException;
 
-	public org.liferay.jukebox.model.Album restoreAlbumFromTrash(long albumId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
-
-	public org.liferay.jukebox.model.Album updateAlbum(long albumId,
-		long artistId, java.lang.String name, int year,
-		java.io.InputStream inputStream,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException;
+	public Album updateAlbum(long albumId, long artistId,
+		java.lang.String name, int year, InputStream inputStream,
+		ServiceContext serviceContext) throws PortalException;
 }

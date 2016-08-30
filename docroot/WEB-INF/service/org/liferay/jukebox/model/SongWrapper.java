@@ -14,13 +14,21 @@
 
 package org.liferay.jukebox.model;
 
-import com.liferay.portal.kernel.lar.StagedModelType;
-import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.ModelWrapper;
+import aQute.bnd.annotation.ProviderType;
+
+import com.liferay.expando.kernel.model.ExpandoBridge;
+
+import com.liferay.exportimport.kernel.lar.StagedModelType;
+
+import com.liferay.portal.kernel.model.ModelWrapper;
+import com.liferay.portal.kernel.service.ServiceContext;
+
+import java.io.Serializable;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * <p>
@@ -31,6 +39,7 @@ import java.util.Map;
  * @see Song
  * @generated
  */
+@ProviderType
 public class SongWrapper implements Song, ModelWrapper<Song> {
 	public SongWrapper(Song song) {
 		_song = song;
@@ -162,395 +171,64 @@ public class SongWrapper implements Song, ModelWrapper<Song> {
 		}
 	}
 
-	/**
-	* Returns the primary key of this song.
-	*
-	* @return the primary key of this song
-	*/
 	@Override
-	public long getPrimaryKey() {
-		return _song.getPrimaryKey();
+	public Song toEscapedModel() {
+		return new SongWrapper(_song.toEscapedModel());
+	}
+
+	@Override
+	public Song toUnescapedModel() {
+		return new SongWrapper(_song.toUnescapedModel());
 	}
 
 	/**
-	* Sets the primary key of this song.
+	* Returns <code>true</code> if this song is approved.
 	*
-	* @param primaryKey the primary key of this song
+	* @return <code>true</code> if this song is approved; <code>false</code> otherwise
 	*/
 	@Override
-	public void setPrimaryKey(long primaryKey) {
-		_song.setPrimaryKey(primaryKey);
+	public boolean isApproved() {
+		return _song.isApproved();
+	}
+
+	@Override
+	public boolean isCachedModel() {
+		return _song.isCachedModel();
 	}
 
 	/**
-	* Returns the uuid of this song.
+	* Returns <code>true</code> if this song is denied.
 	*
-	* @return the uuid of this song
+	* @return <code>true</code> if this song is denied; <code>false</code> otherwise
 	*/
 	@Override
-	public java.lang.String getUuid() {
-		return _song.getUuid();
+	public boolean isDenied() {
+		return _song.isDenied();
 	}
 
 	/**
-	* Sets the uuid of this song.
+	* Returns <code>true</code> if this song is a draft.
 	*
-	* @param uuid the uuid of this song
+	* @return <code>true</code> if this song is a draft; <code>false</code> otherwise
 	*/
 	@Override
-	public void setUuid(java.lang.String uuid) {
-		_song.setUuid(uuid);
+	public boolean isDraft() {
+		return _song.isDraft();
+	}
+
+	@Override
+	public boolean isEscapedModel() {
+		return _song.isEscapedModel();
 	}
 
 	/**
-	* Returns the song ID of this song.
+	* Returns <code>true</code> if this song is expired.
 	*
-	* @return the song ID of this song
+	* @return <code>true</code> if this song is expired; <code>false</code> otherwise
 	*/
 	@Override
-	public long getSongId() {
-		return _song.getSongId();
-	}
-
-	/**
-	* Sets the song ID of this song.
-	*
-	* @param songId the song ID of this song
-	*/
-	@Override
-	public void setSongId(long songId) {
-		_song.setSongId(songId);
-	}
-
-	/**
-	* Returns the company ID of this song.
-	*
-	* @return the company ID of this song
-	*/
-	@Override
-	public long getCompanyId() {
-		return _song.getCompanyId();
-	}
-
-	/**
-	* Sets the company ID of this song.
-	*
-	* @param companyId the company ID of this song
-	*/
-	@Override
-	public void setCompanyId(long companyId) {
-		_song.setCompanyId(companyId);
-	}
-
-	/**
-	* Returns the group ID of this song.
-	*
-	* @return the group ID of this song
-	*/
-	@Override
-	public long getGroupId() {
-		return _song.getGroupId();
-	}
-
-	/**
-	* Sets the group ID of this song.
-	*
-	* @param groupId the group ID of this song
-	*/
-	@Override
-	public void setGroupId(long groupId) {
-		_song.setGroupId(groupId);
-	}
-
-	/**
-	* Returns the user ID of this song.
-	*
-	* @return the user ID of this song
-	*/
-	@Override
-	public long getUserId() {
-		return _song.getUserId();
-	}
-
-	/**
-	* Sets the user ID of this song.
-	*
-	* @param userId the user ID of this song
-	*/
-	@Override
-	public void setUserId(long userId) {
-		_song.setUserId(userId);
-	}
-
-	/**
-	* Returns the user uuid of this song.
-	*
-	* @return the user uuid of this song
-	*/
-	@Override
-	public java.lang.String getUserUuid() {
-		return _song.getUserUuid();
-	}
-
-	/**
-	* Sets the user uuid of this song.
-	*
-	* @param userUuid the user uuid of this song
-	*/
-	@Override
-	public void setUserUuid(java.lang.String userUuid) {
-		_song.setUserUuid(userUuid);
-	}
-
-	/**
-	* Returns the user name of this song.
-	*
-	* @return the user name of this song
-	*/
-	@Override
-	public java.lang.String getUserName() {
-		return _song.getUserName();
-	}
-
-	/**
-	* Sets the user name of this song.
-	*
-	* @param userName the user name of this song
-	*/
-	@Override
-	public void setUserName(java.lang.String userName) {
-		_song.setUserName(userName);
-	}
-
-	/**
-	* Returns the create date of this song.
-	*
-	* @return the create date of this song
-	*/
-	@Override
-	public java.util.Date getCreateDate() {
-		return _song.getCreateDate();
-	}
-
-	/**
-	* Sets the create date of this song.
-	*
-	* @param createDate the create date of this song
-	*/
-	@Override
-	public void setCreateDate(java.util.Date createDate) {
-		_song.setCreateDate(createDate);
-	}
-
-	/**
-	* Returns the modified date of this song.
-	*
-	* @return the modified date of this song
-	*/
-	@Override
-	public java.util.Date getModifiedDate() {
-		return _song.getModifiedDate();
-	}
-
-	/**
-	* Sets the modified date of this song.
-	*
-	* @param modifiedDate the modified date of this song
-	*/
-	@Override
-	public void setModifiedDate(java.util.Date modifiedDate) {
-		_song.setModifiedDate(modifiedDate);
-	}
-
-	/**
-	* Returns the artist ID of this song.
-	*
-	* @return the artist ID of this song
-	*/
-	@Override
-	public long getArtistId() {
-		return _song.getArtistId();
-	}
-
-	/**
-	* Sets the artist ID of this song.
-	*
-	* @param artistId the artist ID of this song
-	*/
-	@Override
-	public void setArtistId(long artistId) {
-		_song.setArtistId(artistId);
-	}
-
-	/**
-	* Returns the album ID of this song.
-	*
-	* @return the album ID of this song
-	*/
-	@Override
-	public long getAlbumId() {
-		return _song.getAlbumId();
-	}
-
-	/**
-	* Sets the album ID of this song.
-	*
-	* @param albumId the album ID of this song
-	*/
-	@Override
-	public void setAlbumId(long albumId) {
-		_song.setAlbumId(albumId);
-	}
-
-	/**
-	* Returns the name of this song.
-	*
-	* @return the name of this song
-	*/
-	@Override
-	public java.lang.String getName() {
-		return _song.getName();
-	}
-
-	/**
-	* Sets the name of this song.
-	*
-	* @param name the name of this song
-	*/
-	@Override
-	public void setName(java.lang.String name) {
-		_song.setName(name);
-	}
-
-	/**
-	* Returns the status of this song.
-	*
-	* @return the status of this song
-	*/
-	@Override
-	public int getStatus() {
-		return _song.getStatus();
-	}
-
-	/**
-	* Sets the status of this song.
-	*
-	* @param status the status of this song
-	*/
-	@Override
-	public void setStatus(int status) {
-		_song.setStatus(status);
-	}
-
-	/**
-	* Returns the status by user ID of this song.
-	*
-	* @return the status by user ID of this song
-	*/
-	@Override
-	public long getStatusByUserId() {
-		return _song.getStatusByUserId();
-	}
-
-	/**
-	* Sets the status by user ID of this song.
-	*
-	* @param statusByUserId the status by user ID of this song
-	*/
-	@Override
-	public void setStatusByUserId(long statusByUserId) {
-		_song.setStatusByUserId(statusByUserId);
-	}
-
-	/**
-	* Returns the status by user uuid of this song.
-	*
-	* @return the status by user uuid of this song
-	*/
-	@Override
-	public java.lang.String getStatusByUserUuid() {
-		return _song.getStatusByUserUuid();
-	}
-
-	/**
-	* Sets the status by user uuid of this song.
-	*
-	* @param statusByUserUuid the status by user uuid of this song
-	*/
-	@Override
-	public void setStatusByUserUuid(java.lang.String statusByUserUuid) {
-		_song.setStatusByUserUuid(statusByUserUuid);
-	}
-
-	/**
-	* Returns the status by user name of this song.
-	*
-	* @return the status by user name of this song
-	*/
-	@Override
-	public java.lang.String getStatusByUserName() {
-		return _song.getStatusByUserName();
-	}
-
-	/**
-	* Sets the status by user name of this song.
-	*
-	* @param statusByUserName the status by user name of this song
-	*/
-	@Override
-	public void setStatusByUserName(java.lang.String statusByUserName) {
-		_song.setStatusByUserName(statusByUserName);
-	}
-
-	/**
-	* Returns the status date of this song.
-	*
-	* @return the status date of this song
-	*/
-	@Override
-	public java.util.Date getStatusDate() {
-		return _song.getStatusDate();
-	}
-
-	/**
-	* Sets the status date of this song.
-	*
-	* @param statusDate the status date of this song
-	*/
-	@Override
-	public void setStatusDate(java.util.Date statusDate) {
-		_song.setStatusDate(statusDate);
-	}
-
-	/**
-	* Returns the trash entry created when this song was moved to the Recycle Bin. The trash entry may belong to one of the ancestors of this song.
-	*
-	* @return the trash entry created when this song was moved to the Recycle Bin
-	*/
-	@Override
-	public com.liferay.portlet.trash.model.TrashEntry getTrashEntry()
-		throws com.liferay.portal.kernel.exception.PortalException {
-		return _song.getTrashEntry();
-	}
-
-	/**
-	* Returns the class primary key of the trash entry for this song.
-	*
-	* @return the class primary key of the trash entry for this song
-	*/
-	@Override
-	public long getTrashEntryClassPK() {
-		return _song.getTrashEntryClassPK();
-	}
-
-	/**
-	* Returns the trash handler for this song.
-	*
-	* @return the trash handler for this song
-	*/
-	@Override
-	public com.liferay.portal.kernel.trash.TrashHandler getTrashHandler() {
-		return _song.getTrashHandler();
+	public boolean isExpired() {
+		return _song.isExpired();
 	}
 
 	/**
@@ -584,55 +262,6 @@ public class SongWrapper implements Song, ModelWrapper<Song> {
 	}
 
 	/**
-	* @deprecated As of 6.1.0, replaced by {@link #isApproved()}
-	*/
-	@Deprecated
-	@Override
-	public boolean getApproved() {
-		return _song.getApproved();
-	}
-
-	/**
-	* Returns <code>true</code> if this song is approved.
-	*
-	* @return <code>true</code> if this song is approved; <code>false</code> otherwise
-	*/
-	@Override
-	public boolean isApproved() {
-		return _song.isApproved();
-	}
-
-	/**
-	* Returns <code>true</code> if this song is denied.
-	*
-	* @return <code>true</code> if this song is denied; <code>false</code> otherwise
-	*/
-	@Override
-	public boolean isDenied() {
-		return _song.isDenied();
-	}
-
-	/**
-	* Returns <code>true</code> if this song is a draft.
-	*
-	* @return <code>true</code> if this song is a draft; <code>false</code> otherwise
-	*/
-	@Override
-	public boolean isDraft() {
-		return _song.isDraft();
-	}
-
-	/**
-	* Returns <code>true</code> if this song is expired.
-	*
-	* @return <code>true</code> if this song is expired; <code>false</code> otherwise
-	*/
-	@Override
-	public boolean isExpired() {
-		return _song.isExpired();
-	}
-
-	/**
 	* Returns <code>true</code> if this song is inactive.
 	*
 	* @return <code>true</code> if this song is inactive; <code>false</code> otherwise
@@ -650,6 +279,11 @@ public class SongWrapper implements Song, ModelWrapper<Song> {
 	@Override
 	public boolean isIncomplete() {
 		return _song.isIncomplete();
+	}
+
+	@Override
+	public boolean isNew() {
+		return _song.isNew();
 	}
 
 	/**
@@ -673,71 +307,49 @@ public class SongWrapper implements Song, ModelWrapper<Song> {
 	}
 
 	@Override
-	public boolean isNew() {
-		return _song.isNew();
-	}
-
-	@Override
-	public void setNew(boolean n) {
-		_song.setNew(n);
-	}
-
-	@Override
-	public boolean isCachedModel() {
-		return _song.isCachedModel();
-	}
-
-	@Override
-	public void setCachedModel(boolean cachedModel) {
-		_song.setCachedModel(cachedModel);
-	}
-
-	@Override
-	public boolean isEscapedModel() {
-		return _song.isEscapedModel();
-	}
-
-	@Override
-	public java.io.Serializable getPrimaryKeyObj() {
-		return _song.getPrimaryKeyObj();
-	}
-
-	@Override
-	public void setPrimaryKeyObj(java.io.Serializable primaryKeyObj) {
-		_song.setPrimaryKeyObj(primaryKeyObj);
-	}
-
-	@Override
-	public com.liferay.portlet.expando.model.ExpandoBridge getExpandoBridge() {
+	public ExpandoBridge getExpandoBridge() {
 		return _song.getExpandoBridge();
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.model.BaseModel<?> baseModel) {
-		_song.setExpandoBridgeAttributes(baseModel);
+	public com.liferay.portal.kernel.model.CacheModel<Song> toCacheModel() {
+		return _song.toCacheModel();
+	}
+
+	/**
+	* Returns the trash handler for this song.
+	*
+	* @return the trash handler for this song
+	*/
+	@Override
+	public com.liferay.portal.kernel.trash.TrashHandler getTrashHandler() {
+		return _song.getTrashHandler();
+	}
+
+	/**
+	* Returns the trash entry created when this song was moved to the Recycle Bin. The trash entry may belong to one of the ancestors of this song.
+	*
+	* @return the trash entry created when this song was moved to the Recycle Bin
+	*/
+	@Override
+	public com.liferay.trash.kernel.model.TrashEntry getTrashEntry()
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _song.getTrashEntry();
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portlet.expando.model.ExpandoBridge expandoBridge) {
-		_song.setExpandoBridgeAttributes(expandoBridge);
-	}
-
-	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.service.ServiceContext serviceContext) {
-		_song.setExpandoBridgeAttributes(serviceContext);
-	}
-
-	@Override
-	public java.lang.Object clone() {
-		return new SongWrapper((Song)_song.clone());
-	}
-
-	@Override
-	public int compareTo(org.liferay.jukebox.model.Song song) {
+	public int compareTo(Song song) {
 		return _song.compareTo(song);
+	}
+
+	/**
+	* Returns the status of this song.
+	*
+	* @return the status of this song
+	*/
+	@Override
+	public int getStatus() {
+		return _song.getStatus();
 	}
 
 	@Override
@@ -746,18 +358,94 @@ public class SongWrapper implements Song, ModelWrapper<Song> {
 	}
 
 	@Override
-	public com.liferay.portal.model.CacheModel<org.liferay.jukebox.model.Song> toCacheModel() {
-		return _song.toCacheModel();
+	public Serializable getPrimaryKeyObj() {
+		return _song.getPrimaryKeyObj();
 	}
 
 	@Override
-	public org.liferay.jukebox.model.Song toEscapedModel() {
-		return new SongWrapper(_song.toEscapedModel());
+	public java.lang.Object clone() {
+		return new SongWrapper((Song)_song.clone());
 	}
 
 	@Override
-	public org.liferay.jukebox.model.Song toUnescapedModel() {
-		return new SongWrapper(_song.toUnescapedModel());
+	public java.lang.String getImageURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay) {
+		return _song.getImageURL(themeDisplay);
+	}
+
+	@Override
+	public java.lang.String getLyricsURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _song.getLyricsURL(themeDisplay);
+	}
+
+	/**
+	* Returns the name of this song.
+	*
+	* @return the name of this song
+	*/
+	@Override
+	public java.lang.String getName() {
+		return _song.getName();
+	}
+
+	@Override
+	public java.lang.String getSongURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay,
+		java.lang.String audioContainer)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _song.getSongURL(themeDisplay, audioContainer);
+	}
+
+	/**
+	* Returns the status by user name of this song.
+	*
+	* @return the status by user name of this song
+	*/
+	@Override
+	public java.lang.String getStatusByUserName() {
+		return _song.getStatusByUserName();
+	}
+
+	/**
+	* Returns the status by user uuid of this song.
+	*
+	* @return the status by user uuid of this song
+	*/
+	@Override
+	public java.lang.String getStatusByUserUuid() {
+		return _song.getStatusByUserUuid();
+	}
+
+	/**
+	* Returns the user name of this song.
+	*
+	* @return the user name of this song
+	*/
+	@Override
+	public java.lang.String getUserName() {
+		return _song.getUserName();
+	}
+
+	/**
+	* Returns the user uuid of this song.
+	*
+	* @return the user uuid of this song
+	*/
+	@Override
+	public java.lang.String getUserUuid() {
+		return _song.getUserUuid();
+	}
+
+	/**
+	* Returns the uuid of this song.
+	*
+	* @return the uuid of this song
+	*/
+	@Override
+	public java.lang.String getUuid() {
+		return _song.getUuid();
 	}
 
 	@Override
@@ -770,33 +458,340 @@ public class SongWrapper implements Song, ModelWrapper<Song> {
 		return _song.toXmlString();
 	}
 
+	/**
+	* Returns the create date of this song.
+	*
+	* @return the create date of this song
+	*/
+	@Override
+	public Date getCreateDate() {
+		return _song.getCreateDate();
+	}
+
+	/**
+	* Returns the modified date of this song.
+	*
+	* @return the modified date of this song
+	*/
+	@Override
+	public Date getModifiedDate() {
+		return _song.getModifiedDate();
+	}
+
+	/**
+	* Returns the status date of this song.
+	*
+	* @return the status date of this song
+	*/
+	@Override
+	public Date getStatusDate() {
+		return _song.getStatusDate();
+	}
+
+	/**
+	* Returns the album ID of this song.
+	*
+	* @return the album ID of this song
+	*/
+	@Override
+	public long getAlbumId() {
+		return _song.getAlbumId();
+	}
+
+	/**
+	* Returns the artist ID of this song.
+	*
+	* @return the artist ID of this song
+	*/
+	@Override
+	public long getArtistId() {
+		return _song.getArtistId();
+	}
+
+	/**
+	* Returns the company ID of this song.
+	*
+	* @return the company ID of this song
+	*/
+	@Override
+	public long getCompanyId() {
+		return _song.getCompanyId();
+	}
+
+	/**
+	* Returns the group ID of this song.
+	*
+	* @return the group ID of this song
+	*/
+	@Override
+	public long getGroupId() {
+		return _song.getGroupId();
+	}
+
+	/**
+	* Returns the primary key of this song.
+	*
+	* @return the primary key of this song
+	*/
+	@Override
+	public long getPrimaryKey() {
+		return _song.getPrimaryKey();
+	}
+
+	/**
+	* Returns the song ID of this song.
+	*
+	* @return the song ID of this song
+	*/
+	@Override
+	public long getSongId() {
+		return _song.getSongId();
+	}
+
+	/**
+	* Returns the status by user ID of this song.
+	*
+	* @return the status by user ID of this song
+	*/
+	@Override
+	public long getStatusByUserId() {
+		return _song.getStatusByUserId();
+	}
+
+	/**
+	* Returns the class primary key of the trash entry for this song.
+	*
+	* @return the class primary key of the trash entry for this song
+	*/
+	@Override
+	public long getTrashEntryClassPK() {
+		return _song.getTrashEntryClassPK();
+	}
+
+	/**
+	* Returns the user ID of this song.
+	*
+	* @return the user ID of this song
+	*/
+	@Override
+	public long getUserId() {
+		return _song.getUserId();
+	}
+
 	@Override
 	public void persist() {
 		_song.persist();
 	}
 
+	/**
+	* Sets the album ID of this song.
+	*
+	* @param albumId the album ID of this song
+	*/
 	@Override
-	public java.lang.String getImageURL(
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return _song.getImageURL(themeDisplay);
+	public void setAlbumId(long albumId) {
+		_song.setAlbumId(albumId);
+	}
+
+	/**
+	* Sets the artist ID of this song.
+	*
+	* @param artistId the artist ID of this song
+	*/
+	@Override
+	public void setArtistId(long artistId) {
+		_song.setArtistId(artistId);
 	}
 
 	@Override
-	public java.lang.String getLyricsURL(
-		com.liferay.portal.theme.ThemeDisplay themeDisplay)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return _song.getLyricsURL(themeDisplay);
+	public void setCachedModel(boolean cachedModel) {
+		_song.setCachedModel(cachedModel);
+	}
+
+	/**
+	* Sets the company ID of this song.
+	*
+	* @param companyId the company ID of this song
+	*/
+	@Override
+	public void setCompanyId(long companyId) {
+		_song.setCompanyId(companyId);
+	}
+
+	/**
+	* Sets the create date of this song.
+	*
+	* @param createDate the create date of this song
+	*/
+	@Override
+	public void setCreateDate(Date createDate) {
+		_song.setCreateDate(createDate);
 	}
 
 	@Override
-	public java.lang.String getSongURL(
-		com.liferay.portal.theme.ThemeDisplay themeDisplay,
-		java.lang.String audioContainer)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
-		return _song.getSongURL(themeDisplay, audioContainer);
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
+		_song.setExpandoBridgeAttributes(expandoBridge);
+	}
+
+	@Override
+	public void setExpandoBridgeAttributes(
+		com.liferay.portal.kernel.model.BaseModel<?> baseModel) {
+		_song.setExpandoBridgeAttributes(baseModel);
+	}
+
+	@Override
+	public void setExpandoBridgeAttributes(ServiceContext serviceContext) {
+		_song.setExpandoBridgeAttributes(serviceContext);
+	}
+
+	/**
+	* Sets the group ID of this song.
+	*
+	* @param groupId the group ID of this song
+	*/
+	@Override
+	public void setGroupId(long groupId) {
+		_song.setGroupId(groupId);
+	}
+
+	/**
+	* Sets the modified date of this song.
+	*
+	* @param modifiedDate the modified date of this song
+	*/
+	@Override
+	public void setModifiedDate(Date modifiedDate) {
+		_song.setModifiedDate(modifiedDate);
+	}
+
+	/**
+	* Sets the name of this song.
+	*
+	* @param name the name of this song
+	*/
+	@Override
+	public void setName(java.lang.String name) {
+		_song.setName(name);
+	}
+
+	@Override
+	public void setNew(boolean n) {
+		_song.setNew(n);
+	}
+
+	/**
+	* Sets the primary key of this song.
+	*
+	* @param primaryKey the primary key of this song
+	*/
+	@Override
+	public void setPrimaryKey(long primaryKey) {
+		_song.setPrimaryKey(primaryKey);
+	}
+
+	@Override
+	public void setPrimaryKeyObj(Serializable primaryKeyObj) {
+		_song.setPrimaryKeyObj(primaryKeyObj);
+	}
+
+	/**
+	* Sets the song ID of this song.
+	*
+	* @param songId the song ID of this song
+	*/
+	@Override
+	public void setSongId(long songId) {
+		_song.setSongId(songId);
+	}
+
+	/**
+	* Sets the status of this song.
+	*
+	* @param status the status of this song
+	*/
+	@Override
+	public void setStatus(int status) {
+		_song.setStatus(status);
+	}
+
+	/**
+	* Sets the status by user ID of this song.
+	*
+	* @param statusByUserId the status by user ID of this song
+	*/
+	@Override
+	public void setStatusByUserId(long statusByUserId) {
+		_song.setStatusByUserId(statusByUserId);
+	}
+
+	/**
+	* Sets the status by user name of this song.
+	*
+	* @param statusByUserName the status by user name of this song
+	*/
+	@Override
+	public void setStatusByUserName(java.lang.String statusByUserName) {
+		_song.setStatusByUserName(statusByUserName);
+	}
+
+	/**
+	* Sets the status by user uuid of this song.
+	*
+	* @param statusByUserUuid the status by user uuid of this song
+	*/
+	@Override
+	public void setStatusByUserUuid(java.lang.String statusByUserUuid) {
+		_song.setStatusByUserUuid(statusByUserUuid);
+	}
+
+	/**
+	* Sets the status date of this song.
+	*
+	* @param statusDate the status date of this song
+	*/
+	@Override
+	public void setStatusDate(Date statusDate) {
+		_song.setStatusDate(statusDate);
+	}
+
+	/**
+	* Sets the user ID of this song.
+	*
+	* @param userId the user ID of this song
+	*/
+	@Override
+	public void setUserId(long userId) {
+		_song.setUserId(userId);
+	}
+
+	/**
+	* Sets the user name of this song.
+	*
+	* @param userName the user name of this song
+	*/
+	@Override
+	public void setUserName(java.lang.String userName) {
+		_song.setUserName(userName);
+	}
+
+	/**
+	* Sets the user uuid of this song.
+	*
+	* @param userUuid the user uuid of this song
+	*/
+	@Override
+	public void setUserUuid(java.lang.String userUuid) {
+		_song.setUserUuid(userUuid);
+	}
+
+	/**
+	* Sets the uuid of this song.
+	*
+	* @param uuid the uuid of this song
+	*/
+	@Override
+	public void setUuid(java.lang.String uuid) {
+		_song.setUuid(uuid);
 	}
 
 	@Override
@@ -811,7 +806,7 @@ public class SongWrapper implements Song, ModelWrapper<Song> {
 
 		SongWrapper songWrapper = (SongWrapper)obj;
 
-		if (Validator.equals(_song, songWrapper._song)) {
+		if (Objects.equals(_song, songWrapper._song)) {
 			return true;
 		}
 
@@ -821,14 +816,6 @@ public class SongWrapper implements Song, ModelWrapper<Song> {
 	@Override
 	public StagedModelType getStagedModelType() {
 		return _song.getStagedModelType();
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #getWrappedModel}
-	 */
-	@Deprecated
-	public Song getWrappedSong() {
-		return _song;
 	}
 
 	@Override
@@ -851,5 +838,5 @@ public class SongWrapper implements Song, ModelWrapper<Song> {
 		_song.resetOriginalValues();
 	}
 
-	private Song _song;
+	private final Song _song;
 }

@@ -14,6 +14,8 @@
 
 package org.liferay.jukebox.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import org.liferay.jukebox.model.Artist;
 import org.liferay.jukebox.service.ArtistLocalServiceUtil;
 
@@ -26,9 +28,10 @@ import org.liferay.jukebox.service.ArtistLocalServiceUtil;
  *
  * @author Julio Camarero
  * @see ArtistImpl
- * @see org.liferay.jukebox.model.Artist
+ * @see Artist
  * @generated
  */
+@ProviderType
 public abstract class ArtistBaseImpl extends ArtistModelImpl implements Artist {
 	/*
 	 * NOTE FOR DEVELOPERS:

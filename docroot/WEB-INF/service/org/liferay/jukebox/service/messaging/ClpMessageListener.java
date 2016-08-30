@@ -14,6 +14,8 @@
 
 package org.liferay.jukebox.service.messaging;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.messaging.BaseMessageListener;
 import com.liferay.portal.kernel.messaging.Message;
 
@@ -28,6 +30,7 @@ import org.liferay.jukebox.service.SongServiceUtil;
 /**
  * @author Julio Camarero
  */
+@ProviderType
 public class ClpMessageListener extends BaseMessageListener {
 	public static String getServletContextName() {
 		return ClpSerializer.getServletContextName();

@@ -14,6 +14,8 @@
 
 package org.liferay.jukebox.service.base;
 
+import aQute.bnd.annotation.ProviderType;
+
 import org.liferay.jukebox.service.ArtistServiceUtil;
 
 import java.util.Arrays;
@@ -22,55 +24,52 @@ import java.util.Arrays;
  * @author Julio Camarero
  * @generated
  */
+@ProviderType
 public class ArtistServiceClpInvoker {
 	public ArtistServiceClpInvoker() {
-		_methodName76 = "getBeanIdentifier";
+		_methodName76 = "getOSGiServiceIdentifier";
 
 		_methodParameterTypes76 = new String[] {  };
 
-		_methodName77 = "setBeanIdentifier";
+		_methodName81 = "addArtist";
 
-		_methodParameterTypes77 = new String[] { "java.lang.String" };
+		_methodParameterTypes81 = new String[] {
+				"java.lang.String", "java.lang.String", "java.io.InputStream",
+				"com.liferay.portal.kernel.service.ServiceContext"
+			};
 
-		_methodName82 = "addArtist";
+		_methodName82 = "deleteArtist";
 
 		_methodParameterTypes82 = new String[] {
-				"java.lang.String", "java.lang.String", "java.io.InputStream",
-				"com.liferay.portal.service.ServiceContext"
+				"long", "com.liferay.portal.kernel.service.ServiceContext"
 			};
 
-		_methodName83 = "deleteArtist";
+		_methodName83 = "getArtists";
 
-		_methodParameterTypes83 = new String[] {
-				"long", "com.liferay.portal.service.ServiceContext"
-			};
+		_methodParameterTypes83 = new String[] { "long" };
 
 		_methodName84 = "getArtists";
 
-		_methodParameterTypes84 = new String[] { "long" };
+		_methodParameterTypes84 = new String[] { "long", "int", "int" };
 
 		_methodName85 = "getArtists";
 
-		_methodParameterTypes85 = new String[] { "long", "int", "int" };
+		_methodParameterTypes85 = new String[] { "long", "java.lang.String" };
 
-		_methodName86 = "getArtists";
+		_methodName86 = "getArtistsCount";
 
-		_methodParameterTypes86 = new String[] { "long", "java.lang.String" };
+		_methodParameterTypes86 = new String[] { "long" };
 
 		_methodName87 = "getArtistsCount";
 
-		_methodParameterTypes87 = new String[] { "long" };
+		_methodParameterTypes87 = new String[] { "long", "java.lang.String" };
 
-		_methodName88 = "getArtistsCount";
+		_methodName88 = "updateArtist";
 
-		_methodParameterTypes88 = new String[] { "long", "java.lang.String" };
-
-		_methodName89 = "updateArtist";
-
-		_methodParameterTypes89 = new String[] {
+		_methodParameterTypes88 = new String[] {
 				"long", "java.lang.String", "java.lang.String",
 				"java.io.InputStream",
-				"com.liferay.portal.service.ServiceContext"
+				"com.liferay.portal.kernel.service.ServiceContext"
 			};
 	}
 
@@ -78,65 +77,58 @@ public class ArtistServiceClpInvoker {
 		Object[] arguments) throws Throwable {
 		if (_methodName76.equals(name) &&
 				Arrays.deepEquals(_methodParameterTypes76, parameterTypes)) {
-			return ArtistServiceUtil.getBeanIdentifier();
+			return ArtistServiceUtil.getOSGiServiceIdentifier();
 		}
 
-		if (_methodName77.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes77, parameterTypes)) {
-			ArtistServiceUtil.setBeanIdentifier((java.lang.String)arguments[0]);
-
-			return null;
+		if (_methodName81.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes81, parameterTypes)) {
+			return ArtistServiceUtil.addArtist((java.lang.String)arguments[0],
+				(java.lang.String)arguments[1],
+				(java.io.InputStream)arguments[2],
+				(com.liferay.portal.kernel.service.ServiceContext)arguments[3]);
 		}
 
 		if (_methodName82.equals(name) &&
 				Arrays.deepEquals(_methodParameterTypes82, parameterTypes)) {
-			return ArtistServiceUtil.addArtist((java.lang.String)arguments[0],
-				(java.lang.String)arguments[1],
-				(java.io.InputStream)arguments[2],
-				(com.liferay.portal.service.ServiceContext)arguments[3]);
+			return ArtistServiceUtil.deleteArtist(((Long)arguments[0]).longValue(),
+				(com.liferay.portal.kernel.service.ServiceContext)arguments[1]);
 		}
 
 		if (_methodName83.equals(name) &&
 				Arrays.deepEquals(_methodParameterTypes83, parameterTypes)) {
-			return ArtistServiceUtil.deleteArtist(((Long)arguments[0]).longValue(),
-				(com.liferay.portal.service.ServiceContext)arguments[1]);
+			return ArtistServiceUtil.getArtists(((Long)arguments[0]).longValue());
 		}
 
 		if (_methodName84.equals(name) &&
 				Arrays.deepEquals(_methodParameterTypes84, parameterTypes)) {
-			return ArtistServiceUtil.getArtists(((Long)arguments[0]).longValue());
-		}
-
-		if (_methodName85.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes85, parameterTypes)) {
 			return ArtistServiceUtil.getArtists(((Long)arguments[0]).longValue(),
 				((Integer)arguments[1]).intValue(),
 				((Integer)arguments[2]).intValue());
 		}
 
-		if (_methodName86.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes86, parameterTypes)) {
+		if (_methodName85.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes85, parameterTypes)) {
 			return ArtistServiceUtil.getArtists(((Long)arguments[0]).longValue(),
 				(java.lang.String)arguments[1]);
 		}
 
-		if (_methodName87.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes87, parameterTypes)) {
+		if (_methodName86.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes86, parameterTypes)) {
 			return ArtistServiceUtil.getArtistsCount(((Long)arguments[0]).longValue());
 		}
 
-		if (_methodName88.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes88, parameterTypes)) {
+		if (_methodName87.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes87, parameterTypes)) {
 			return ArtistServiceUtil.getArtistsCount(((Long)arguments[0]).longValue(),
 				(java.lang.String)arguments[1]);
 		}
 
-		if (_methodName89.equals(name) &&
-				Arrays.deepEquals(_methodParameterTypes89, parameterTypes)) {
+		if (_methodName88.equals(name) &&
+				Arrays.deepEquals(_methodParameterTypes88, parameterTypes)) {
 			return ArtistServiceUtil.updateArtist(((Long)arguments[0]).longValue(),
 				(java.lang.String)arguments[1], (java.lang.String)arguments[2],
 				(java.io.InputStream)arguments[3],
-				(com.liferay.portal.service.ServiceContext)arguments[4]);
+				(com.liferay.portal.kernel.service.ServiceContext)arguments[4]);
 		}
 
 		throw new UnsupportedOperationException();
@@ -144,8 +136,8 @@ public class ArtistServiceClpInvoker {
 
 	private String _methodName76;
 	private String[] _methodParameterTypes76;
-	private String _methodName77;
-	private String[] _methodParameterTypes77;
+	private String _methodName81;
+	private String[] _methodParameterTypes81;
 	private String _methodName82;
 	private String[] _methodParameterTypes82;
 	private String _methodName83;
@@ -160,6 +152,4 @@ public class ArtistServiceClpInvoker {
 	private String[] _methodParameterTypes87;
 	private String _methodName88;
 	private String[] _methodParameterTypes88;
-	private String _methodName89;
-	private String[] _methodParameterTypes89;
 }

@@ -14,28 +14,31 @@
 
 package org.liferay.jukebox.model;
 
-import com.liferay.portal.NoSuchModelException;
+import aQute.bnd.annotation.ProviderType;
+
+import com.liferay.exportimport.kernel.lar.StagedModelType;
+
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.lar.StagedModelType;
+import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.model.ContainerModel;
+import com.liferay.portal.kernel.model.TrashedModel;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.impl.BaseModelImpl;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.model.BaseModel;
-import com.liferay.portal.model.ContainerModel;
-import com.liferay.portal.model.TrashedModel;
-import com.liferay.portal.model.User;
-import com.liferay.portal.model.impl.BaseModelImpl;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
 
-import com.liferay.portlet.trash.model.TrashEntry;
-import com.liferay.portlet.trash.service.TrashEntryLocalServiceUtil;
+import com.liferay.trash.kernel.model.TrashEntry;
+import com.liferay.trash.kernel.service.TrashEntryLocalServiceUtil;
 
 import org.liferay.jukebox.service.ArtistLocalServiceUtil;
 import org.liferay.jukebox.service.ClpSerializer;
@@ -49,8 +52,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Julio Camarero
+ * @generated
  */
+@ProviderType
 public class ArtistClp extends BaseModelImpl<Artist> implements Artist {
 	public ArtistClp() {
 	}
@@ -556,25 +560,6 @@ public class ArtistClp extends BaseModelImpl<Artist> implements Artist {
 	}
 
 	@Override
-	public boolean hasCustomImage() {
-		try {
-			String methodName = "hasCustomImage";
-
-			Class<?>[] parameterTypes = new Class<?>[] {  };
-
-			Object[] parameterValues = new Object[] {  };
-
-			Boolean returnObj = (Boolean)invokeOnRemoteModel(methodName,
-					parameterTypes, parameterValues);
-
-			return returnObj;
-		}
-		catch (Exception e) {
-			throw new UnsupportedOperationException(e);
-		}
-	}
-
-	@Override
 	public com.liferay.portal.kernel.repository.model.FileEntry getCustomImage() {
 		try {
 			String methodName = "getCustomImage";
@@ -595,17 +580,36 @@ public class ArtistClp extends BaseModelImpl<Artist> implements Artist {
 
 	@Override
 	public java.lang.String getImageURL(
-		com.liferay.portal.theme.ThemeDisplay themeDisplay) {
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay) {
 		try {
 			String methodName = "getImageURL";
 
 			Class<?>[] parameterTypes = new Class<?>[] {
-					com.liferay.portal.theme.ThemeDisplay.class
+					com.liferay.portal.kernel.theme.ThemeDisplay.class
 				};
 
 			Object[] parameterValues = new Object[] { themeDisplay };
 
 			java.lang.String returnObj = (java.lang.String)invokeOnRemoteModel(methodName,
+					parameterTypes, parameterValues);
+
+			return returnObj;
+		}
+		catch (Exception e) {
+			throw new UnsupportedOperationException(e);
+		}
+	}
+
+	@Override
+	public boolean hasCustomImage() {
+		try {
+			String methodName = "hasCustomImage";
+
+			Class<?>[] parameterTypes = new Class<?>[] {  };
+
+			Object[] parameterValues = new Object[] {  };
+
+			Boolean returnObj = (Boolean)invokeOnRemoteModel(methodName,
 					parameterTypes, parameterValues);
 
 			return returnObj;
@@ -742,15 +746,6 @@ public class ArtistClp extends BaseModelImpl<Artist> implements Artist {
 		}
 
 		return true;
-	}
-
-	/**
-	 * @deprecated As of 6.1.0, replaced by {@link #isApproved}
-	 */
-	@Deprecated
-	@Override
-	public boolean getApproved() {
-		return isApproved();
 	}
 
 	@Override
@@ -957,6 +952,10 @@ public class ArtistClp extends BaseModelImpl<Artist> implements Artist {
 		}
 	}
 
+	public Class<?> getClpSerializerClass() {
+		return _clpSerializerClass;
+	}
+
 	@Override
 	public int hashCode() {
 		return (int)getPrimaryKey();
@@ -1094,6 +1093,7 @@ public class ArtistClp extends BaseModelImpl<Artist> implements Artist {
 	private String _name;
 	private String _bio;
 	private BaseModel<?> _artistRemoteModel;
+	private Class<?> _clpSerializerClass = ClpSerializer.class;
 	private boolean _entityCacheEnabled;
 	private boolean _finderCacheEnabled;
 }

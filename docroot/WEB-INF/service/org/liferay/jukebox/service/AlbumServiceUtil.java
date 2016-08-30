@@ -14,9 +14,11 @@
 
 package org.liferay.jukebox.service;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.bean.PortletBeanLocatorUtil;
+import com.liferay.portal.kernel.service.InvokableService;
 import com.liferay.portal.kernel.util.ReferenceRegistry;
-import com.liferay.portal.service.InvokableService;
 
 /**
  * Provides the remote service utility for Album. This utility wraps
@@ -32,29 +34,23 @@ import com.liferay.portal.service.InvokableService;
  * @see org.liferay.jukebox.service.impl.AlbumServiceImpl
  * @generated
  */
+@ProviderType
 public class AlbumServiceUtil {
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link org.liferay.jukebox.service.impl.AlbumServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
-
-	/**
-	* Returns the Spring bean ID for this bean.
-	*
-	* @return the Spring bean ID for this bean
-	*/
-	public static java.lang.String getBeanIdentifier() {
-		return getService().getBeanIdentifier();
+	public static int getAlbumsCount(long groupId) {
+		return getService().getAlbumsCount(groupId);
 	}
 
-	/**
-	* Sets the Spring bean ID for this bean.
-	*
-	* @param beanIdentifier the Spring bean ID for this bean
-	*/
-	public static void setBeanIdentifier(java.lang.String beanIdentifier) {
-		getService().setBeanIdentifier(beanIdentifier);
+	public static int getAlbumsCount(long groupId, java.lang.String keywords) {
+		return getService().getAlbumsCount(groupId, keywords);
+	}
+
+	public static int getAlbumsCountByArtistId(long groupId, long artistId) {
+		return getService().getAlbumsCountByArtistId(groupId, artistId);
 	}
 
 	public static java.lang.Object invokeMethod(java.lang.String name,
@@ -63,80 +59,65 @@ public class AlbumServiceUtil {
 		return getService().invokeMethod(name, parameterTypes, arguments);
 	}
 
+	/**
+	* Returns the OSGi service identifier.
+	*
+	* @return the OSGi service identifier
+	*/
+	public static java.lang.String getOSGiServiceIdentifier() {
+		return getService().getOSGiServiceIdentifier();
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Album> getAlbums(
+		long groupId) {
+		return getService().getAlbums(groupId);
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Album> getAlbums(
+		long groupId, int start, int end) {
+		return getService().getAlbums(groupId, start, end);
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Album> getAlbums(
+		long groupId, java.lang.String keywords) {
+		return getService().getAlbums(groupId, keywords);
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Album> getAlbumsByArtistId(
+		long groupId, long artistId) {
+		return getService().getAlbumsByArtistId(groupId, artistId);
+	}
+
 	public static org.liferay.jukebox.model.Album addAlbum(long artistId,
 		java.lang.String name, int year, java.io.InputStream inputStream,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .addAlbum(artistId, name, year, inputStream, serviceContext);
 	}
 
 	public static org.liferay.jukebox.model.Album deleteAlbum(long albumId,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().deleteAlbum(albumId, serviceContext);
 	}
 
-	public static java.util.List<org.liferay.jukebox.model.Album> getAlbums(
-		long groupId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getService().getAlbums(groupId);
-	}
-
-	public static java.util.List<org.liferay.jukebox.model.Album> getAlbums(
-		long groupId, int start, int end)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getService().getAlbums(groupId, start, end);
-	}
-
-	public static java.util.List<org.liferay.jukebox.model.Album> getAlbums(
-		long groupId, java.lang.String keywords)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getService().getAlbums(groupId, keywords);
-	}
-
-	public static java.util.List<org.liferay.jukebox.model.Album> getAlbumsByArtistId(
-		long groupId, long artistId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getService().getAlbumsByArtistId(groupId, artistId);
-	}
-
-	public static int getAlbumsCount(long groupId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getService().getAlbumsCount(groupId);
-	}
-
-	public static int getAlbumsCount(long groupId, java.lang.String keywords)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getService().getAlbumsCount(groupId, keywords);
-	}
-
-	public static int getAlbumsCountByArtistId(long groupId, long artistId)
-		throws com.liferay.portal.kernel.exception.SystemException {
-		return getService().getAlbumsCountByArtistId(groupId, artistId);
-	}
-
 	public static org.liferay.jukebox.model.Album moveAlbumToTrash(long albumId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().moveAlbumToTrash(albumId);
 	}
 
 	public static org.liferay.jukebox.model.Album restoreAlbumFromTrash(
 		long albumId)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().restoreAlbumFromTrash(albumId);
 	}
 
 	public static org.liferay.jukebox.model.Album updateAlbum(long albumId,
 		long artistId, java.lang.String name, int year,
 		java.io.InputStream inputStream,
-		com.liferay.portal.service.ServiceContext serviceContext)
-		throws com.liferay.portal.kernel.exception.PortalException,
-			com.liferay.portal.kernel.exception.SystemException {
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService()
 				   .updateAlbum(albumId, artistId, name, year, inputStream,
 			serviceContext);
@@ -163,13 +144,6 @@ public class AlbumServiceUtil {
 		}
 
 		return _service;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0
-	 */
-	@Deprecated
-	public void setService(AlbumService service) {
 	}
 
 	private static AlbumService _service;

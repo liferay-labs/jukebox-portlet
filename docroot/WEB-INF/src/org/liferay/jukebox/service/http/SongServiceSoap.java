@@ -14,6 +14,8 @@
 
 package org.liferay.jukebox.service.http;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 
@@ -23,7 +25,7 @@ import java.rmi.RemoteException;
 
 /**
  * Provides the SOAP utility for the
- * {@link org.liferay.jukebox.service.SongServiceUtil} service utility. The
+ * {@link SongServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -58,12 +60,13 @@ import java.rmi.RemoteException;
  * @author Julio Camarero
  * @see SongServiceHttp
  * @see org.liferay.jukebox.model.SongSoap
- * @see org.liferay.jukebox.service.SongServiceUtil
+ * @see SongServiceUtil
  * @generated
  */
+@ProviderType
 public class SongServiceSoap {
 	public static org.liferay.jukebox.model.SongSoap deleteSong(long songId,
-		com.liferay.portal.service.ServiceContext serviceContext)
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws RemoteException {
 		try {
 			org.liferay.jukebox.model.Song returnValue = SongServiceUtil.deleteSong(songId,

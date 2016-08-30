@@ -14,6 +14,8 @@
 
 package org.liferay.jukebox.model.impl;
 
+import aQute.bnd.annotation.ProviderType;
+
 import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.service.AlbumLocalServiceUtil;
 
@@ -26,9 +28,10 @@ import org.liferay.jukebox.service.AlbumLocalServiceUtil;
  *
  * @author Julio Camarero
  * @see AlbumImpl
- * @see org.liferay.jukebox.model.Album
+ * @see Album
  * @generated
  */
+@ProviderType
 public abstract class AlbumBaseImpl extends AlbumModelImpl implements Album {
 	/*
 	 * NOTE FOR DEVELOPERS:
