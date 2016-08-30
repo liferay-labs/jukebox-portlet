@@ -14,8 +14,8 @@
 
 package org.liferay.jukebox.search;
 
+import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
-import com.liferay.portlet.asset.model.AssetEntry;
 
 import java.util.ArrayList;
 import java.util.List;
