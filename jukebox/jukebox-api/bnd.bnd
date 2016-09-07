@@ -1,0 +1,7 @@
+Bundle-SymbolicName: jukebox-api
+Bundle-Version: 1.0.0
+Export-Package:\
+	org.liferay.jukebox.exception,\
+	org.liferay.jukebox.model,\
+	org.liferay.jukebox.service,\
+	org.liferay.jukebox.service.persistence
