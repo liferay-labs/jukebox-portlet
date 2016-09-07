@@ -66,12 +66,6 @@ page import="org.liferay.jukebox.exception.SongNameException" %><%@
 page import="org.liferay.jukebox.model.Album" %><%@
 page import="org.liferay.jukebox.model.Artist" %><%@
 page import="org.liferay.jukebox.model.Song" %><%@
-page import="org.liferay.jukebox.search.AlbumDisplayTerms" %><%@
-page import="org.liferay.jukebox.search.AlbumSearch" %><%@
-page import="org.liferay.jukebox.search.ArtistDisplayTerms" %><%@
-page import="org.liferay.jukebox.search.ArtistSearch" %><%@
-page import="org.liferay.jukebox.search.SongDisplayTerms" %><%@
-page import="org.liferay.jukebox.search.SongSearch" %><%@
 page import="org.liferay.jukebox.service.AlbumLocalServiceUtil" %><%@
 page import="org.liferay.jukebox.service.AlbumServiceUtil" %><%@
 page import="org.liferay.jukebox.service.ArtistLocalServiceUtil" %><%@
@@ -81,7 +75,13 @@ page import="org.liferay.jukebox.service.SongServiceUtil" %><%@
 page import="org.liferay.jukebox.service.permission.AlbumPermission" %><%@
 page import="org.liferay.jukebox.service.permission.ArtistPermission" %><%@
 page import="org.liferay.jukebox.service.permission.JukeBoxPermission" %><%@
-page import="org.liferay.jukebox.service.permission.SongPermission" %>
+page import="org.liferay.jukebox.service.permission.SongPermission" %><%@
+page import="org.liferay.jukebox.web.search.AlbumDisplayTerms" %><%@
+page import="org.liferay.jukebox.web.search.AlbumSearch" %><%@
+page import="org.liferay.jukebox.web.search.ArtistDisplayTerms" %><%@
+page import="org.liferay.jukebox.web.search.ArtistSearch" %><%@
+page import="org.liferay.jukebox.web.search.SongDisplayTerms" %><%@
+page import="org.liferay.jukebox.web.search.SongSearch" %>
 
 <liferay-theme:defineObjects />
 
