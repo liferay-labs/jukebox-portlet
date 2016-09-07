@@ -1,2 +1,3 @@
-Bundle-SymbolicName: jukebox.web
+Bundle-SymbolicName: org.liferay.jukebox.web
 Bundle-Version: 1.0.0
+Web-ContextPath: /jukebox-portlet
