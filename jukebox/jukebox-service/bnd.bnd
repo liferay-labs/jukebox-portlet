@@ -1,4 +1,13 @@
 Bundle-SymbolicName: org.liferay.jukebox.service
 Bundle-Version: 1.0.0
+Export-Package:\
+	org.liferay.jukebox.lar,\
+	org.liferay.jukebox.model.impl,\
+	org.liferay.jukebox.search,\
+	org.liferay.jukebox.service.impl,\
+	org.liferay.jukebox.service.permission,\
+	org.liferay.jukebox.service.util,\
+	org.liferay.jukebox.trash,\
+	org.liferay.jukebox.util
 Liferay-Require-SchemaVersion: 1.0.0
 Liferay-Service: true
