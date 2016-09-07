@@ -1,1 +1,1 @@
-include "jukebox-api", "jukebox-service", "jukebox-test"
+include "jukebox-api", "jukebox-service", "jukebox-test", "jukebox-web"
