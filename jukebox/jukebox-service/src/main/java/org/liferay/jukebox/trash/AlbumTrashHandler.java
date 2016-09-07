@@ -14,6 +14,8 @@
 
 package org.liferay.jukebox.trash;
 
+import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
+import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -26,7 +28,6 @@ import com.liferay.trash.kernel.model.TrashEntry;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 
-import org.liferay.jukebox.asset.AlbumAssetRenderer;
 import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.service.AlbumLocalServiceUtil;
 import org.liferay.jukebox.service.permission.AlbumPermission;
@@ -87,9 +88,14 @@ public class AlbumTrashHandler extends JukeBoxBaseTrashHandler {
 
 	@Override
 	public TrashRenderer getTrashRenderer(long classPK) throws PortalException {
-		Album album = getAlbum(classPK);
+		AssetRendererFactory<Album> assetRendererFactory =
+			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClass(
+				Album.class);
 
-		return new AlbumAssetRenderer(album);
+		Album album = AlbumLocalServiceUtil.getAlbum(classPK);
+
+		return (TrashRenderer)assetRendererFactory.getAssetRenderer(
+			album.getAlbumId());
 	}
 
 	@Override

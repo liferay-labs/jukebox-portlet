@@ -20,8 +20,8 @@ import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 
 import org.liferay.jukebox.model.Artist;
-import org.liferay.jukebox.portlet.AlbumsPortlet;
 import org.liferay.jukebox.service.ArtistLocalServiceUtil;
+import org.liferay.jukebox.util.PortletKeys;
 
 /**
  * @author Julio Camarero
@@ -45,7 +45,7 @@ public class ArtistPermission {
 
 		Boolean hasPermission = StagingPermissionUtil.hasPermission(
 			permissionChecker, artist.getGroupId(), Artist.class.getName(),
-			artist.getArtistId(), AlbumsPortlet.PORTLET_ID, actionId);
+			artist.getArtistId(), PortletKeys.ALBUMS, actionId);
 
 		if (hasPermission != null) {
 			return hasPermission.booleanValue();

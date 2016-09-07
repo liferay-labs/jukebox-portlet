@@ -19,7 +19,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 
-import org.liferay.jukebox.portlet.AlbumsPortlet;
+import org.liferay.jukebox.util.PortletKeys;
 
 /**
  * @author Julio Camarero
@@ -42,7 +42,7 @@ public class JukeBoxPermission {
 
 		Boolean hasPermission = StagingPermissionUtil.hasPermission(
 			permissionChecker, groupId, RESOURCE_NAME, groupId,
-			AlbumsPortlet.PORTLET_ID, actionId);
+			PortletKeys.ALBUMS, actionId);
 
 		if (hasPermission != null) {
 			return hasPermission.booleanValue();

@@ -92,8 +92,7 @@ public class AlbumStagedModelDataHandler
 
 		Element albumElement = portletDataContext.getExportDataElement(album);
 
-		if (portletDataContext.getBooleanParameter(
-				JukeboxPortletDataHandler.NAMESPACE, "artists")) {
+		if (portletDataContext.getBooleanParameter("jukebox", "artists")) {
 
 			// Artists are selected to export, making sure this album's artist
 			// is going to be exported as well

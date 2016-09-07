@@ -20,8 +20,8 @@ import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 
 import org.liferay.jukebox.model.Album;
-import org.liferay.jukebox.portlet.AlbumsPortlet;
 import org.liferay.jukebox.service.AlbumLocalServiceUtil;
+import org.liferay.jukebox.util.PortletKeys;
 
 /**
  * @author Julio Camarero
@@ -54,7 +54,7 @@ public class AlbumPermission {
 
 		Boolean hasPermission = StagingPermissionUtil.hasPermission(
 			permissionChecker, album.getGroupId(), Album.class.getName(),
-			album.getAlbumId(), AlbumsPortlet.PORTLET_ID, actionId);
+			album.getAlbumId(), PortletKeys.ALBUMS, actionId);
 
 		if (hasPermission != null) {
 			return hasPermission.booleanValue();

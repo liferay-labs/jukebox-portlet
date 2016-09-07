@@ -20,8 +20,8 @@ import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 
 import org.liferay.jukebox.model.Song;
-import org.liferay.jukebox.portlet.AlbumsPortlet;
 import org.liferay.jukebox.service.SongLocalServiceUtil;
+import org.liferay.jukebox.util.PortletKeys;
 
 /**
  * @author Julio Camarero
@@ -56,7 +56,7 @@ public class SongPermission {
 
 		Boolean hasPermission = StagingPermissionUtil.hasPermission(
 			permissionChecker, song.getGroupId(), Song.class.getName(),
-			song.getSongId(), AlbumsPortlet.PORTLET_ID, actionId);
+			song.getSongId(), PortletKeys.ALBUMS, actionId);
 
 		if (hasPermission != null) {
 			return hasPermission.booleanValue();
