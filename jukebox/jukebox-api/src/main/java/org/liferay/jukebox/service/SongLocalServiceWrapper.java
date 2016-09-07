@@ -70,6 +70,11 @@ public class SongLocalServiceWrapper implements SongLocalService,
 		return _songLocalService.getPersistedModel(primaryKeyObj);
 	}
 
+	@Override
+	public int getSongsByAlbumIdCount(long albumId) {
+		return _songLocalService.getSongsByAlbumIdCount(albumId);
+	}
+
 	/**
 	* Returns the number of songs.
 	*
@@ -78,6 +83,11 @@ public class SongLocalServiceWrapper implements SongLocalService,
 	@Override
 	public int getSongsCount() {
 		return _songLocalService.getSongsCount();
+	}
+
+	@Override
+	public int getSongsCount(long groupId) {
+		return _songLocalService.getSongsCount(groupId);
 	}
 
 	/**
@@ -160,6 +170,35 @@ public class SongLocalServiceWrapper implements SongLocalService,
 		return _songLocalService.getSongs(start, end);
 	}
 
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Song> getSongs(long groupId) {
+		return _songLocalService.getSongs(groupId);
+	}
+
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Song> getSongs(
+		long groupId, int start, int end) {
+		return _songLocalService.getSongs(groupId, start, end);
+	}
+
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Song> getSongsByAlbumId(
+		long albumId) {
+		return _songLocalService.getSongsByAlbumId(albumId);
+	}
+
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Song> getSongsByAlbumId(
+		long albumId, int start, int end) {
+		return _songLocalService.getSongsByAlbumId(albumId, start, end);
+	}
+
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Song> getSongsByAlbumId(
+		long groupId, long albumId, int status) {
+		return _songLocalService.getSongsByAlbumId(groupId, albumId, status);
+	}
+
 	/**
 	* Returns all the songs matching the UUID and company.
 	*
@@ -215,6 +254,17 @@ public class SongLocalServiceWrapper implements SongLocalService,
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
 		com.liferay.portal.kernel.dao.orm.Projection projection) {
 		return _songLocalService.dynamicQueryCount(dynamicQuery, projection);
+	}
+
+	@Override
+	public org.liferay.jukebox.model.Song addSong(long userId, long albumId,
+		java.lang.String name, java.lang.String songFileName,
+		java.io.InputStream songInputStream, java.lang.String lyricsFileName,
+		java.io.InputStream lyricsInputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _songLocalService.addSong(userId, albumId, name, songFileName,
+			songInputStream, lyricsFileName, lyricsInputStream, serviceContext);
 	}
 
 	/**
@@ -283,6 +333,12 @@ public class SongLocalServiceWrapper implements SongLocalService,
 		return _songLocalService.fetchSongByUuidAndGroupId(uuid, groupId);
 	}
 
+	@Override
+	public org.liferay.jukebox.model.Song getSong(long groupId, long artistId,
+		long albumId, java.lang.String name) {
+		return _songLocalService.getSong(groupId, artistId, albumId, name);
+	}
+
 	/**
 	* Returns the song with the primary key.
 	*
@@ -311,6 +367,44 @@ public class SongLocalServiceWrapper implements SongLocalService,
 		return _songLocalService.getSongByUuidAndGroupId(uuid, groupId);
 	}
 
+	@Override
+	public org.liferay.jukebox.model.Song moveSong(long songId, long albumId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _songLocalService.moveSong(songId, albumId);
+	}
+
+	@Override
+	public org.liferay.jukebox.model.Song moveSongFromTrash(long userId,
+		long songId, long albumId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _songLocalService.moveSongFromTrash(userId, songId, albumId);
+	}
+
+	@Override
+	public org.liferay.jukebox.model.Song moveSongToTrash(long userId,
+		org.liferay.jukebox.model.Song song)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _songLocalService.moveSongToTrash(userId, song);
+	}
+
+	@Override
+	public org.liferay.jukebox.model.Song restoreSongFromTrash(long userId,
+		long songId) throws com.liferay.portal.kernel.exception.PortalException {
+		return _songLocalService.restoreSongFromTrash(userId, songId);
+	}
+
+	@Override
+	public org.liferay.jukebox.model.Song updateSong(long userId, long songId,
+		long albumId, java.lang.String name, java.lang.String songFileName,
+		java.io.InputStream songInputStream, java.lang.String lyricsFileName,
+		java.io.InputStream lyricsInputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _songLocalService.updateSong(userId, songId, albumId, name,
+			songFileName, songInputStream, lyricsFileName, lyricsInputStream,
+			serviceContext);
+	}
+
 	/**
 	* Updates the song in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
@@ -321,6 +415,31 @@ public class SongLocalServiceWrapper implements SongLocalService,
 	public org.liferay.jukebox.model.Song updateSong(
 		org.liferay.jukebox.model.Song song) {
 		return _songLocalService.updateSong(song);
+	}
+
+	@Override
+	public void addEntryResources(org.liferay.jukebox.model.Song song,
+		boolean addGroupPermissions, boolean addGuestPermissions)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_songLocalService.addEntryResources(song, addGroupPermissions,
+			addGuestPermissions);
+	}
+
+	@Override
+	public void addEntryResources(org.liferay.jukebox.model.Song song,
+		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_songLocalService.addEntryResources(song, groupPermissions,
+			guestPermissions);
+	}
+
+	@Override
+	public void updateAsset(long userId, org.liferay.jukebox.model.Song song,
+		long[] assetCategoryIds, java.lang.String[] assetTagNames,
+		long[] assetLinkEntryIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_songLocalService.updateAsset(userId, song, assetCategoryIds,
+			assetTagNames, assetLinkEntryIds);
 	}
 
 	@Override

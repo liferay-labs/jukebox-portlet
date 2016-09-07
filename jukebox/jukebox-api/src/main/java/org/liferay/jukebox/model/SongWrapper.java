@@ -367,6 +367,19 @@ public class SongWrapper implements Song, ModelWrapper<Song> {
 		return new SongWrapper((Song)_song.clone());
 	}
 
+	@Override
+	public java.lang.String getImageURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay) {
+		return _song.getImageURL(themeDisplay);
+	}
+
+	@Override
+	public java.lang.String getLyricsURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _song.getLyricsURL(themeDisplay);
+	}
+
 	/**
 	* Returns the name of this song.
 	*
@@ -375,6 +388,14 @@ public class SongWrapper implements Song, ModelWrapper<Song> {
 	@Override
 	public java.lang.String getName() {
 		return _song.getName();
+	}
+
+	@Override
+	public java.lang.String getSongURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay,
+		java.lang.String audioContainer)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _song.getSongURL(themeDisplay, audioContainer);
 	}
 
 	/**

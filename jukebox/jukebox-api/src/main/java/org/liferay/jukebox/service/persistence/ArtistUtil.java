@@ -632,6 +632,69 @@ public class ArtistUtil {
 	}
 
 	/**
+	* Returns all the artists that the user has permission to view where groupId = &#63;.
+	*
+	* @param groupId the group ID
+	* @return the matching artists that the user has permission to view
+	*/
+	public static List<Artist> filterFindByGroupId(long groupId) {
+		return getPersistence().filterFindByGroupId(groupId);
+	}
+
+	/**
+	* Returns a range of all the artists that the user has permission to view where groupId = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param start the lower bound of the range of artists
+	* @param end the upper bound of the range of artists (not inclusive)
+	* @return the range of matching artists that the user has permission to view
+	*/
+	public static List<Artist> filterFindByGroupId(long groupId, int start,
+		int end) {
+		return getPersistence().filterFindByGroupId(groupId, start, end);
+	}
+
+	/**
+	* Returns an ordered range of all the artists that the user has permissions to view where groupId = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param start the lower bound of the range of artists
+	* @param end the upper bound of the range of artists (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the ordered range of matching artists that the user has permission to view
+	*/
+	public static List<Artist> filterFindByGroupId(long groupId, int start,
+		int end, OrderByComparator<Artist> orderByComparator) {
+		return getPersistence()
+				   .filterFindByGroupId(groupId, start, end, orderByComparator);
+	}
+
+	/**
+	* Returns the artists before and after the current artist in the ordered set of artists that the user has permission to view where groupId = &#63;.
+	*
+	* @param artistId the primary key of the current artist
+	* @param groupId the group ID
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the previous, current, and next artist
+	* @throws NoSuchArtistException if a artist with the primary key could not be found
+	*/
+	public static Artist[] filterFindByGroupId_PrevAndNext(long artistId,
+		long groupId, OrderByComparator<Artist> orderByComparator)
+		throws org.liferay.jukebox.exception.NoSuchArtistException {
+		return getPersistence()
+				   .filterFindByGroupId_PrevAndNext(artistId, groupId,
+			orderByComparator);
+	}
+
+	/**
 	* Removes all the artists where groupId = &#63; from the database.
 	*
 	* @param groupId the group ID
@@ -648,6 +711,16 @@ public class ArtistUtil {
 	*/
 	public static int countByGroupId(long groupId) {
 		return getPersistence().countByGroupId(groupId);
+	}
+
+	/**
+	* Returns the number of artists that the user has permission to view where groupId = &#63;.
+	*
+	* @param groupId the group ID
+	* @return the number of matching artists that the user has permission to view
+	*/
+	public static int filterCountByGroupId(long groupId) {
+		return getPersistence().filterCountByGroupId(groupId);
 	}
 
 	/**
@@ -1114,6 +1187,74 @@ public class ArtistUtil {
 	}
 
 	/**
+	* Returns all the artists that the user has permission to view where userId = &#63; and groupId = &#63;.
+	*
+	* @param userId the user ID
+	* @param groupId the group ID
+	* @return the matching artists that the user has permission to view
+	*/
+	public static List<Artist> filterFindByU_G(long userId, long groupId) {
+		return getPersistence().filterFindByU_G(userId, groupId);
+	}
+
+	/**
+	* Returns a range of all the artists that the user has permission to view where userId = &#63; and groupId = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param userId the user ID
+	* @param groupId the group ID
+	* @param start the lower bound of the range of artists
+	* @param end the upper bound of the range of artists (not inclusive)
+	* @return the range of matching artists that the user has permission to view
+	*/
+	public static List<Artist> filterFindByU_G(long userId, long groupId,
+		int start, int end) {
+		return getPersistence().filterFindByU_G(userId, groupId, start, end);
+	}
+
+	/**
+	* Returns an ordered range of all the artists that the user has permissions to view where userId = &#63; and groupId = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param userId the user ID
+	* @param groupId the group ID
+	* @param start the lower bound of the range of artists
+	* @param end the upper bound of the range of artists (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the ordered range of matching artists that the user has permission to view
+	*/
+	public static List<Artist> filterFindByU_G(long userId, long groupId,
+		int start, int end, OrderByComparator<Artist> orderByComparator) {
+		return getPersistence()
+				   .filterFindByU_G(userId, groupId, start, end,
+			orderByComparator);
+	}
+
+	/**
+	* Returns the artists before and after the current artist in the ordered set of artists that the user has permission to view where userId = &#63; and groupId = &#63;.
+	*
+	* @param artistId the primary key of the current artist
+	* @param userId the user ID
+	* @param groupId the group ID
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the previous, current, and next artist
+	* @throws NoSuchArtistException if a artist with the primary key could not be found
+	*/
+	public static Artist[] filterFindByU_G_PrevAndNext(long artistId,
+		long userId, long groupId, OrderByComparator<Artist> orderByComparator)
+		throws org.liferay.jukebox.exception.NoSuchArtistException {
+		return getPersistence()
+				   .filterFindByU_G_PrevAndNext(artistId, userId, groupId,
+			orderByComparator);
+	}
+
+	/**
 	* Removes all the artists where userId = &#63; and groupId = &#63; from the database.
 	*
 	* @param userId the user ID
@@ -1132,6 +1273,17 @@ public class ArtistUtil {
 	*/
 	public static int countByU_G(long userId, long groupId) {
 		return getPersistence().countByU_G(userId, groupId);
+	}
+
+	/**
+	* Returns the number of artists that the user has permission to view where userId = &#63; and groupId = &#63;.
+	*
+	* @param userId the user ID
+	* @param groupId the group ID
+	* @return the number of matching artists that the user has permission to view
+	*/
+	public static int filterCountByU_G(long userId, long groupId) {
+		return getPersistence().filterCountByU_G(userId, groupId);
 	}
 
 	/**
@@ -1285,6 +1437,74 @@ public class ArtistUtil {
 	}
 
 	/**
+	* Returns all the artists that the user has permission to view where groupId = &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @return the matching artists that the user has permission to view
+	*/
+	public static List<Artist> filterFindByG_S(long groupId, int status) {
+		return getPersistence().filterFindByG_S(groupId, status);
+	}
+
+	/**
+	* Returns a range of all the artists that the user has permission to view where groupId = &#63; and status = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @param start the lower bound of the range of artists
+	* @param end the upper bound of the range of artists (not inclusive)
+	* @return the range of matching artists that the user has permission to view
+	*/
+	public static List<Artist> filterFindByG_S(long groupId, int status,
+		int start, int end) {
+		return getPersistence().filterFindByG_S(groupId, status, start, end);
+	}
+
+	/**
+	* Returns an ordered range of all the artists that the user has permissions to view where groupId = &#63; and status = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @param start the lower bound of the range of artists
+	* @param end the upper bound of the range of artists (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the ordered range of matching artists that the user has permission to view
+	*/
+	public static List<Artist> filterFindByG_S(long groupId, int status,
+		int start, int end, OrderByComparator<Artist> orderByComparator) {
+		return getPersistence()
+				   .filterFindByG_S(groupId, status, start, end,
+			orderByComparator);
+	}
+
+	/**
+	* Returns the artists before and after the current artist in the ordered set of artists that the user has permission to view where groupId = &#63; and status = &#63;.
+	*
+	* @param artistId the primary key of the current artist
+	* @param groupId the group ID
+	* @param status the status
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the previous, current, and next artist
+	* @throws NoSuchArtistException if a artist with the primary key could not be found
+	*/
+	public static Artist[] filterFindByG_S_PrevAndNext(long artistId,
+		long groupId, int status, OrderByComparator<Artist> orderByComparator)
+		throws org.liferay.jukebox.exception.NoSuchArtistException {
+		return getPersistence()
+				   .filterFindByG_S_PrevAndNext(artistId, groupId, status,
+			orderByComparator);
+	}
+
+	/**
 	* Removes all the artists where groupId = &#63; and status = &#63; from the database.
 	*
 	* @param groupId the group ID
@@ -1303,6 +1523,17 @@ public class ArtistUtil {
 	*/
 	public static int countByG_S(long groupId, int status) {
 		return getPersistence().countByG_S(groupId, status);
+	}
+
+	/**
+	* Returns the number of artists that the user has permission to view where groupId = &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @return the number of matching artists that the user has permission to view
+	*/
+	public static int filterCountByG_S(long groupId, int status) {
+		return getPersistence().filterCountByG_S(groupId, status);
 	}
 
 	/**
@@ -1478,6 +1709,82 @@ public class ArtistUtil {
 	}
 
 	/**
+	* Returns all the artists that the user has permission to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param name the name
+	* @param status the status
+	* @return the matching artists that the user has permission to view
+	*/
+	public static List<Artist> filterFindByG_LikeN_S(long groupId,
+		java.lang.String name, int status) {
+		return getPersistence().filterFindByG_LikeN_S(groupId, name, status);
+	}
+
+	/**
+	* Returns a range of all the artists that the user has permission to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param name the name
+	* @param status the status
+	* @param start the lower bound of the range of artists
+	* @param end the upper bound of the range of artists (not inclusive)
+	* @return the range of matching artists that the user has permission to view
+	*/
+	public static List<Artist> filterFindByG_LikeN_S(long groupId,
+		java.lang.String name, int status, int start, int end) {
+		return getPersistence()
+				   .filterFindByG_LikeN_S(groupId, name, status, start, end);
+	}
+
+	/**
+	* Returns an ordered range of all the artists that the user has permissions to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link ArtistModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param name the name
+	* @param status the status
+	* @param start the lower bound of the range of artists
+	* @param end the upper bound of the range of artists (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the ordered range of matching artists that the user has permission to view
+	*/
+	public static List<Artist> filterFindByG_LikeN_S(long groupId,
+		java.lang.String name, int status, int start, int end,
+		OrderByComparator<Artist> orderByComparator) {
+		return getPersistence()
+				   .filterFindByG_LikeN_S(groupId, name, status, start, end,
+			orderByComparator);
+	}
+
+	/**
+	* Returns the artists before and after the current artist in the ordered set of artists that the user has permission to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	*
+	* @param artistId the primary key of the current artist
+	* @param groupId the group ID
+	* @param name the name
+	* @param status the status
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the previous, current, and next artist
+	* @throws NoSuchArtistException if a artist with the primary key could not be found
+	*/
+	public static Artist[] filterFindByG_LikeN_S_PrevAndNext(long artistId,
+		long groupId, java.lang.String name, int status,
+		OrderByComparator<Artist> orderByComparator)
+		throws org.liferay.jukebox.exception.NoSuchArtistException {
+		return getPersistence()
+				   .filterFindByG_LikeN_S_PrevAndNext(artistId, groupId, name,
+			status, orderByComparator);
+	}
+
+	/**
 	* Removes all the artists where groupId = &#63; and name LIKE &#63; and status = &#63; from the database.
 	*
 	* @param groupId the group ID
@@ -1500,6 +1807,19 @@ public class ArtistUtil {
 	public static int countByG_LikeN_S(long groupId, java.lang.String name,
 		int status) {
 		return getPersistence().countByG_LikeN_S(groupId, name, status);
+	}
+
+	/**
+	* Returns the number of artists that the user has permission to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param name the name
+	* @param status the status
+	* @return the number of matching artists that the user has permission to view
+	*/
+	public static int filterCountByG_LikeN_S(long groupId,
+		java.lang.String name, int status) {
+		return getPersistence().filterCountByG_LikeN_S(groupId, name, status);
 	}
 
 	/**

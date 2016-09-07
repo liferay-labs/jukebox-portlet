@@ -53,4 +53,16 @@ public interface Song extends SongModel, PersistedModel {
 				return Song.class;
 			}
 		};
+
+	public java.lang.String getImageURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay);
+
+	public java.lang.String getLyricsURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
+		throws com.liferay.portal.kernel.exception.PortalException;
+
+	public java.lang.String getSongURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay,
+		java.lang.String audioContainer)
+		throws com.liferay.portal.kernel.exception.PortalException;
 }

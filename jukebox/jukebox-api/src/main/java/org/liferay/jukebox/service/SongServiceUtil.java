@@ -41,6 +41,22 @@ public class SongServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link org.liferay.jukebox.service.impl.SongServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
+	public static int getSongsCount(long groupId) {
+		return getService().getSongsCount(groupId);
+	}
+
+	public static int getSongsCount(long groupId, java.lang.String keywords) {
+		return getService().getSongsCount(groupId, keywords);
+	}
+
+	public static int getSongsCountByAlbumId(long groupId, long albumId) {
+		return getService().getSongsCountByAlbumId(groupId, albumId);
+	}
+
+	public static int getSongsCountByAlbumId(long groupId, long albumId,
+		int status) {
+		return getService().getSongsCountByAlbumId(groupId, albumId, status);
+	}
 
 	/**
 	* Returns the OSGi service identifier.
@@ -49,6 +65,69 @@ public class SongServiceUtil {
 	*/
 	public static java.lang.String getOSGiServiceIdentifier() {
 		return getService().getOSGiServiceIdentifier();
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Song> getSongs(
+		long groupId) {
+		return getService().getSongs(groupId);
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Song> getSongs(
+		long groupId, int start, int end) {
+		return getService().getSongs(groupId, start, end);
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Song> getSongs(
+		long groupId, java.lang.String keywords) {
+		return getService().getSongs(groupId, keywords);
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Song> getSongsByAlbumId(
+		long groupId, long albumId) {
+		return getService().getSongsByAlbumId(groupId, albumId);
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Song> getSongsByAlbumId(
+		long groupId, long albumId, int status) {
+		return getService().getSongsByAlbumId(groupId, albumId, status);
+	}
+
+	public static org.liferay.jukebox.model.Song addSong(long albumId,
+		java.lang.String name, java.lang.String songFileName,
+		java.io.InputStream songInputStream, java.lang.String lyricsFileName,
+		java.io.InputStream lyricsInputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .addSong(albumId, name, songFileName, songInputStream,
+			lyricsFileName, lyricsInputStream, serviceContext);
+	}
+
+	public static org.liferay.jukebox.model.Song deleteSong(long songId,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().deleteSong(songId, serviceContext);
+	}
+
+	public static org.liferay.jukebox.model.Song moveSongToTrash(long songId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().moveSongToTrash(songId);
+	}
+
+	public static org.liferay.jukebox.model.Song restoreSongFromTrash(
+		long songId) throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().restoreSongFromTrash(songId);
+	}
+
+	public static org.liferay.jukebox.model.Song updateSong(long songId,
+		long albumId, java.lang.String name, java.lang.String songFileName,
+		java.io.InputStream songInputStream, java.lang.String lyricsFileName,
+		java.io.InputStream lyricsInputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .updateSong(songId, albumId, name, songFileName,
+			songInputStream, lyricsFileName, lyricsInputStream, serviceContext);
 	}
 
 	public static SongService getService() {

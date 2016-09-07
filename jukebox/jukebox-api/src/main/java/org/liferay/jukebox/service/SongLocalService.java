@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -37,6 +38,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 
 import org.liferay.jukebox.model.Song;
 
+import java.io.InputStream;
 import java.io.Serializable;
 
 import java.util.List;
@@ -87,6 +89,9 @@ public interface SongLocalService extends BaseLocalService,
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException;
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getSongsByAlbumIdCount(long albumId);
+
 	/**
 	* Returns the number of songs.
 	*
@@ -94,6 +99,9 @@ public interface SongLocalService extends BaseLocalService,
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getSongsCount();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getSongsCount(long groupId);
 
 	/**
 	* Returns the OSGi service identifier.
@@ -155,6 +163,21 @@ public interface SongLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<Song> getSongs(int start, int end);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Song> getSongs(long groupId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Song> getSongs(long groupId, int start, int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Song> getSongsByAlbumId(long albumId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Song> getSongsByAlbumId(long albumId, int start, int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Song> getSongsByAlbumId(long groupId, long albumId, int status);
+
 	/**
 	* Returns all the songs matching the UUID and company.
 	*
@@ -198,6 +221,12 @@ public interface SongLocalService extends BaseLocalService,
 	*/
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
 		Projection projection);
+
+	@Indexable(type = IndexableType.REINDEX)
+	public Song addSong(long userId, long albumId, java.lang.String name,
+		java.lang.String songFileName, InputStream songInputStream,
+		java.lang.String lyricsFileName, InputStream lyricsInputStream,
+		ServiceContext serviceContext) throws PortalException;
 
 	/**
 	* Adds the song to the database. Also notifies the appropriate model listeners.
@@ -248,6 +277,10 @@ public interface SongLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Song fetchSongByUuidAndGroupId(java.lang.String uuid, long groupId);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public Song getSong(long groupId, long artistId, long albumId,
+		java.lang.String name);
+
 	/**
 	* Returns the song with the primary key.
 	*
@@ -270,6 +303,27 @@ public interface SongLocalService extends BaseLocalService,
 	public Song getSongByUuidAndGroupId(java.lang.String uuid, long groupId)
 		throws PortalException;
 
+	@Indexable(type = IndexableType.REINDEX)
+	public Song moveSong(long songId, long albumId) throws PortalException;
+
+	public Song moveSongFromTrash(long userId, long songId, long albumId)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.REINDEX)
+	public Song moveSongToTrash(long userId, Song song)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.REINDEX)
+	public Song restoreSongFromTrash(long userId, long songId)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.REINDEX)
+	public Song updateSong(long userId, long songId, long albumId,
+		java.lang.String name, java.lang.String songFileName,
+		InputStream songInputStream, java.lang.String lyricsFileName,
+		InputStream lyricsInputStream, ServiceContext serviceContext)
+		throws PortalException;
+
 	/**
 	* Updates the song in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
@@ -278,4 +332,15 @@ public interface SongLocalService extends BaseLocalService,
 	*/
 	@Indexable(type = IndexableType.REINDEX)
 	public Song updateSong(Song song);
+
+	public void addEntryResources(Song song, boolean addGroupPermissions,
+		boolean addGuestPermissions) throws PortalException;
+
+	public void addEntryResources(Song song,
+		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		throws PortalException;
+
+	public void updateAsset(long userId, Song song, long[] assetCategoryIds,
+		java.lang.String[] assetTagNames, long[] assetLinkEntryIds)
+		throws PortalException;
 }

@@ -53,4 +53,13 @@ public interface Artist extends ArtistModel, PersistedModel {
 				return Artist.class;
 			}
 		};
+
+	public com.liferay.portal.kernel.repository.model.FileEntry getCustomImage();
+
+	public java.lang.String getImageURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
+		throws com.liferay.portal.kernel.exception.PortalException;
+
+	public boolean hasCustomImage()
+		throws com.liferay.portal.kernel.exception.PortalException;
 }

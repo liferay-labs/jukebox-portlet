@@ -41,6 +41,13 @@ public class ArtistServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link org.liferay.jukebox.service.impl.ArtistServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
+	public static int getArtistsCount(long groupId) {
+		return getService().getArtistsCount(groupId);
+	}
+
+	public static int getArtistsCount(long groupId, java.lang.String keywords) {
+		return getService().getArtistsCount(groupId, keywords);
+	}
 
 	/**
 	* Returns the OSGi service identifier.
@@ -49,6 +56,45 @@ public class ArtistServiceUtil {
 	*/
 	public static java.lang.String getOSGiServiceIdentifier() {
 		return getService().getOSGiServiceIdentifier();
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Artist> getArtists(
+		long groupId) {
+		return getService().getArtists(groupId);
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Artist> getArtists(
+		long groupId, int start, int end) {
+		return getService().getArtists(groupId, start, end);
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Artist> getArtists(
+		long groupId, java.lang.String keywords) {
+		return getService().getArtists(groupId, keywords);
+	}
+
+	public static org.liferay.jukebox.model.Artist addArtist(
+		java.lang.String name, java.lang.String bio,
+		java.io.InputStream inputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().addArtist(name, bio, inputStream, serviceContext);
+	}
+
+	public static org.liferay.jukebox.model.Artist deleteArtist(long artistId,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().deleteArtist(artistId, serviceContext);
+	}
+
+	public static org.liferay.jukebox.model.Artist updateArtist(long artistId,
+		java.lang.String name, java.lang.String bio,
+		java.io.InputStream inputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .updateArtist(artistId, name, bio, inputStream,
+			serviceContext);
 	}
 
 	public static ArtistService getService() {

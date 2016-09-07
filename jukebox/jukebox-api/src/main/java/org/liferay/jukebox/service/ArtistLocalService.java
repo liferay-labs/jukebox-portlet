@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -37,6 +38,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 
 import org.liferay.jukebox.model.Artist;
 
+import java.io.InputStream;
 import java.io.Serializable;
 
 import java.util.List;
@@ -94,6 +96,9 @@ public interface ArtistLocalService extends BaseLocalService,
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getArtistsCount();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getArtistsCount(long groupId);
 
 	/**
 	* Returns the OSGi service identifier.
@@ -155,6 +160,12 @@ public interface ArtistLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<Artist> getArtists(int start, int end);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Artist> getArtists(long groupId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Artist> getArtists(long groupId, int start, int end);
+
 	/**
 	* Returns all the artists matching the UUID and company.
 	*
@@ -198,6 +209,11 @@ public interface ArtistLocalService extends BaseLocalService,
 	*/
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
 		Projection projection);
+
+	@Indexable(type = IndexableType.REINDEX)
+	public Artist addArtist(long userId, java.lang.String name,
+		java.lang.String bio, InputStream inputStream,
+		ServiceContext serviceContext) throws PortalException;
 
 	/**
 	* Adds the artist to the database. Also notifies the appropriate model listeners.
@@ -271,6 +287,11 @@ public interface ArtistLocalService extends BaseLocalService,
 	public Artist getArtistByUuidAndGroupId(java.lang.String uuid, long groupId)
 		throws PortalException;
 
+	@Indexable(type = IndexableType.REINDEX)
+	public Artist updateArtist(long userId, long artistId,
+		java.lang.String name, java.lang.String bio, InputStream inputStream,
+		ServiceContext serviceContext) throws PortalException;
+
 	/**
 	* Updates the artist in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
@@ -279,4 +300,17 @@ public interface ArtistLocalService extends BaseLocalService,
 	*/
 	@Indexable(type = IndexableType.REINDEX)
 	public Artist updateArtist(Artist artist);
+
+	public void addEntryResources(Artist artist, boolean addGroupPermissions,
+		boolean addGuestPermissions) throws PortalException;
+
+	public void addEntryResources(Artist artist,
+		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		throws PortalException;
+
+	public void deleteArtists(long groupId) throws PortalException;
+
+	public void updateAsset(long userId, Artist artist,
+		long[] assetCategoryIds, java.lang.String[] assetTagNames,
+		long[] assetLinkEntryIds) throws PortalException;
 }

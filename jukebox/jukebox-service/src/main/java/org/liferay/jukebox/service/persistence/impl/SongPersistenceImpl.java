@@ -22,9 +22,11 @@ import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.dao.orm.SQLQuery;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.CompanyProvider;
@@ -1895,6 +1897,313 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	/**
+	 * Returns all the songs that the user has permission to view where groupId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @return the matching songs that the user has permission to view
+	 */
+	@Override
+	public List<Song> filterFindByGroupId(long groupId) {
+		return filterFindByGroupId(groupId, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the songs that the user has permission to view where groupId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @return the range of matching songs that the user has permission to view
+	 */
+	@Override
+	public List<Song> filterFindByGroupId(long groupId, int start, int end) {
+		return filterFindByGroupId(groupId, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs that the user has permissions to view where groupId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching songs that the user has permission to view
+	 */
+	@Override
+	public List<Song> filterFindByGroupId(long groupId, int start, int end,
+		OrderByComparator<Song> orderByComparator) {
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return findByGroupId(groupId, start, end, orderByComparator);
+		}
+
+		StringBundler query = null;
+
+		if (orderByComparator != null) {
+			query = new StringBundler(3 +
+					(orderByComparator.getOrderByFields().length * 2));
+		}
+		else {
+			query = new StringBundler(4);
+		}
+
+		if (getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_WHERE);
+		}
+		else {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_1);
+		}
+
+		query.append(_FINDER_COLUMN_GROUPID_GROUPID_2);
+
+		if (!getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_2);
+		}
+
+		if (orderByComparator != null) {
+			if (getDB().isSupportsInlineDistinct()) {
+				appendOrderByComparator(query, _ORDER_BY_ENTITY_ALIAS,
+					orderByComparator, true);
+			}
+			else {
+				appendOrderByComparator(query, _ORDER_BY_ENTITY_TABLE,
+					orderByComparator, true);
+			}
+		}
+		else {
+			if (getDB().isSupportsInlineDistinct()) {
+				query.append(SongModelImpl.ORDER_BY_JPQL);
+			}
+			else {
+				query.append(SongModelImpl.ORDER_BY_SQL);
+			}
+		}
+
+		String sql = InlineSQLHelperUtil.replacePermissionCheck(query.toString(),
+				Song.class.getName(), _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN,
+				groupId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+			if (getDB().isSupportsInlineDistinct()) {
+				q.addEntity(_FILTER_ENTITY_ALIAS, SongImpl.class);
+			}
+			else {
+				q.addEntity(_FILTER_ENTITY_TABLE, SongImpl.class);
+			}
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(groupId);
+
+			return (List<Song>)QueryUtil.list(q, getDialect(), start, end);
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	/**
+	 * Returns the songs before and after the current song in the ordered set of songs that the user has permission to view where groupId = &#63;.
+	 *
+	 * @param songId the primary key of the current song
+	 * @param groupId the group ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next song
+	 * @throws NoSuchSongException if a song with the primary key could not be found
+	 */
+	@Override
+	public Song[] filterFindByGroupId_PrevAndNext(long songId, long groupId,
+		OrderByComparator<Song> orderByComparator) throws NoSuchSongException {
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return findByGroupId_PrevAndNext(songId, groupId, orderByComparator);
+		}
+
+		Song song = findByPrimaryKey(songId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Song[] array = new SongImpl[3];
+
+			array[0] = filterGetByGroupId_PrevAndNext(session, song, groupId,
+					orderByComparator, true);
+
+			array[1] = song;
+
+			array[2] = filterGetByGroupId_PrevAndNext(session, song, groupId,
+					orderByComparator, false);
+
+			return array;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected Song filterGetByGroupId_PrevAndNext(Session session, Song song,
+		long groupId, OrderByComparator<Song> orderByComparator,
+		boolean previous) {
+		StringBundler query = null;
+
+		if (orderByComparator != null) {
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
+		}
+		else {
+			query = new StringBundler(4);
+		}
+
+		if (getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_WHERE);
+		}
+		else {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_1);
+		}
+
+		query.append(_FINDER_COLUMN_GROUPID_GROUPID_2);
+
+		if (!getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_2);
+		}
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields = orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				query.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				if (getDB().isSupportsInlineDistinct()) {
+					query.append(_ORDER_BY_ENTITY_ALIAS);
+				}
+				else {
+					query.append(_ORDER_BY_ENTITY_TABLE);
+				}
+
+				query.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			query.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				if (getDB().isSupportsInlineDistinct()) {
+					query.append(_ORDER_BY_ENTITY_ALIAS);
+				}
+				else {
+					query.append(_ORDER_BY_ENTITY_TABLE);
+				}
+
+				query.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						query.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC);
+					}
+					else {
+						query.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			if (getDB().isSupportsInlineDistinct()) {
+				query.append(SongModelImpl.ORDER_BY_JPQL);
+			}
+			else {
+				query.append(SongModelImpl.ORDER_BY_SQL);
+			}
+		}
+
+		String sql = InlineSQLHelperUtil.replacePermissionCheck(query.toString(),
+				Song.class.getName(), _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN,
+				groupId);
+
+		SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+		q.setFirstResult(0);
+		q.setMaxResults(2);
+
+		if (getDB().isSupportsInlineDistinct()) {
+			q.addEntity(_FILTER_ENTITY_ALIAS, SongImpl.class);
+		}
+		else {
+			q.addEntity(_FILTER_ENTITY_TABLE, SongImpl.class);
+		}
+
+		QueryPos qPos = QueryPos.getInstance(q);
+
+		qPos.add(groupId);
+
+		if (orderByComparator != null) {
+			Object[] values = orderByComparator.getOrderByConditionValues(song);
+
+			for (Object value : values) {
+				qPos.add(value);
+			}
+		}
+
+		List<Song> list = q.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
 	 * Removes all the songs where groupId = &#63; from the database.
 	 *
 	 * @param groupId the group ID
@@ -1956,6 +2265,54 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 		}
 
 		return count.intValue();
+	}
+
+	/**
+	 * Returns the number of songs that the user has permission to view where groupId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @return the number of matching songs that the user has permission to view
+	 */
+	@Override
+	public int filterCountByGroupId(long groupId) {
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return countByGroupId(groupId);
+		}
+
+		StringBundler query = new StringBundler(2);
+
+		query.append(_FILTER_SQL_COUNT_SONG_WHERE);
+
+		query.append(_FINDER_COLUMN_GROUPID_GROUPID_2);
+
+		String sql = InlineSQLHelperUtil.replacePermissionCheck(query.toString(),
+				Song.class.getName(), _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN,
+				groupId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+			q.addScalar(COUNT_COLUMN_NAME,
+				com.liferay.portal.kernel.dao.orm.Type.LONG);
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(groupId);
+
+			Long count = (Long)q.uniqueResult();
+
+			return count.intValue();
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
 	}
 
 	private static final String _FINDER_COLUMN_GROUPID_GROUPID_2 = "song.groupId = ?";
@@ -4406,6 +4763,328 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	/**
+	 * Returns all the songs that the user has permission to view where groupId = &#63; and status = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param status the status
+	 * @return the matching songs that the user has permission to view
+	 */
+	@Override
+	public List<Song> filterFindByG_S(long groupId, int status) {
+		return filterFindByG_S(groupId, status, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the songs that the user has permission to view where groupId = &#63; and status = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param status the status
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @return the range of matching songs that the user has permission to view
+	 */
+	@Override
+	public List<Song> filterFindByG_S(long groupId, int status, int start,
+		int end) {
+		return filterFindByG_S(groupId, status, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs that the user has permissions to view where groupId = &#63; and status = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param status the status
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching songs that the user has permission to view
+	 */
+	@Override
+	public List<Song> filterFindByG_S(long groupId, int status, int start,
+		int end, OrderByComparator<Song> orderByComparator) {
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return findByG_S(groupId, status, start, end, orderByComparator);
+		}
+
+		StringBundler query = null;
+
+		if (orderByComparator != null) {
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByFields().length * 2));
+		}
+		else {
+			query = new StringBundler(5);
+		}
+
+		if (getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_WHERE);
+		}
+		else {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_1);
+		}
+
+		query.append(_FINDER_COLUMN_G_S_GROUPID_2);
+
+		query.append(_FINDER_COLUMN_G_S_STATUS_2);
+
+		if (!getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_2);
+		}
+
+		if (orderByComparator != null) {
+			if (getDB().isSupportsInlineDistinct()) {
+				appendOrderByComparator(query, _ORDER_BY_ENTITY_ALIAS,
+					orderByComparator, true);
+			}
+			else {
+				appendOrderByComparator(query, _ORDER_BY_ENTITY_TABLE,
+					orderByComparator, true);
+			}
+		}
+		else {
+			if (getDB().isSupportsInlineDistinct()) {
+				query.append(SongModelImpl.ORDER_BY_JPQL);
+			}
+			else {
+				query.append(SongModelImpl.ORDER_BY_SQL);
+			}
+		}
+
+		String sql = InlineSQLHelperUtil.replacePermissionCheck(query.toString(),
+				Song.class.getName(), _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN,
+				groupId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+			if (getDB().isSupportsInlineDistinct()) {
+				q.addEntity(_FILTER_ENTITY_ALIAS, SongImpl.class);
+			}
+			else {
+				q.addEntity(_FILTER_ENTITY_TABLE, SongImpl.class);
+			}
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(groupId);
+
+			qPos.add(status);
+
+			return (List<Song>)QueryUtil.list(q, getDialect(), start, end);
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	/**
+	 * Returns the songs before and after the current song in the ordered set of songs that the user has permission to view where groupId = &#63; and status = &#63;.
+	 *
+	 * @param songId the primary key of the current song
+	 * @param groupId the group ID
+	 * @param status the status
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next song
+	 * @throws NoSuchSongException if a song with the primary key could not be found
+	 */
+	@Override
+	public Song[] filterFindByG_S_PrevAndNext(long songId, long groupId,
+		int status, OrderByComparator<Song> orderByComparator)
+		throws NoSuchSongException {
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return findByG_S_PrevAndNext(songId, groupId, status,
+				orderByComparator);
+		}
+
+		Song song = findByPrimaryKey(songId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Song[] array = new SongImpl[3];
+
+			array[0] = filterGetByG_S_PrevAndNext(session, song, groupId,
+					status, orderByComparator, true);
+
+			array[1] = song;
+
+			array[2] = filterGetByG_S_PrevAndNext(session, song, groupId,
+					status, orderByComparator, false);
+
+			return array;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected Song filterGetByG_S_PrevAndNext(Session session, Song song,
+		long groupId, int status, OrderByComparator<Song> orderByComparator,
+		boolean previous) {
+		StringBundler query = null;
+
+		if (orderByComparator != null) {
+			query = new StringBundler(6 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
+		}
+		else {
+			query = new StringBundler(5);
+		}
+
+		if (getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_WHERE);
+		}
+		else {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_1);
+		}
+
+		query.append(_FINDER_COLUMN_G_S_GROUPID_2);
+
+		query.append(_FINDER_COLUMN_G_S_STATUS_2);
+
+		if (!getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_2);
+		}
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields = orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				query.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				if (getDB().isSupportsInlineDistinct()) {
+					query.append(_ORDER_BY_ENTITY_ALIAS);
+				}
+				else {
+					query.append(_ORDER_BY_ENTITY_TABLE);
+				}
+
+				query.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			query.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				if (getDB().isSupportsInlineDistinct()) {
+					query.append(_ORDER_BY_ENTITY_ALIAS);
+				}
+				else {
+					query.append(_ORDER_BY_ENTITY_TABLE);
+				}
+
+				query.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						query.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC);
+					}
+					else {
+						query.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			if (getDB().isSupportsInlineDistinct()) {
+				query.append(SongModelImpl.ORDER_BY_JPQL);
+			}
+			else {
+				query.append(SongModelImpl.ORDER_BY_SQL);
+			}
+		}
+
+		String sql = InlineSQLHelperUtil.replacePermissionCheck(query.toString(),
+				Song.class.getName(), _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN,
+				groupId);
+
+		SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+		q.setFirstResult(0);
+		q.setMaxResults(2);
+
+		if (getDB().isSupportsInlineDistinct()) {
+			q.addEntity(_FILTER_ENTITY_ALIAS, SongImpl.class);
+		}
+		else {
+			q.addEntity(_FILTER_ENTITY_TABLE, SongImpl.class);
+		}
+
+		QueryPos qPos = QueryPos.getInstance(q);
+
+		qPos.add(groupId);
+
+		qPos.add(status);
+
+		if (orderByComparator != null) {
+			Object[] values = orderByComparator.getOrderByConditionValues(song);
+
+			for (Object value : values) {
+				qPos.add(value);
+			}
+		}
+
+		List<Song> list = q.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
 	 * Removes all the songs where groupId = &#63; and status = &#63; from the database.
 	 *
 	 * @param groupId the group ID
@@ -4473,6 +5152,59 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 		}
 
 		return count.intValue();
+	}
+
+	/**
+	 * Returns the number of songs that the user has permission to view where groupId = &#63; and status = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param status the status
+	 * @return the number of matching songs that the user has permission to view
+	 */
+	@Override
+	public int filterCountByG_S(long groupId, int status) {
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return countByG_S(groupId, status);
+		}
+
+		StringBundler query = new StringBundler(3);
+
+		query.append(_FILTER_SQL_COUNT_SONG_WHERE);
+
+		query.append(_FINDER_COLUMN_G_S_GROUPID_2);
+
+		query.append(_FINDER_COLUMN_G_S_STATUS_2);
+
+		String sql = InlineSQLHelperUtil.replacePermissionCheck(query.toString(),
+				Song.class.getName(), _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN,
+				groupId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+			q.addScalar(COUNT_COLUMN_NAME,
+				com.liferay.portal.kernel.dao.orm.Type.LONG);
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(groupId);
+
+			qPos.add(status);
+
+			Long count = (Long)q.uniqueResult();
+
+			return count.intValue();
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
 	}
 
 	private static final String _FINDER_COLUMN_G_S_GROUPID_2 = "song.groupId = ? AND ";
@@ -4939,6 +5671,328 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	/**
+	 * Returns all the songs that the user has permission to view where groupId = &#63; and albumId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param albumId the album ID
+	 * @return the matching songs that the user has permission to view
+	 */
+	@Override
+	public List<Song> filterFindByG_A(long groupId, long albumId) {
+		return filterFindByG_A(groupId, albumId, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the songs that the user has permission to view where groupId = &#63; and albumId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param albumId the album ID
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @return the range of matching songs that the user has permission to view
+	 */
+	@Override
+	public List<Song> filterFindByG_A(long groupId, long albumId, int start,
+		int end) {
+		return filterFindByG_A(groupId, albumId, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs that the user has permissions to view where groupId = &#63; and albumId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param albumId the album ID
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching songs that the user has permission to view
+	 */
+	@Override
+	public List<Song> filterFindByG_A(long groupId, long albumId, int start,
+		int end, OrderByComparator<Song> orderByComparator) {
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return findByG_A(groupId, albumId, start, end, orderByComparator);
+		}
+
+		StringBundler query = null;
+
+		if (orderByComparator != null) {
+			query = new StringBundler(4 +
+					(orderByComparator.getOrderByFields().length * 2));
+		}
+		else {
+			query = new StringBundler(5);
+		}
+
+		if (getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_WHERE);
+		}
+		else {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_1);
+		}
+
+		query.append(_FINDER_COLUMN_G_A_GROUPID_2);
+
+		query.append(_FINDER_COLUMN_G_A_ALBUMID_2);
+
+		if (!getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_2);
+		}
+
+		if (orderByComparator != null) {
+			if (getDB().isSupportsInlineDistinct()) {
+				appendOrderByComparator(query, _ORDER_BY_ENTITY_ALIAS,
+					orderByComparator, true);
+			}
+			else {
+				appendOrderByComparator(query, _ORDER_BY_ENTITY_TABLE,
+					orderByComparator, true);
+			}
+		}
+		else {
+			if (getDB().isSupportsInlineDistinct()) {
+				query.append(SongModelImpl.ORDER_BY_JPQL);
+			}
+			else {
+				query.append(SongModelImpl.ORDER_BY_SQL);
+			}
+		}
+
+		String sql = InlineSQLHelperUtil.replacePermissionCheck(query.toString(),
+				Song.class.getName(), _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN,
+				groupId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+			if (getDB().isSupportsInlineDistinct()) {
+				q.addEntity(_FILTER_ENTITY_ALIAS, SongImpl.class);
+			}
+			else {
+				q.addEntity(_FILTER_ENTITY_TABLE, SongImpl.class);
+			}
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(groupId);
+
+			qPos.add(albumId);
+
+			return (List<Song>)QueryUtil.list(q, getDialect(), start, end);
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	/**
+	 * Returns the songs before and after the current song in the ordered set of songs that the user has permission to view where groupId = &#63; and albumId = &#63;.
+	 *
+	 * @param songId the primary key of the current song
+	 * @param groupId the group ID
+	 * @param albumId the album ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next song
+	 * @throws NoSuchSongException if a song with the primary key could not be found
+	 */
+	@Override
+	public Song[] filterFindByG_A_PrevAndNext(long songId, long groupId,
+		long albumId, OrderByComparator<Song> orderByComparator)
+		throws NoSuchSongException {
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return findByG_A_PrevAndNext(songId, groupId, albumId,
+				orderByComparator);
+		}
+
+		Song song = findByPrimaryKey(songId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Song[] array = new SongImpl[3];
+
+			array[0] = filterGetByG_A_PrevAndNext(session, song, groupId,
+					albumId, orderByComparator, true);
+
+			array[1] = song;
+
+			array[2] = filterGetByG_A_PrevAndNext(session, song, groupId,
+					albumId, orderByComparator, false);
+
+			return array;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected Song filterGetByG_A_PrevAndNext(Session session, Song song,
+		long groupId, long albumId, OrderByComparator<Song> orderByComparator,
+		boolean previous) {
+		StringBundler query = null;
+
+		if (orderByComparator != null) {
+			query = new StringBundler(6 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
+		}
+		else {
+			query = new StringBundler(5);
+		}
+
+		if (getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_WHERE);
+		}
+		else {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_1);
+		}
+
+		query.append(_FINDER_COLUMN_G_A_GROUPID_2);
+
+		query.append(_FINDER_COLUMN_G_A_ALBUMID_2);
+
+		if (!getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_2);
+		}
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields = orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				query.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				if (getDB().isSupportsInlineDistinct()) {
+					query.append(_ORDER_BY_ENTITY_ALIAS);
+				}
+				else {
+					query.append(_ORDER_BY_ENTITY_TABLE);
+				}
+
+				query.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			query.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				if (getDB().isSupportsInlineDistinct()) {
+					query.append(_ORDER_BY_ENTITY_ALIAS);
+				}
+				else {
+					query.append(_ORDER_BY_ENTITY_TABLE);
+				}
+
+				query.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						query.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC);
+					}
+					else {
+						query.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			if (getDB().isSupportsInlineDistinct()) {
+				query.append(SongModelImpl.ORDER_BY_JPQL);
+			}
+			else {
+				query.append(SongModelImpl.ORDER_BY_SQL);
+			}
+		}
+
+		String sql = InlineSQLHelperUtil.replacePermissionCheck(query.toString(),
+				Song.class.getName(), _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN,
+				groupId);
+
+		SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+		q.setFirstResult(0);
+		q.setMaxResults(2);
+
+		if (getDB().isSupportsInlineDistinct()) {
+			q.addEntity(_FILTER_ENTITY_ALIAS, SongImpl.class);
+		}
+		else {
+			q.addEntity(_FILTER_ENTITY_TABLE, SongImpl.class);
+		}
+
+		QueryPos qPos = QueryPos.getInstance(q);
+
+		qPos.add(groupId);
+
+		qPos.add(albumId);
+
+		if (orderByComparator != null) {
+			Object[] values = orderByComparator.getOrderByConditionValues(song);
+
+			for (Object value : values) {
+				qPos.add(value);
+			}
+		}
+
+		List<Song> list = q.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
 	 * Removes all the songs where groupId = &#63; and albumId = &#63; from the database.
 	 *
 	 * @param groupId the group ID
@@ -5006,6 +6060,59 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 		}
 
 		return count.intValue();
+	}
+
+	/**
+	 * Returns the number of songs that the user has permission to view where groupId = &#63; and albumId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param albumId the album ID
+	 * @return the number of matching songs that the user has permission to view
+	 */
+	@Override
+	public int filterCountByG_A(long groupId, long albumId) {
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return countByG_A(groupId, albumId);
+		}
+
+		StringBundler query = new StringBundler(3);
+
+		query.append(_FILTER_SQL_COUNT_SONG_WHERE);
+
+		query.append(_FINDER_COLUMN_G_A_GROUPID_2);
+
+		query.append(_FINDER_COLUMN_G_A_ALBUMID_2);
+
+		String sql = InlineSQLHelperUtil.replacePermissionCheck(query.toString(),
+				Song.class.getName(), _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN,
+				groupId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+			q.addScalar(COUNT_COLUMN_NAME,
+				com.liferay.portal.kernel.dao.orm.Type.LONG);
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(groupId);
+
+			qPos.add(albumId);
+
+			Long count = (Long)q.uniqueResult();
+
+			return count.intValue();
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
 	}
 
 	private static final String _FINDER_COLUMN_G_A_GROUPID_2 = "song.groupId = ? AND ";
@@ -5510,6 +6617,341 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	/**
+	 * Returns all the songs that the user has permission to view where groupId = &#63; and albumId = &#63; and status = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param albumId the album ID
+	 * @param status the status
+	 * @return the matching songs that the user has permission to view
+	 */
+	@Override
+	public List<Song> filterFindByG_A_S(long groupId, long albumId, int status) {
+		return filterFindByG_A_S(groupId, albumId, status, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the songs that the user has permission to view where groupId = &#63; and albumId = &#63; and status = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param albumId the album ID
+	 * @param status the status
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @return the range of matching songs that the user has permission to view
+	 */
+	@Override
+	public List<Song> filterFindByG_A_S(long groupId, long albumId, int status,
+		int start, int end) {
+		return filterFindByG_A_S(groupId, albumId, status, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs that the user has permissions to view where groupId = &#63; and albumId = &#63; and status = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param albumId the album ID
+	 * @param status the status
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching songs that the user has permission to view
+	 */
+	@Override
+	public List<Song> filterFindByG_A_S(long groupId, long albumId, int status,
+		int start, int end, OrderByComparator<Song> orderByComparator) {
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return findByG_A_S(groupId, albumId, status, start, end,
+				orderByComparator);
+		}
+
+		StringBundler query = null;
+
+		if (orderByComparator != null) {
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByFields().length * 2));
+		}
+		else {
+			query = new StringBundler(6);
+		}
+
+		if (getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_WHERE);
+		}
+		else {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_1);
+		}
+
+		query.append(_FINDER_COLUMN_G_A_S_GROUPID_2);
+
+		query.append(_FINDER_COLUMN_G_A_S_ALBUMID_2);
+
+		query.append(_FINDER_COLUMN_G_A_S_STATUS_2);
+
+		if (!getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_2);
+		}
+
+		if (orderByComparator != null) {
+			if (getDB().isSupportsInlineDistinct()) {
+				appendOrderByComparator(query, _ORDER_BY_ENTITY_ALIAS,
+					orderByComparator, true);
+			}
+			else {
+				appendOrderByComparator(query, _ORDER_BY_ENTITY_TABLE,
+					orderByComparator, true);
+			}
+		}
+		else {
+			if (getDB().isSupportsInlineDistinct()) {
+				query.append(SongModelImpl.ORDER_BY_JPQL);
+			}
+			else {
+				query.append(SongModelImpl.ORDER_BY_SQL);
+			}
+		}
+
+		String sql = InlineSQLHelperUtil.replacePermissionCheck(query.toString(),
+				Song.class.getName(), _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN,
+				groupId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+			if (getDB().isSupportsInlineDistinct()) {
+				q.addEntity(_FILTER_ENTITY_ALIAS, SongImpl.class);
+			}
+			else {
+				q.addEntity(_FILTER_ENTITY_TABLE, SongImpl.class);
+			}
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(groupId);
+
+			qPos.add(albumId);
+
+			qPos.add(status);
+
+			return (List<Song>)QueryUtil.list(q, getDialect(), start, end);
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	/**
+	 * Returns the songs before and after the current song in the ordered set of songs that the user has permission to view where groupId = &#63; and albumId = &#63; and status = &#63;.
+	 *
+	 * @param songId the primary key of the current song
+	 * @param groupId the group ID
+	 * @param albumId the album ID
+	 * @param status the status
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next song
+	 * @throws NoSuchSongException if a song with the primary key could not be found
+	 */
+	@Override
+	public Song[] filterFindByG_A_S_PrevAndNext(long songId, long groupId,
+		long albumId, int status, OrderByComparator<Song> orderByComparator)
+		throws NoSuchSongException {
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return findByG_A_S_PrevAndNext(songId, groupId, albumId, status,
+				orderByComparator);
+		}
+
+		Song song = findByPrimaryKey(songId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Song[] array = new SongImpl[3];
+
+			array[0] = filterGetByG_A_S_PrevAndNext(session, song, groupId,
+					albumId, status, orderByComparator, true);
+
+			array[1] = song;
+
+			array[2] = filterGetByG_A_S_PrevAndNext(session, song, groupId,
+					albumId, status, orderByComparator, false);
+
+			return array;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected Song filterGetByG_A_S_PrevAndNext(Session session, Song song,
+		long groupId, long albumId, int status,
+		OrderByComparator<Song> orderByComparator, boolean previous) {
+		StringBundler query = null;
+
+		if (orderByComparator != null) {
+			query = new StringBundler(7 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
+		}
+		else {
+			query = new StringBundler(6);
+		}
+
+		if (getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_WHERE);
+		}
+		else {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_1);
+		}
+
+		query.append(_FINDER_COLUMN_G_A_S_GROUPID_2);
+
+		query.append(_FINDER_COLUMN_G_A_S_ALBUMID_2);
+
+		query.append(_FINDER_COLUMN_G_A_S_STATUS_2);
+
+		if (!getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_2);
+		}
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields = orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				query.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				if (getDB().isSupportsInlineDistinct()) {
+					query.append(_ORDER_BY_ENTITY_ALIAS);
+				}
+				else {
+					query.append(_ORDER_BY_ENTITY_TABLE);
+				}
+
+				query.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			query.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				if (getDB().isSupportsInlineDistinct()) {
+					query.append(_ORDER_BY_ENTITY_ALIAS);
+				}
+				else {
+					query.append(_ORDER_BY_ENTITY_TABLE);
+				}
+
+				query.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						query.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC);
+					}
+					else {
+						query.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			if (getDB().isSupportsInlineDistinct()) {
+				query.append(SongModelImpl.ORDER_BY_JPQL);
+			}
+			else {
+				query.append(SongModelImpl.ORDER_BY_SQL);
+			}
+		}
+
+		String sql = InlineSQLHelperUtil.replacePermissionCheck(query.toString(),
+				Song.class.getName(), _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN,
+				groupId);
+
+		SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+		q.setFirstResult(0);
+		q.setMaxResults(2);
+
+		if (getDB().isSupportsInlineDistinct()) {
+			q.addEntity(_FILTER_ENTITY_ALIAS, SongImpl.class);
+		}
+		else {
+			q.addEntity(_FILTER_ENTITY_TABLE, SongImpl.class);
+		}
+
+		QueryPos qPos = QueryPos.getInstance(q);
+
+		qPos.add(groupId);
+
+		qPos.add(albumId);
+
+		qPos.add(status);
+
+		if (orderByComparator != null) {
+			Object[] values = orderByComparator.getOrderByConditionValues(song);
+
+			for (Object value : values) {
+				qPos.add(value);
+			}
+		}
+
+		List<Song> list = q.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
 	 * Removes all the songs where groupId = &#63; and albumId = &#63; and status = &#63; from the database.
 	 *
 	 * @param groupId the group ID
@@ -5583,6 +7025,64 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 		}
 
 		return count.intValue();
+	}
+
+	/**
+	 * Returns the number of songs that the user has permission to view where groupId = &#63; and albumId = &#63; and status = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param albumId the album ID
+	 * @param status the status
+	 * @return the number of matching songs that the user has permission to view
+	 */
+	@Override
+	public int filterCountByG_A_S(long groupId, long albumId, int status) {
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return countByG_A_S(groupId, albumId, status);
+		}
+
+		StringBundler query = new StringBundler(4);
+
+		query.append(_FILTER_SQL_COUNT_SONG_WHERE);
+
+		query.append(_FINDER_COLUMN_G_A_S_GROUPID_2);
+
+		query.append(_FINDER_COLUMN_G_A_S_ALBUMID_2);
+
+		query.append(_FINDER_COLUMN_G_A_S_STATUS_2);
+
+		String sql = InlineSQLHelperUtil.replacePermissionCheck(query.toString(),
+				Song.class.getName(), _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN,
+				groupId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+			q.addScalar(COUNT_COLUMN_NAME,
+				com.liferay.portal.kernel.dao.orm.Type.LONG);
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(groupId);
+
+			qPos.add(albumId);
+
+			qPos.add(status);
+
+			Long count = (Long)q.uniqueResult();
+
+			return count.intValue();
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
 	}
 
 	private static final String _FINDER_COLUMN_G_A_S_GROUPID_2 = "song.groupId = ? AND ";
@@ -6102,6 +7602,371 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	}
 
 	/**
+	 * Returns all the songs that the user has permission to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param name the name
+	 * @param status the status
+	 * @return the matching songs that the user has permission to view
+	 */
+	@Override
+	public List<Song> filterFindByG_LikeN_S(long groupId, String name,
+		int status) {
+		return filterFindByG_LikeN_S(groupId, name, status, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the songs that the user has permission to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param name the name
+	 * @param status the status
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @return the range of matching songs that the user has permission to view
+	 */
+	@Override
+	public List<Song> filterFindByG_LikeN_S(long groupId, String name,
+		int status, int start, int end) {
+		return filterFindByG_LikeN_S(groupId, name, status, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the songs that the user has permissions to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link SongModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param name the name
+	 * @param status the status
+	 * @param start the lower bound of the range of songs
+	 * @param end the upper bound of the range of songs (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching songs that the user has permission to view
+	 */
+	@Override
+	public List<Song> filterFindByG_LikeN_S(long groupId, String name,
+		int status, int start, int end,
+		OrderByComparator<Song> orderByComparator) {
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return findByG_LikeN_S(groupId, name, status, start, end,
+				orderByComparator);
+		}
+
+		StringBundler query = null;
+
+		if (orderByComparator != null) {
+			query = new StringBundler(5 +
+					(orderByComparator.getOrderByFields().length * 2));
+		}
+		else {
+			query = new StringBundler(6);
+		}
+
+		if (getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_WHERE);
+		}
+		else {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_1);
+		}
+
+		query.append(_FINDER_COLUMN_G_LIKEN_S_GROUPID_2);
+
+		boolean bindName = false;
+
+		if (name == null) {
+			query.append(_FINDER_COLUMN_G_LIKEN_S_NAME_1);
+		}
+		else if (name.equals(StringPool.BLANK)) {
+			query.append(_FINDER_COLUMN_G_LIKEN_S_NAME_3);
+		}
+		else {
+			bindName = true;
+
+			query.append(_FINDER_COLUMN_G_LIKEN_S_NAME_2);
+		}
+
+		query.append(_FINDER_COLUMN_G_LIKEN_S_STATUS_2);
+
+		if (!getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_2);
+		}
+
+		if (orderByComparator != null) {
+			if (getDB().isSupportsInlineDistinct()) {
+				appendOrderByComparator(query, _ORDER_BY_ENTITY_ALIAS,
+					orderByComparator, true);
+			}
+			else {
+				appendOrderByComparator(query, _ORDER_BY_ENTITY_TABLE,
+					orderByComparator, true);
+			}
+		}
+		else {
+			if (getDB().isSupportsInlineDistinct()) {
+				query.append(SongModelImpl.ORDER_BY_JPQL);
+			}
+			else {
+				query.append(SongModelImpl.ORDER_BY_SQL);
+			}
+		}
+
+		String sql = InlineSQLHelperUtil.replacePermissionCheck(query.toString(),
+				Song.class.getName(), _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN,
+				groupId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+			if (getDB().isSupportsInlineDistinct()) {
+				q.addEntity(_FILTER_ENTITY_ALIAS, SongImpl.class);
+			}
+			else {
+				q.addEntity(_FILTER_ENTITY_TABLE, SongImpl.class);
+			}
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(groupId);
+
+			if (bindName) {
+				qPos.add(StringUtil.toLowerCase(name));
+			}
+
+			qPos.add(status);
+
+			return (List<Song>)QueryUtil.list(q, getDialect(), start, end);
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	/**
+	 * Returns the songs before and after the current song in the ordered set of songs that the user has permission to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	 *
+	 * @param songId the primary key of the current song
+	 * @param groupId the group ID
+	 * @param name the name
+	 * @param status the status
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next song
+	 * @throws NoSuchSongException if a song with the primary key could not be found
+	 */
+	@Override
+	public Song[] filterFindByG_LikeN_S_PrevAndNext(long songId, long groupId,
+		String name, int status, OrderByComparator<Song> orderByComparator)
+		throws NoSuchSongException {
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return findByG_LikeN_S_PrevAndNext(songId, groupId, name, status,
+				orderByComparator);
+		}
+
+		Song song = findByPrimaryKey(songId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Song[] array = new SongImpl[3];
+
+			array[0] = filterGetByG_LikeN_S_PrevAndNext(session, song, groupId,
+					name, status, orderByComparator, true);
+
+			array[1] = song;
+
+			array[2] = filterGetByG_LikeN_S_PrevAndNext(session, song, groupId,
+					name, status, orderByComparator, false);
+
+			return array;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected Song filterGetByG_LikeN_S_PrevAndNext(Session session, Song song,
+		long groupId, String name, int status,
+		OrderByComparator<Song> orderByComparator, boolean previous) {
+		StringBundler query = null;
+
+		if (orderByComparator != null) {
+			query = new StringBundler(7 +
+					(orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
+		}
+		else {
+			query = new StringBundler(6);
+		}
+
+		if (getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_WHERE);
+		}
+		else {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_1);
+		}
+
+		query.append(_FINDER_COLUMN_G_LIKEN_S_GROUPID_2);
+
+		boolean bindName = false;
+
+		if (name == null) {
+			query.append(_FINDER_COLUMN_G_LIKEN_S_NAME_1);
+		}
+		else if (name.equals(StringPool.BLANK)) {
+			query.append(_FINDER_COLUMN_G_LIKEN_S_NAME_3);
+		}
+		else {
+			bindName = true;
+
+			query.append(_FINDER_COLUMN_G_LIKEN_S_NAME_2);
+		}
+
+		query.append(_FINDER_COLUMN_G_LIKEN_S_STATUS_2);
+
+		if (!getDB().isSupportsInlineDistinct()) {
+			query.append(_FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_2);
+		}
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields = orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				query.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				if (getDB().isSupportsInlineDistinct()) {
+					query.append(_ORDER_BY_ENTITY_ALIAS);
+				}
+				else {
+					query.append(_ORDER_BY_ENTITY_TABLE);
+				}
+
+				query.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			query.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				if (getDB().isSupportsInlineDistinct()) {
+					query.append(_ORDER_BY_ENTITY_ALIAS);
+				}
+				else {
+					query.append(_ORDER_BY_ENTITY_TABLE);
+				}
+
+				query.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						query.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC);
+					}
+					else {
+						query.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			if (getDB().isSupportsInlineDistinct()) {
+				query.append(SongModelImpl.ORDER_BY_JPQL);
+			}
+			else {
+				query.append(SongModelImpl.ORDER_BY_SQL);
+			}
+		}
+
+		String sql = InlineSQLHelperUtil.replacePermissionCheck(query.toString(),
+				Song.class.getName(), _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN,
+				groupId);
+
+		SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+		q.setFirstResult(0);
+		q.setMaxResults(2);
+
+		if (getDB().isSupportsInlineDistinct()) {
+			q.addEntity(_FILTER_ENTITY_ALIAS, SongImpl.class);
+		}
+		else {
+			q.addEntity(_FILTER_ENTITY_TABLE, SongImpl.class);
+		}
+
+		QueryPos qPos = QueryPos.getInstance(q);
+
+		qPos.add(groupId);
+
+		if (bindName) {
+			qPos.add(StringUtil.toLowerCase(name));
+		}
+
+		qPos.add(status);
+
+		if (orderByComparator != null) {
+			Object[] values = orderByComparator.getOrderByConditionValues(song);
+
+			for (Object value : values) {
+				qPos.add(value);
+			}
+		}
+
+		List<Song> list = q.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
 	 * Removes all the songs where groupId = &#63; and name LIKE &#63; and status = &#63; from the database.
 	 *
 	 * @param groupId the group ID
@@ -6189,6 +8054,78 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 		}
 
 		return count.intValue();
+	}
+
+	/**
+	 * Returns the number of songs that the user has permission to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param name the name
+	 * @param status the status
+	 * @return the number of matching songs that the user has permission to view
+	 */
+	@Override
+	public int filterCountByG_LikeN_S(long groupId, String name, int status) {
+		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
+			return countByG_LikeN_S(groupId, name, status);
+		}
+
+		StringBundler query = new StringBundler(4);
+
+		query.append(_FILTER_SQL_COUNT_SONG_WHERE);
+
+		query.append(_FINDER_COLUMN_G_LIKEN_S_GROUPID_2);
+
+		boolean bindName = false;
+
+		if (name == null) {
+			query.append(_FINDER_COLUMN_G_LIKEN_S_NAME_1);
+		}
+		else if (name.equals(StringPool.BLANK)) {
+			query.append(_FINDER_COLUMN_G_LIKEN_S_NAME_3);
+		}
+		else {
+			bindName = true;
+
+			query.append(_FINDER_COLUMN_G_LIKEN_S_NAME_2);
+		}
+
+		query.append(_FINDER_COLUMN_G_LIKEN_S_STATUS_2);
+
+		String sql = InlineSQLHelperUtil.replacePermissionCheck(query.toString(),
+				Song.class.getName(), _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN,
+				groupId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			SQLQuery q = session.createSynchronizedSQLQuery(sql);
+
+			q.addScalar(COUNT_COLUMN_NAME,
+				com.liferay.portal.kernel.dao.orm.Type.LONG);
+
+			QueryPos qPos = QueryPos.getInstance(q);
+
+			qPos.add(groupId);
+
+			if (bindName) {
+				qPos.add(StringUtil.toLowerCase(name));
+			}
+
+			qPos.add(status);
+
+			Long count = (Long)q.uniqueResult();
+
+			return count.intValue();
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
 	}
 
 	private static final String _FINDER_COLUMN_G_LIKEN_S_GROUPID_2 = "song.groupId = ? AND ";
@@ -7476,7 +9413,17 @@ public class SongPersistenceImpl extends BasePersistenceImpl<Song>
 	private static final String _SQL_SELECT_SONG_WHERE = "SELECT song FROM Song song WHERE ";
 	private static final String _SQL_COUNT_SONG = "SELECT COUNT(song) FROM Song song";
 	private static final String _SQL_COUNT_SONG_WHERE = "SELECT COUNT(song) FROM Song song WHERE ";
+	private static final String _FILTER_ENTITY_TABLE_FILTER_PK_COLUMN = "song.songId";
+	private static final String _FILTER_SQL_SELECT_SONG_WHERE = "SELECT DISTINCT {song.*} FROM jukebox_Song song WHERE ";
+	private static final String _FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_1 =
+		"SELECT {jukebox_Song.*} FROM (SELECT DISTINCT song.songId FROM jukebox_Song song WHERE ";
+	private static final String _FILTER_SQL_SELECT_SONG_NO_INLINE_DISTINCT_WHERE_2 =
+		") TEMP_TABLE INNER JOIN jukebox_Song ON TEMP_TABLE.songId = jukebox_Song.songId";
+	private static final String _FILTER_SQL_COUNT_SONG_WHERE = "SELECT COUNT(DISTINCT song.songId) AS COUNT_VALUE FROM jukebox_Song song WHERE ";
+	private static final String _FILTER_ENTITY_ALIAS = "song";
+	private static final String _FILTER_ENTITY_TABLE = "jukebox_Song";
 	private static final String _ORDER_BY_ENTITY_ALIAS = "song.";
+	private static final String _ORDER_BY_ENTITY_TABLE = "jukebox_Song.";
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY = "No Song exists with the primary key ";
 	private static final String _NO_SUCH_ENTITY_WITH_KEY = "No Song exists with the key {";
 	private static final Log _log = LogFactoryUtil.getLog(SongPersistenceImpl.class);

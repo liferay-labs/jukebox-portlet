@@ -21,9 +21,17 @@ import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.jsonwebservice.JSONWebService;
 import com.liferay.portal.kernel.security.access.control.AccessControlled;
 import com.liferay.portal.kernel.service.BaseService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.transaction.Isolation;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
+
+import org.liferay.jukebox.model.Artist;
+
+import java.io.InputStream;
+
+import java.util.List;
 
 /**
  * Provides the remote service interface for Artist. Methods of this
@@ -49,6 +57,11 @@ public interface ArtistService extends BaseService {
 	 *
 	 * Never modify or reference this interface directly. Always use {@link ArtistServiceUtil} to access the artist remote service. Add custom service methods to {@link org.liferay.jukebox.service.impl.ArtistServiceImpl} and rerun ServiceBuilder to automatically copy the method declarations to this interface.
 	 */
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getArtistsCount(long groupId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getArtistsCount(long groupId, java.lang.String keywords);
 
 	/**
 	* Returns the OSGi service identifier.
@@ -56,4 +69,24 @@ public interface ArtistService extends BaseService {
 	* @return the OSGi service identifier
 	*/
 	public java.lang.String getOSGiServiceIdentifier();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Artist> getArtists(long groupId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Artist> getArtists(long groupId, int start, int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Artist> getArtists(long groupId, java.lang.String keywords);
+
+	public Artist addArtist(java.lang.String name, java.lang.String bio,
+		InputStream inputStream, ServiceContext serviceContext)
+		throws PortalException;
+
+	public Artist deleteArtist(long artistId, ServiceContext serviceContext)
+		throws PortalException;
+
+	public Artist updateArtist(long artistId, java.lang.String name,
+		java.lang.String bio, InputStream inputStream,
+		ServiceContext serviceContext) throws PortalException;
 }

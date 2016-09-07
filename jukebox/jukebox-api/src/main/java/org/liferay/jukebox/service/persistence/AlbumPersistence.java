@@ -482,6 +482,59 @@ public interface AlbumPersistence extends BasePersistence<Album> {
 		throws NoSuchAlbumException;
 
 	/**
+	* Returns all the albums that the user has permission to view where groupId = &#63;.
+	*
+	* @param groupId the group ID
+	* @return the matching albums that the user has permission to view
+	*/
+	public java.util.List<Album> filterFindByGroupId(long groupId);
+
+	/**
+	* Returns a range of all the albums that the user has permission to view where groupId = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AlbumModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param start the lower bound of the range of albums
+	* @param end the upper bound of the range of albums (not inclusive)
+	* @return the range of matching albums that the user has permission to view
+	*/
+	public java.util.List<Album> filterFindByGroupId(long groupId, int start,
+		int end);
+
+	/**
+	* Returns an ordered range of all the albums that the user has permissions to view where groupId = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AlbumModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param start the lower bound of the range of albums
+	* @param end the upper bound of the range of albums (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the ordered range of matching albums that the user has permission to view
+	*/
+	public java.util.List<Album> filterFindByGroupId(long groupId, int start,
+		int end,
+		com.liferay.portal.kernel.util.OrderByComparator<Album> orderByComparator);
+
+	/**
+	* Returns the albums before and after the current album in the ordered set of albums that the user has permission to view where groupId = &#63;.
+	*
+	* @param albumId the primary key of the current album
+	* @param groupId the group ID
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the previous, current, and next album
+	* @throws NoSuchAlbumException if a album with the primary key could not be found
+	*/
+	public Album[] filterFindByGroupId_PrevAndNext(long albumId, long groupId,
+		com.liferay.portal.kernel.util.OrderByComparator<Album> orderByComparator)
+		throws NoSuchAlbumException;
+
+	/**
 	* Removes all the albums where groupId = &#63; from the database.
 	*
 	* @param groupId the group ID
@@ -495,6 +548,14 @@ public interface AlbumPersistence extends BasePersistence<Album> {
 	* @return the number of matching albums
 	*/
 	public int countByGroupId(long groupId);
+
+	/**
+	* Returns the number of albums that the user has permission to view where groupId = &#63;.
+	*
+	* @param groupId the group ID
+	* @return the number of matching albums that the user has permission to view
+	*/
+	public int filterCountByGroupId(long groupId);
 
 	/**
 	* Returns all the albums where userId = &#63;.
@@ -1013,6 +1074,64 @@ public interface AlbumPersistence extends BasePersistence<Album> {
 		throws NoSuchAlbumException;
 
 	/**
+	* Returns all the albums that the user has permission to view where groupId = &#63; and userId = &#63;.
+	*
+	* @param groupId the group ID
+	* @param userId the user ID
+	* @return the matching albums that the user has permission to view
+	*/
+	public java.util.List<Album> filterFindByG_U(long groupId, long userId);
+
+	/**
+	* Returns a range of all the albums that the user has permission to view where groupId = &#63; and userId = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AlbumModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param userId the user ID
+	* @param start the lower bound of the range of albums
+	* @param end the upper bound of the range of albums (not inclusive)
+	* @return the range of matching albums that the user has permission to view
+	*/
+	public java.util.List<Album> filterFindByG_U(long groupId, long userId,
+		int start, int end);
+
+	/**
+	* Returns an ordered range of all the albums that the user has permissions to view where groupId = &#63; and userId = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AlbumModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param userId the user ID
+	* @param start the lower bound of the range of albums
+	* @param end the upper bound of the range of albums (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the ordered range of matching albums that the user has permission to view
+	*/
+	public java.util.List<Album> filterFindByG_U(long groupId, long userId,
+		int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<Album> orderByComparator);
+
+	/**
+	* Returns the albums before and after the current album in the ordered set of albums that the user has permission to view where groupId = &#63; and userId = &#63;.
+	*
+	* @param albumId the primary key of the current album
+	* @param groupId the group ID
+	* @param userId the user ID
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the previous, current, and next album
+	* @throws NoSuchAlbumException if a album with the primary key could not be found
+	*/
+	public Album[] filterFindByG_U_PrevAndNext(long albumId, long groupId,
+		long userId,
+		com.liferay.portal.kernel.util.OrderByComparator<Album> orderByComparator)
+		throws NoSuchAlbumException;
+
+	/**
 	* Removes all the albums where groupId = &#63; and userId = &#63; from the database.
 	*
 	* @param groupId the group ID
@@ -1028,6 +1147,15 @@ public interface AlbumPersistence extends BasePersistence<Album> {
 	* @return the number of matching albums
 	*/
 	public int countByG_U(long groupId, long userId);
+
+	/**
+	* Returns the number of albums that the user has permission to view where groupId = &#63; and userId = &#63;.
+	*
+	* @param groupId the group ID
+	* @param userId the user ID
+	* @return the number of matching albums that the user has permission to view
+	*/
+	public int filterCountByG_U(long groupId, long userId);
 
 	/**
 	* Returns all the albums where groupId = &#63; and status = &#63;.
@@ -1156,6 +1284,64 @@ public interface AlbumPersistence extends BasePersistence<Album> {
 		throws NoSuchAlbumException;
 
 	/**
+	* Returns all the albums that the user has permission to view where groupId = &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @return the matching albums that the user has permission to view
+	*/
+	public java.util.List<Album> filterFindByG_S(long groupId, int status);
+
+	/**
+	* Returns a range of all the albums that the user has permission to view where groupId = &#63; and status = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AlbumModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @param start the lower bound of the range of albums
+	* @param end the upper bound of the range of albums (not inclusive)
+	* @return the range of matching albums that the user has permission to view
+	*/
+	public java.util.List<Album> filterFindByG_S(long groupId, int status,
+		int start, int end);
+
+	/**
+	* Returns an ordered range of all the albums that the user has permissions to view where groupId = &#63; and status = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AlbumModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @param start the lower bound of the range of albums
+	* @param end the upper bound of the range of albums (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the ordered range of matching albums that the user has permission to view
+	*/
+	public java.util.List<Album> filterFindByG_S(long groupId, int status,
+		int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<Album> orderByComparator);
+
+	/**
+	* Returns the albums before and after the current album in the ordered set of albums that the user has permission to view where groupId = &#63; and status = &#63;.
+	*
+	* @param albumId the primary key of the current album
+	* @param groupId the group ID
+	* @param status the status
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the previous, current, and next album
+	* @throws NoSuchAlbumException if a album with the primary key could not be found
+	*/
+	public Album[] filterFindByG_S_PrevAndNext(long albumId, long groupId,
+		int status,
+		com.liferay.portal.kernel.util.OrderByComparator<Album> orderByComparator)
+		throws NoSuchAlbumException;
+
+	/**
 	* Removes all the albums where groupId = &#63; and status = &#63; from the database.
 	*
 	* @param groupId the group ID
@@ -1171,6 +1357,15 @@ public interface AlbumPersistence extends BasePersistence<Album> {
 	* @return the number of matching albums
 	*/
 	public int countByG_S(long groupId, int status);
+
+	/**
+	* Returns the number of albums that the user has permission to view where groupId = &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param status the status
+	* @return the number of matching albums that the user has permission to view
+	*/
+	public int filterCountByG_S(long groupId, int status);
 
 	/**
 	* Returns all the albums where groupId = &#63; and artistId = &#63; and status = &#63;.
@@ -1309,6 +1504,69 @@ public interface AlbumPersistence extends BasePersistence<Album> {
 		throws NoSuchAlbumException;
 
 	/**
+	* Returns all the albums that the user has permission to view where groupId = &#63; and artistId = &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param artistId the artist ID
+	* @param status the status
+	* @return the matching albums that the user has permission to view
+	*/
+	public java.util.List<Album> filterFindByG_A_S(long groupId, long artistId,
+		int status);
+
+	/**
+	* Returns a range of all the albums that the user has permission to view where groupId = &#63; and artistId = &#63; and status = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AlbumModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param artistId the artist ID
+	* @param status the status
+	* @param start the lower bound of the range of albums
+	* @param end the upper bound of the range of albums (not inclusive)
+	* @return the range of matching albums that the user has permission to view
+	*/
+	public java.util.List<Album> filterFindByG_A_S(long groupId, long artistId,
+		int status, int start, int end);
+
+	/**
+	* Returns an ordered range of all the albums that the user has permissions to view where groupId = &#63; and artistId = &#63; and status = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AlbumModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param artistId the artist ID
+	* @param status the status
+	* @param start the lower bound of the range of albums
+	* @param end the upper bound of the range of albums (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the ordered range of matching albums that the user has permission to view
+	*/
+	public java.util.List<Album> filterFindByG_A_S(long groupId, long artistId,
+		int status, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<Album> orderByComparator);
+
+	/**
+	* Returns the albums before and after the current album in the ordered set of albums that the user has permission to view where groupId = &#63; and artistId = &#63; and status = &#63;.
+	*
+	* @param albumId the primary key of the current album
+	* @param groupId the group ID
+	* @param artistId the artist ID
+	* @param status the status
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the previous, current, and next album
+	* @throws NoSuchAlbumException if a album with the primary key could not be found
+	*/
+	public Album[] filterFindByG_A_S_PrevAndNext(long albumId, long groupId,
+		long artistId, int status,
+		com.liferay.portal.kernel.util.OrderByComparator<Album> orderByComparator)
+		throws NoSuchAlbumException;
+
+	/**
 	* Removes all the albums where groupId = &#63; and artistId = &#63; and status = &#63; from the database.
 	*
 	* @param groupId the group ID
@@ -1326,6 +1584,16 @@ public interface AlbumPersistence extends BasePersistence<Album> {
 	* @return the number of matching albums
 	*/
 	public int countByG_A_S(long groupId, long artistId, int status);
+
+	/**
+	* Returns the number of albums that the user has permission to view where groupId = &#63; and artistId = &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param artistId the artist ID
+	* @param status the status
+	* @return the number of matching albums that the user has permission to view
+	*/
+	public int filterCountByG_A_S(long groupId, long artistId, int status);
 
 	/**
 	* Returns all the albums where groupId = &#63; and name LIKE &#63; and status = &#63;.
@@ -1468,6 +1736,69 @@ public interface AlbumPersistence extends BasePersistence<Album> {
 		throws NoSuchAlbumException;
 
 	/**
+	* Returns all the albums that the user has permission to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param name the name
+	* @param status the status
+	* @return the matching albums that the user has permission to view
+	*/
+	public java.util.List<Album> filterFindByG_LikeN_S(long groupId,
+		java.lang.String name, int status);
+
+	/**
+	* Returns a range of all the albums that the user has permission to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AlbumModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param name the name
+	* @param status the status
+	* @param start the lower bound of the range of albums
+	* @param end the upper bound of the range of albums (not inclusive)
+	* @return the range of matching albums that the user has permission to view
+	*/
+	public java.util.List<Album> filterFindByG_LikeN_S(long groupId,
+		java.lang.String name, int status, int start, int end);
+
+	/**
+	* Returns an ordered range of all the albums that the user has permissions to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	*
+	* <p>
+	* Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to {@link QueryUtil#ALL_POS} will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not {@link QueryUtil#ALL_POS}), then the query will include the default ORDER BY logic from {@link AlbumModelImpl}. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	* </p>
+	*
+	* @param groupId the group ID
+	* @param name the name
+	* @param status the status
+	* @param start the lower bound of the range of albums
+	* @param end the upper bound of the range of albums (not inclusive)
+	* @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	* @return the ordered range of matching albums that the user has permission to view
+	*/
+	public java.util.List<Album> filterFindByG_LikeN_S(long groupId,
+		java.lang.String name, int status, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator<Album> orderByComparator);
+
+	/**
+	* Returns the albums before and after the current album in the ordered set of albums that the user has permission to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	*
+	* @param albumId the primary key of the current album
+	* @param groupId the group ID
+	* @param name the name
+	* @param status the status
+	* @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	* @return the previous, current, and next album
+	* @throws NoSuchAlbumException if a album with the primary key could not be found
+	*/
+	public Album[] filterFindByG_LikeN_S_PrevAndNext(long albumId,
+		long groupId, java.lang.String name, int status,
+		com.liferay.portal.kernel.util.OrderByComparator<Album> orderByComparator)
+		throws NoSuchAlbumException;
+
+	/**
 	* Removes all the albums where groupId = &#63; and name LIKE &#63; and status = &#63; from the database.
 	*
 	* @param groupId the group ID
@@ -1486,6 +1817,17 @@ public interface AlbumPersistence extends BasePersistence<Album> {
 	* @return the number of matching albums
 	*/
 	public int countByG_LikeN_S(long groupId, java.lang.String name, int status);
+
+	/**
+	* Returns the number of albums that the user has permission to view where groupId = &#63; and name LIKE &#63; and status = &#63;.
+	*
+	* @param groupId the group ID
+	* @param name the name
+	* @param status the status
+	* @return the number of matching albums that the user has permission to view
+	*/
+	public int filterCountByG_LikeN_S(long groupId, java.lang.String name,
+		int status);
 
 	/**
 	* Caches the album in the entity cache if it is enabled.

@@ -53,4 +53,13 @@ public interface Album extends AlbumModel, PersistedModel {
 				return Album.class;
 			}
 		};
+
+	public com.liferay.portal.kernel.repository.model.FileEntry getCustomImage();
+
+	public java.lang.String getImageURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
+		throws com.liferay.portal.kernel.exception.PortalException;
+
+	public boolean hasCustomImage()
+		throws com.liferay.portal.kernel.exception.PortalException;
 }

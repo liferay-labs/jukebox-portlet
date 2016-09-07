@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -37,6 +38,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 
 import org.liferay.jukebox.model.Album;
 
+import java.io.InputStream;
 import java.io.Serializable;
 
 import java.util.List;
@@ -94,6 +96,9 @@ public interface AlbumLocalService extends BaseLocalService,
 	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getAlbumsCount();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getAlbumsCount(long groupId);
 
 	/**
 	* Returns the OSGi service identifier.
@@ -155,6 +160,15 @@ public interface AlbumLocalService extends BaseLocalService,
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<Album> getAlbums(int start, int end);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Album> getAlbums(long groupId);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Album> getAlbums(long groupId, int start, int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<Album> getAlbumsByArtistId(long artistId);
+
 	/**
 	* Returns all the albums matching the UUID and company.
 	*
@@ -198,6 +212,11 @@ public interface AlbumLocalService extends BaseLocalService,
 	*/
 	public long dynamicQueryCount(DynamicQuery dynamicQuery,
 		Projection projection);
+
+	@Indexable(type = IndexableType.REINDEX)
+	public Album addAlbum(long userId, long artistId, java.lang.String name,
+		int year, InputStream inputStream, ServiceContext serviceContext)
+		throws PortalException;
 
 	/**
 	* Adds the album to the database. Also notifies the appropriate model listeners.
@@ -270,6 +289,19 @@ public interface AlbumLocalService extends BaseLocalService,
 	public Album getAlbumByUuidAndGroupId(java.lang.String uuid, long groupId)
 		throws PortalException;
 
+	@Indexable(type = IndexableType.REINDEX)
+	public Album moveAlbumToTrash(long userId, long albumId)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.REINDEX)
+	public Album restoreAlbumFromTrash(long userId, long albumId)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.REINDEX)
+	public Album updateAlbum(long userId, long albumId, long artistId,
+		java.lang.String name, int year, InputStream inputStream,
+		ServiceContext serviceContext) throws PortalException;
+
 	/**
 	* Updates the album in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
@@ -278,4 +310,17 @@ public interface AlbumLocalService extends BaseLocalService,
 	*/
 	@Indexable(type = IndexableType.REINDEX)
 	public Album updateAlbum(Album album);
+
+	public void addEntryResources(Album album, boolean addGroupPermissions,
+		boolean addGuestPermissions) throws PortalException;
+
+	public void addEntryResources(Album album,
+		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		throws PortalException;
+
+	public void deleteAlbums(long groupId) throws PortalException;
+
+	public void updateAsset(long userId, Album album, long[] assetCategoryIds,
+		java.lang.String[] assetTagNames, long[] assetLinkEntryIds)
+		throws PortalException;
 }

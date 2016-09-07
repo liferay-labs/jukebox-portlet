@@ -16,9 +16,16 @@ package org.liferay.jukebox.service.http;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+
+import org.liferay.jukebox.service.ArtistServiceUtil;
+
+import java.rmi.RemoteException;
+
 /**
  * Provides the SOAP utility for the
- * {@link org.liferay.jukebox.service.ArtistServiceUtil} service utility. The
+ * {@link ArtistServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -53,9 +60,99 @@ import aQute.bnd.annotation.ProviderType;
  * @author Julio Camarero
  * @see ArtistServiceHttp
  * @see org.liferay.jukebox.model.ArtistSoap
- * @see org.liferay.jukebox.service.ArtistServiceUtil
+ * @see ArtistServiceUtil
  * @generated
  */
 @ProviderType
 public class ArtistServiceSoap {
+	public static org.liferay.jukebox.model.ArtistSoap deleteArtist(
+		long artistId,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws RemoteException {
+		try {
+			org.liferay.jukebox.model.Artist returnValue = ArtistServiceUtil.deleteArtist(artistId,
+					serviceContext);
+
+			return org.liferay.jukebox.model.ArtistSoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static org.liferay.jukebox.model.ArtistSoap[] getArtists(
+		long groupId) throws RemoteException {
+		try {
+			java.util.List<org.liferay.jukebox.model.Artist> returnValue = ArtistServiceUtil.getArtists(groupId);
+
+			return org.liferay.jukebox.model.ArtistSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static org.liferay.jukebox.model.ArtistSoap[] getArtists(
+		long groupId, int start, int end) throws RemoteException {
+		try {
+			java.util.List<org.liferay.jukebox.model.Artist> returnValue = ArtistServiceUtil.getArtists(groupId,
+					start, end);
+
+			return org.liferay.jukebox.model.ArtistSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static org.liferay.jukebox.model.ArtistSoap[] getArtists(
+		long groupId, java.lang.String keywords) throws RemoteException {
+		try {
+			java.util.List<org.liferay.jukebox.model.Artist> returnValue = ArtistServiceUtil.getArtists(groupId,
+					keywords);
+
+			return org.liferay.jukebox.model.ArtistSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static int getArtistsCount(long groupId) throws RemoteException {
+		try {
+			int returnValue = ArtistServiceUtil.getArtistsCount(groupId);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static int getArtistsCount(long groupId, java.lang.String keywords)
+		throws RemoteException {
+		try {
+			int returnValue = ArtistServiceUtil.getArtistsCount(groupId,
+					keywords);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	private static Log _log = LogFactoryUtil.getLog(ArtistServiceSoap.class);
 }

@@ -16,9 +16,16 @@ package org.liferay.jukebox.service.http;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+
+import org.liferay.jukebox.service.SongServiceUtil;
+
+import java.rmi.RemoteException;
+
 /**
  * Provides the SOAP utility for the
- * {@link org.liferay.jukebox.service.SongServiceUtil} service utility. The
+ * {@link SongServiceUtil} service utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it is difficult for SOAP to
  * support certain types.
@@ -53,9 +60,185 @@ import aQute.bnd.annotation.ProviderType;
  * @author Julio Camarero
  * @see SongServiceHttp
  * @see org.liferay.jukebox.model.SongSoap
- * @see org.liferay.jukebox.service.SongServiceUtil
+ * @see SongServiceUtil
  * @generated
  */
 @ProviderType
 public class SongServiceSoap {
+	public static org.liferay.jukebox.model.SongSoap deleteSong(long songId,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws RemoteException {
+		try {
+			org.liferay.jukebox.model.Song returnValue = SongServiceUtil.deleteSong(songId,
+					serviceContext);
+
+			return org.liferay.jukebox.model.SongSoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static org.liferay.jukebox.model.SongSoap[] getSongs(long groupId)
+		throws RemoteException {
+		try {
+			java.util.List<org.liferay.jukebox.model.Song> returnValue = SongServiceUtil.getSongs(groupId);
+
+			return org.liferay.jukebox.model.SongSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static org.liferay.jukebox.model.SongSoap[] getSongs(long groupId,
+		int start, int end) throws RemoteException {
+		try {
+			java.util.List<org.liferay.jukebox.model.Song> returnValue = SongServiceUtil.getSongs(groupId,
+					start, end);
+
+			return org.liferay.jukebox.model.SongSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static org.liferay.jukebox.model.SongSoap[] getSongs(long groupId,
+		java.lang.String keywords) throws RemoteException {
+		try {
+			java.util.List<org.liferay.jukebox.model.Song> returnValue = SongServiceUtil.getSongs(groupId,
+					keywords);
+
+			return org.liferay.jukebox.model.SongSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static org.liferay.jukebox.model.SongSoap[] getSongsByAlbumId(
+		long groupId, long albumId) throws RemoteException {
+		try {
+			java.util.List<org.liferay.jukebox.model.Song> returnValue = SongServiceUtil.getSongsByAlbumId(groupId,
+					albumId);
+
+			return org.liferay.jukebox.model.SongSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static org.liferay.jukebox.model.SongSoap[] getSongsByAlbumId(
+		long groupId, long albumId, int status) throws RemoteException {
+		try {
+			java.util.List<org.liferay.jukebox.model.Song> returnValue = SongServiceUtil.getSongsByAlbumId(groupId,
+					albumId, status);
+
+			return org.liferay.jukebox.model.SongSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static int getSongsCount(long groupId) throws RemoteException {
+		try {
+			int returnValue = SongServiceUtil.getSongsCount(groupId);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static int getSongsCount(long groupId, java.lang.String keywords)
+		throws RemoteException {
+		try {
+			int returnValue = SongServiceUtil.getSongsCount(groupId, keywords);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static int getSongsCountByAlbumId(long groupId, long albumId)
+		throws RemoteException {
+		try {
+			int returnValue = SongServiceUtil.getSongsCountByAlbumId(groupId,
+					albumId);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static int getSongsCountByAlbumId(long groupId, long albumId,
+		int status) throws RemoteException {
+		try {
+			int returnValue = SongServiceUtil.getSongsCountByAlbumId(groupId,
+					albumId, status);
+
+			return returnValue;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static org.liferay.jukebox.model.SongSoap moveSongToTrash(
+		long songId) throws RemoteException {
+		try {
+			org.liferay.jukebox.model.Song returnValue = SongServiceUtil.moveSongToTrash(songId);
+
+			return org.liferay.jukebox.model.SongSoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	public static org.liferay.jukebox.model.SongSoap restoreSongFromTrash(
+		long songId) throws RemoteException {
+		try {
+			org.liferay.jukebox.model.Song returnValue = SongServiceUtil.restoreSongFromTrash(songId);
+
+			return org.liferay.jukebox.model.SongSoap.toSoapModel(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
+	private static Log _log = LogFactoryUtil.getLog(SongServiceSoap.class);
 }

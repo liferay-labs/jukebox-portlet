@@ -80,6 +80,11 @@ public class AlbumLocalServiceWrapper implements AlbumLocalService,
 		return _albumLocalService.getAlbumsCount();
 	}
 
+	@Override
+	public int getAlbumsCount(long groupId) {
+		return _albumLocalService.getAlbumsCount(groupId);
+	}
+
 	/**
 	* Returns the OSGi service identifier.
 	*
@@ -160,6 +165,24 @@ public class AlbumLocalServiceWrapper implements AlbumLocalService,
 		return _albumLocalService.getAlbums(start, end);
 	}
 
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Album> getAlbums(
+		long groupId) {
+		return _albumLocalService.getAlbums(groupId);
+	}
+
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Album> getAlbums(
+		long groupId, int start, int end) {
+		return _albumLocalService.getAlbums(groupId, start, end);
+	}
+
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Album> getAlbumsByArtistId(
+		long artistId) {
+		return _albumLocalService.getAlbumsByArtistId(artistId);
+	}
+
 	/**
 	* Returns all the albums matching the UUID and company.
 	*
@@ -215,6 +238,15 @@ public class AlbumLocalServiceWrapper implements AlbumLocalService,
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
 		com.liferay.portal.kernel.dao.orm.Projection projection) {
 		return _albumLocalService.dynamicQueryCount(dynamicQuery, projection);
+	}
+
+	@Override
+	public org.liferay.jukebox.model.Album addAlbum(long userId, long artistId,
+		java.lang.String name, int year, java.io.InputStream inputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _albumLocalService.addAlbum(userId, artistId, name, year,
+			inputStream, serviceContext);
 	}
 
 	/**
@@ -311,6 +343,30 @@ public class AlbumLocalServiceWrapper implements AlbumLocalService,
 		return _albumLocalService.getAlbumByUuidAndGroupId(uuid, groupId);
 	}
 
+	@Override
+	public org.liferay.jukebox.model.Album moveAlbumToTrash(long userId,
+		long albumId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _albumLocalService.moveAlbumToTrash(userId, albumId);
+	}
+
+	@Override
+	public org.liferay.jukebox.model.Album restoreAlbumFromTrash(long userId,
+		long albumId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _albumLocalService.restoreAlbumFromTrash(userId, albumId);
+	}
+
+	@Override
+	public org.liferay.jukebox.model.Album updateAlbum(long userId,
+		long albumId, long artistId, java.lang.String name, int year,
+		java.io.InputStream inputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _albumLocalService.updateAlbum(userId, albumId, artistId, name,
+			year, inputStream, serviceContext);
+	}
+
 	/**
 	* Updates the album in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
@@ -321,6 +377,37 @@ public class AlbumLocalServiceWrapper implements AlbumLocalService,
 	public org.liferay.jukebox.model.Album updateAlbum(
 		org.liferay.jukebox.model.Album album) {
 		return _albumLocalService.updateAlbum(album);
+	}
+
+	@Override
+	public void addEntryResources(org.liferay.jukebox.model.Album album,
+		boolean addGroupPermissions, boolean addGuestPermissions)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_albumLocalService.addEntryResources(album, addGroupPermissions,
+			addGuestPermissions);
+	}
+
+	@Override
+	public void addEntryResources(org.liferay.jukebox.model.Album album,
+		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_albumLocalService.addEntryResources(album, groupPermissions,
+			guestPermissions);
+	}
+
+	@Override
+	public void deleteAlbums(long groupId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_albumLocalService.deleteAlbums(groupId);
+	}
+
+	@Override
+	public void updateAsset(long userId, org.liferay.jukebox.model.Album album,
+		long[] assetCategoryIds, java.lang.String[] assetTagNames,
+		long[] assetLinkEntryIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_albumLocalService.updateAsset(userId, album, assetCategoryIds,
+			assetTagNames, assetLinkEntryIds);
 	}
 
 	@Override

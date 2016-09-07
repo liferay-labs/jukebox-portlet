@@ -82,6 +82,10 @@ public class ArtistLocalServiceUtil {
 		return getService().getArtistsCount();
 	}
 
+	public static int getArtistsCount(long groupId) {
+		return getService().getArtistsCount(groupId);
+	}
+
 	/**
 	* Returns the OSGi service identifier.
 	*
@@ -157,6 +161,16 @@ public class ArtistLocalServiceUtil {
 		return getService().getArtists(start, end);
 	}
 
+	public static java.util.List<org.liferay.jukebox.model.Artist> getArtists(
+		long groupId) {
+		return getService().getArtists(groupId);
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Artist> getArtists(
+		long groupId, int start, int end) {
+		return getService().getArtists(groupId, start, end);
+	}
+
 	/**
 	* Returns all the artists matching the UUID and company.
 	*
@@ -209,6 +223,15 @@ public class ArtistLocalServiceUtil {
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
 		com.liferay.portal.kernel.dao.orm.Projection projection) {
 		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
+	public static org.liferay.jukebox.model.Artist addArtist(long userId,
+		java.lang.String name, java.lang.String bio,
+		java.io.InputStream inputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .addArtist(userId, name, bio, inputStream, serviceContext);
 	}
 
 	/**
@@ -297,6 +320,16 @@ public class ArtistLocalServiceUtil {
 		return getService().getArtistByUuidAndGroupId(uuid, groupId);
 	}
 
+	public static org.liferay.jukebox.model.Artist updateArtist(long userId,
+		long artistId, java.lang.String name, java.lang.String bio,
+		java.io.InputStream inputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .updateArtist(userId, artistId, name, bio, inputStream,
+			serviceContext);
+	}
+
 	/**
 	* Updates the artist in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
@@ -306,6 +339,36 @@ public class ArtistLocalServiceUtil {
 	public static org.liferay.jukebox.model.Artist updateArtist(
 		org.liferay.jukebox.model.Artist artist) {
 		return getService().updateArtist(artist);
+	}
+
+	public static void addEntryResources(
+		org.liferay.jukebox.model.Artist artist, boolean addGroupPermissions,
+		boolean addGuestPermissions)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService()
+			.addEntryResources(artist, addGroupPermissions, addGuestPermissions);
+	}
+
+	public static void addEntryResources(
+		org.liferay.jukebox.model.Artist artist,
+		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService()
+			.addEntryResources(artist, groupPermissions, guestPermissions);
+	}
+
+	public static void deleteArtists(long groupId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService().deleteArtists(groupId);
+	}
+
+	public static void updateAsset(long userId,
+		org.liferay.jukebox.model.Artist artist, long[] assetCategoryIds,
+		java.lang.String[] assetTagNames, long[] assetLinkEntryIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService()
+			.updateAsset(userId, artist, assetCategoryIds, assetTagNames,
+			assetLinkEntryIds);
 	}
 
 	public static ArtistLocalService getService() {

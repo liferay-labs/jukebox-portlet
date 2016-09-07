@@ -174,6 +174,12 @@ public class ArtistWrapper implements Artist, ModelWrapper<Artist> {
 		return new ArtistWrapper(_artist.toUnescapedModel());
 	}
 
+	@Override
+	public boolean hasCustomImage()
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _artist.hasCustomImage();
+	}
+
 	/**
 	* Returns <code>true</code> if this artist is approved.
 	*
@@ -309,6 +315,11 @@ public class ArtistWrapper implements Artist, ModelWrapper<Artist> {
 		return _artist.toCacheModel();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.repository.model.FileEntry getCustomImage() {
+		return _artist.getCustomImage();
+	}
+
 	/**
 	* Returns the trash handler for this artist.
 	*
@@ -368,6 +379,13 @@ public class ArtistWrapper implements Artist, ModelWrapper<Artist> {
 	@Override
 	public java.lang.String getBio() {
 		return _artist.getBio();
+	}
+
+	@Override
+	public java.lang.String getImageURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _artist.getImageURL(themeDisplay);
 	}
 
 	/**

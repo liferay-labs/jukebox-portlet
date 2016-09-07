@@ -41,6 +41,17 @@ public class AlbumServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to {@link org.liferay.jukebox.service.impl.AlbumServiceImpl} and rerun ServiceBuilder to regenerate this class.
 	 */
+	public static int getAlbumsCount(long groupId) {
+		return getService().getAlbumsCount(groupId);
+	}
+
+	public static int getAlbumsCount(long groupId, java.lang.String keywords) {
+		return getService().getAlbumsCount(groupId, keywords);
+	}
+
+	public static int getAlbumsCountByArtistId(long groupId, long artistId) {
+		return getService().getAlbumsCountByArtistId(groupId, artistId);
+	}
 
 	/**
 	* Returns the OSGi service identifier.
@@ -49,6 +60,61 @@ public class AlbumServiceUtil {
 	*/
 	public static java.lang.String getOSGiServiceIdentifier() {
 		return getService().getOSGiServiceIdentifier();
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Album> getAlbums(
+		long groupId) {
+		return getService().getAlbums(groupId);
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Album> getAlbums(
+		long groupId, int start, int end) {
+		return getService().getAlbums(groupId, start, end);
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Album> getAlbums(
+		long groupId, java.lang.String keywords) {
+		return getService().getAlbums(groupId, keywords);
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Album> getAlbumsByArtistId(
+		long groupId, long artistId) {
+		return getService().getAlbumsByArtistId(groupId, artistId);
+	}
+
+	public static org.liferay.jukebox.model.Album addAlbum(long artistId,
+		java.lang.String name, int year, java.io.InputStream inputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .addAlbum(artistId, name, year, inputStream, serviceContext);
+	}
+
+	public static org.liferay.jukebox.model.Album deleteAlbum(long albumId,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().deleteAlbum(albumId, serviceContext);
+	}
+
+	public static org.liferay.jukebox.model.Album moveAlbumToTrash(long albumId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().moveAlbumToTrash(albumId);
+	}
+
+	public static org.liferay.jukebox.model.Album restoreAlbumFromTrash(
+		long albumId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().restoreAlbumFromTrash(albumId);
+	}
+
+	public static org.liferay.jukebox.model.Album updateAlbum(long albumId,
+		long artistId, java.lang.String name, int year,
+		java.io.InputStream inputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .updateAlbum(albumId, artistId, name, year, inputStream,
+			serviceContext);
 	}
 
 	public static AlbumService getService() {

@@ -32,6 +32,16 @@ public class ArtistServiceWrapper implements ArtistService,
 		_artistService = artistService;
 	}
 
+	@Override
+	public int getArtistsCount(long groupId) {
+		return _artistService.getArtistsCount(groupId);
+	}
+
+	@Override
+	public int getArtistsCount(long groupId, java.lang.String keywords) {
+		return _artistService.getArtistsCount(groupId, keywords);
+	}
+
 	/**
 	* Returns the OSGi service identifier.
 	*
@@ -40,6 +50,49 @@ public class ArtistServiceWrapper implements ArtistService,
 	@Override
 	public java.lang.String getOSGiServiceIdentifier() {
 		return _artistService.getOSGiServiceIdentifier();
+	}
+
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Artist> getArtists(
+		long groupId) {
+		return _artistService.getArtists(groupId);
+	}
+
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Artist> getArtists(
+		long groupId, int start, int end) {
+		return _artistService.getArtists(groupId, start, end);
+	}
+
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Artist> getArtists(
+		long groupId, java.lang.String keywords) {
+		return _artistService.getArtists(groupId, keywords);
+	}
+
+	@Override
+	public org.liferay.jukebox.model.Artist addArtist(java.lang.String name,
+		java.lang.String bio, java.io.InputStream inputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _artistService.addArtist(name, bio, inputStream, serviceContext);
+	}
+
+	@Override
+	public org.liferay.jukebox.model.Artist deleteArtist(long artistId,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _artistService.deleteArtist(artistId, serviceContext);
+	}
+
+	@Override
+	public org.liferay.jukebox.model.Artist updateArtist(long artistId,
+		java.lang.String name, java.lang.String bio,
+		java.io.InputStream inputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _artistService.updateArtist(artistId, name, bio, inputStream,
+			serviceContext);
 	}
 
 	@Override

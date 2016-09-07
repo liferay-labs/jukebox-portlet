@@ -82,6 +82,10 @@ public class AlbumLocalServiceUtil {
 		return getService().getAlbumsCount();
 	}
 
+	public static int getAlbumsCount(long groupId) {
+		return getService().getAlbumsCount(groupId);
+	}
+
 	/**
 	* Returns the OSGi service identifier.
 	*
@@ -157,6 +161,21 @@ public class AlbumLocalServiceUtil {
 		return getService().getAlbums(start, end);
 	}
 
+	public static java.util.List<org.liferay.jukebox.model.Album> getAlbums(
+		long groupId) {
+		return getService().getAlbums(groupId);
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Album> getAlbums(
+		long groupId, int start, int end) {
+		return getService().getAlbums(groupId, start, end);
+	}
+
+	public static java.util.List<org.liferay.jukebox.model.Album> getAlbumsByArtistId(
+		long artistId) {
+		return getService().getAlbumsByArtistId(artistId);
+	}
+
 	/**
 	* Returns all the albums matching the UUID and company.
 	*
@@ -209,6 +228,16 @@ public class AlbumLocalServiceUtil {
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
 		com.liferay.portal.kernel.dao.orm.Projection projection) {
 		return getService().dynamicQueryCount(dynamicQuery, projection);
+	}
+
+	public static org.liferay.jukebox.model.Album addAlbum(long userId,
+		long artistId, java.lang.String name, int year,
+		java.io.InputStream inputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .addAlbum(userId, artistId, name, year, inputStream,
+			serviceContext);
 	}
 
 	/**
@@ -297,6 +326,28 @@ public class AlbumLocalServiceUtil {
 		return getService().getAlbumByUuidAndGroupId(uuid, groupId);
 	}
 
+	public static org.liferay.jukebox.model.Album moveAlbumToTrash(
+		long userId, long albumId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().moveAlbumToTrash(userId, albumId);
+	}
+
+	public static org.liferay.jukebox.model.Album restoreAlbumFromTrash(
+		long userId, long albumId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService().restoreAlbumFromTrash(userId, albumId);
+	}
+
+	public static org.liferay.jukebox.model.Album updateAlbum(long userId,
+		long albumId, long artistId, java.lang.String name, int year,
+		java.io.InputStream inputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .updateAlbum(userId, albumId, artistId, name, year,
+			inputStream, serviceContext);
+	}
+
 	/**
 	* Updates the album in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
@@ -306,6 +357,35 @@ public class AlbumLocalServiceUtil {
 	public static org.liferay.jukebox.model.Album updateAlbum(
 		org.liferay.jukebox.model.Album album) {
 		return getService().updateAlbum(album);
+	}
+
+	public static void addEntryResources(
+		org.liferay.jukebox.model.Album album, boolean addGroupPermissions,
+		boolean addGuestPermissions)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService()
+			.addEntryResources(album, addGroupPermissions, addGuestPermissions);
+	}
+
+	public static void addEntryResources(
+		org.liferay.jukebox.model.Album album,
+		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService().addEntryResources(album, groupPermissions, guestPermissions);
+	}
+
+	public static void deleteAlbums(long groupId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService().deleteAlbums(groupId);
+	}
+
+	public static void updateAsset(long userId,
+		org.liferay.jukebox.model.Album album, long[] assetCategoryIds,
+		java.lang.String[] assetTagNames, long[] assetLinkEntryIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService()
+			.updateAsset(userId, album, assetCategoryIds, assetTagNames,
+			assetLinkEntryIds);
 	}
 
 	public static AlbumLocalService getService() {

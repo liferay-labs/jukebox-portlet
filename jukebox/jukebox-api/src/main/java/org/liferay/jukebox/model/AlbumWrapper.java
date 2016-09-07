@@ -181,6 +181,12 @@ public class AlbumWrapper implements Album, ModelWrapper<Album> {
 		return new AlbumWrapper(_album.toUnescapedModel());
 	}
 
+	@Override
+	public boolean hasCustomImage()
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _album.hasCustomImage();
+	}
+
 	/**
 	* Returns <code>true</code> if this album is approved.
 	*
@@ -316,6 +322,11 @@ public class AlbumWrapper implements Album, ModelWrapper<Album> {
 		return _album.toCacheModel();
 	}
 
+	@Override
+	public com.liferay.portal.kernel.repository.model.FileEntry getCustomImage() {
+		return _album.getCustomImage();
+	}
+
 	/**
 	* Returns the trash handler for this album.
 	*
@@ -385,6 +396,13 @@ public class AlbumWrapper implements Album, ModelWrapper<Album> {
 	@Override
 	public java.lang.String getContainerModelName() {
 		return _album.getContainerModelName();
+	}
+
+	@Override
+	public java.lang.String getImageURL(
+		com.liferay.portal.kernel.theme.ThemeDisplay themeDisplay)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _album.getImageURL(themeDisplay);
 	}
 
 	/**

@@ -80,6 +80,11 @@ public class ArtistLocalServiceWrapper implements ArtistLocalService,
 		return _artistLocalService.getArtistsCount();
 	}
 
+	@Override
+	public int getArtistsCount(long groupId) {
+		return _artistLocalService.getArtistsCount(groupId);
+	}
+
 	/**
 	* Returns the OSGi service identifier.
 	*
@@ -160,6 +165,18 @@ public class ArtistLocalServiceWrapper implements ArtistLocalService,
 		return _artistLocalService.getArtists(start, end);
 	}
 
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Artist> getArtists(
+		long groupId) {
+		return _artistLocalService.getArtists(groupId);
+	}
+
+	@Override
+	public java.util.List<org.liferay.jukebox.model.Artist> getArtists(
+		long groupId, int start, int end) {
+		return _artistLocalService.getArtists(groupId, start, end);
+	}
+
 	/**
 	* Returns all the artists matching the UUID and company.
 	*
@@ -215,6 +232,16 @@ public class ArtistLocalServiceWrapper implements ArtistLocalService,
 		com.liferay.portal.kernel.dao.orm.DynamicQuery dynamicQuery,
 		com.liferay.portal.kernel.dao.orm.Projection projection) {
 		return _artistLocalService.dynamicQueryCount(dynamicQuery, projection);
+	}
+
+	@Override
+	public org.liferay.jukebox.model.Artist addArtist(long userId,
+		java.lang.String name, java.lang.String bio,
+		java.io.InputStream inputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _artistLocalService.addArtist(userId, name, bio, inputStream,
+			serviceContext);
 	}
 
 	/**
@@ -311,6 +338,16 @@ public class ArtistLocalServiceWrapper implements ArtistLocalService,
 		return _artistLocalService.getArtistByUuidAndGroupId(uuid, groupId);
 	}
 
+	@Override
+	public org.liferay.jukebox.model.Artist updateArtist(long userId,
+		long artistId, java.lang.String name, java.lang.String bio,
+		java.io.InputStream inputStream,
+		com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _artistLocalService.updateArtist(userId, artistId, name, bio,
+			inputStream, serviceContext);
+	}
+
 	/**
 	* Updates the artist in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	*
@@ -321,6 +358,37 @@ public class ArtistLocalServiceWrapper implements ArtistLocalService,
 	public org.liferay.jukebox.model.Artist updateArtist(
 		org.liferay.jukebox.model.Artist artist) {
 		return _artistLocalService.updateArtist(artist);
+	}
+
+	@Override
+	public void addEntryResources(org.liferay.jukebox.model.Artist artist,
+		boolean addGroupPermissions, boolean addGuestPermissions)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_artistLocalService.addEntryResources(artist, addGroupPermissions,
+			addGuestPermissions);
+	}
+
+	@Override
+	public void addEntryResources(org.liferay.jukebox.model.Artist artist,
+		java.lang.String[] groupPermissions, java.lang.String[] guestPermissions)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_artistLocalService.addEntryResources(artist, groupPermissions,
+			guestPermissions);
+	}
+
+	@Override
+	public void deleteArtists(long groupId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_artistLocalService.deleteArtists(groupId);
+	}
+
+	@Override
+	public void updateAsset(long userId,
+		org.liferay.jukebox.model.Artist artist, long[] assetCategoryIds,
+		java.lang.String[] assetTagNames, long[] assetLinkEntryIds)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		_artistLocalService.updateAsset(userId, artist, assetCategoryIds,
+			assetTagNames, assetLinkEntryIds);
 	}
 
 	@Override
