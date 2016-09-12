@@ -21,11 +21,12 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 
 import org.liferay.jukebox.model.Song;
-import org.liferay.jukebox.service.SongLocalServiceUtil;
+import org.liferay.jukebox.service.SongLocalService;
 import org.liferay.jukebox.service.permission.SongPermission;
 import org.liferay.jukebox.util.PortletKeys;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Julio Camarero
@@ -43,7 +44,7 @@ public class SongAssetRendererFactory extends BaseAssetRendererFactory<Song> {
 	public AssetRenderer<Song> getAssetRenderer(long classPK, int type)
 		throws PortalException {
 
-		Song song = SongLocalServiceUtil.getSong(classPK);
+		Song song = _songLocalService.getSong(classPK);
 
 		return new SongAssetRenderer(song);
 	}
@@ -69,6 +70,13 @@ public class SongAssetRendererFactory extends BaseAssetRendererFactory<Song> {
 		return _LINKABLE;
 	}
 
+	@Reference(unbind = "-")
+	protected void setSongLocalService(SongLocalService songLocalService) {
+		_songLocalService = songLocalService;
+	}
+
 	private static final boolean _LINKABLE = true;
+
+	private static SongLocalService _songLocalService;
 
 }

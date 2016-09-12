@@ -40,13 +40,14 @@ import javax.portlet.PortletURL;
 
 import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.model.Song;
-import org.liferay.jukebox.service.AlbumLocalServiceUtil;
-import org.liferay.jukebox.service.SongLocalServiceUtil;
+import org.liferay.jukebox.service.AlbumLocalService;
+import org.liferay.jukebox.service.SongLocalService;
 import org.liferay.jukebox.service.permission.AlbumPermission;
 import org.liferay.jukebox.service.permission.SongPermission;
 import org.liferay.jukebox.util.PortletKeys;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Implements trash handling for the songs.
@@ -63,7 +64,7 @@ public class SongTrashHandler extends JukeBoxBaseTrashHandler {
 			TrashEntry trashEntry, long containerModelId, String newName)
 		throws PortalException {
 
-		Song song = SongLocalServiceUtil.getSong(trashEntry.getClassPK());
+		Song song = _songLocalService.getSong(trashEntry.getClassPK());
 
 		if (containerModelId == TrashEntryConstants.DEFAULT_CONTAINER_ID) {
 			containerModelId = song.getAlbumId();
@@ -75,7 +76,7 @@ public class SongTrashHandler extends JukeBoxBaseTrashHandler {
 			originalName = newName;
 		}
 
-		Song duplicateSong = SongLocalServiceUtil.getSong(
+		Song duplicateSong = _songLocalService.getSong(
 			song.getGroupId(), song.getArtistId(), containerModelId,
 			originalName);
 
@@ -92,7 +93,7 @@ public class SongTrashHandler extends JukeBoxBaseTrashHandler {
 
 	@Override
 	public void deleteTrashEntry(long classPK) throws PortalException {
-		SongLocalServiceUtil.deleteSong(classPK);
+		_songLocalService.deleteSong(classPK);
 	}
 
 	@Override
@@ -104,7 +105,7 @@ public class SongTrashHandler extends JukeBoxBaseTrashHandler {
 	public ContainerModel getParentContainerModel(long classPK)
 		throws PortalException {
 
-		Song song = SongLocalServiceUtil.getSong(classPK);
+		Song song = _songLocalService.getSong(classPK);
 
 		return getContainerModel(song.getAlbumId());
 	}
@@ -123,7 +124,7 @@ public class SongTrashHandler extends JukeBoxBaseTrashHandler {
 			PortletRequest portletRequest, long classPK)
 		throws PortalException {
 
-		Song song = SongLocalServiceUtil.getSong(classPK);
+		Song song = _songLocalService.getSong(classPK);
 
 		PortletURL portletURL = getRestoreURL(portletRequest, classPK);
 
@@ -151,9 +152,9 @@ public class SongTrashHandler extends JukeBoxBaseTrashHandler {
 	public int getTrashContainedModelsCount(long classPK)
 		throws PortalException {
 
-		Album album = AlbumLocalServiceUtil.getAlbum(classPK);
+		Album album = _albumLocalService.getAlbum(classPK);
 
-		return SongLocalServiceUtil.getSongsByAlbumIdCount(classPK);
+		return _songLocalService.getSongsByAlbumIdCount(classPK);
 	}
 
 	@Override
@@ -163,7 +164,7 @@ public class SongTrashHandler extends JukeBoxBaseTrashHandler {
 
 		List<TrashRenderer> trashRenderers = new ArrayList<>();
 
-		List<Song> songs = SongLocalServiceUtil.getSongsByAlbumId(
+		List<Song> songs = _songLocalService.getSongsByAlbumId(
 			classPK, start, end);
 
 		for (Song song : songs) {
@@ -181,7 +182,7 @@ public class SongTrashHandler extends JukeBoxBaseTrashHandler {
 
 	@Override
 	public TrashEntry getTrashEntry(long classPK) throws PortalException {
-		Song song = SongLocalServiceUtil.getSong(classPK);
+		Song song = _songLocalService.getSong(classPK);
 
 		return song.getTrashEntry();
 	}
@@ -203,24 +204,24 @@ public class SongTrashHandler extends JukeBoxBaseTrashHandler {
 
 	@Override
 	public boolean isInTrash(long classPK) throws PortalException {
-		Song song = SongLocalServiceUtil.getSong(classPK);
+		Song song = _songLocalService.getSong(classPK);
 
 		return song.isInTrash();
 	}
 
 	@Override
 	public boolean isInTrashContainer(long classPK) throws PortalException {
-		Song song = SongLocalServiceUtil.getSong(classPK);
+		Song song = _songLocalService.getSong(classPK);
 
 		return song.isInTrashContainer();
 	}
 
 	@Override
 	public boolean isRestorable(long classPK) throws PortalException {
-		Song song = SongLocalServiceUtil.getSong(classPK);
+		Song song = _songLocalService.getSong(classPK);
 
 		if ((song.getAlbumId() > 0) &&
-			(AlbumLocalServiceUtil.fetchAlbum(song.getAlbumId()) == null)) {
+			(_albumLocalService.fetchAlbum(song.getAlbumId()) == null)) {
 
 			return false;
 		}
@@ -234,7 +235,7 @@ public class SongTrashHandler extends JukeBoxBaseTrashHandler {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		SongLocalServiceUtil.moveSong(classPK, containerModelId);
+		_songLocalService.moveSong(classPK, containerModelId);
 	}
 
 	@Override
@@ -243,28 +244,28 @@ public class SongTrashHandler extends JukeBoxBaseTrashHandler {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		SongLocalServiceUtil.moveSongFromTrash(userId, classPK, containerId);
+		_songLocalService.moveSongFromTrash(userId, classPK, containerId);
 	}
 
 	@Override
 	public void restoreTrashEntry(long userId, long classPK)
 		throws PortalException {
 
-		SongLocalServiceUtil.restoreSongFromTrash(userId, classPK);
+		_songLocalService.restoreSongFromTrash(userId, classPK);
 	}
 
 	@Override
 	public void updateTitle(long classPK, String name) throws PortalException {
-		Song song = SongLocalServiceUtil.getSong(classPK);
+		Song song = _songLocalService.getSong(classPK);
 
 		song.setName(name);
 
-		SongLocalServiceUtil.updateSong(song);
+		_songLocalService.updateSong(song);
 	}
 
 	@Override
 	protected long getGroupId(long classPK) throws PortalException {
-		Song song = SongLocalServiceUtil.getSong(classPK);
+		Song song = _songLocalService.getSong(classPK);
 
 		return song.getGroupId();
 	}
@@ -275,7 +276,7 @@ public class SongTrashHandler extends JukeBoxBaseTrashHandler {
 
 		String portletId = PortletKeys.SONGS;
 
-		Song song = SongLocalServiceUtil.getSong(classPK);
+		Song song = _songLocalService.getSong(classPK);
 
 		long plid = PortalUtil.getPlidFromPortletId(
 			song.getGroupId(), PortletKeys.SONGS);
@@ -295,5 +296,18 @@ public class SongTrashHandler extends JukeBoxBaseTrashHandler {
 
 		return SongPermission.contains(permissionChecker, classPK, actionId);
 	}
+
+	@Reference(unbind = "-")
+	protected void setAlbumLocalService(AlbumLocalService albumLocalService) {
+		_albumLocalService = albumLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setSongLocalService(SongLocalService songLocalService) {
+		_songLocalService = songLocalService;
+	}
+
+	private static AlbumLocalService _albumLocalService;
+	private static SongLocalService _songLocalService;
 
 }

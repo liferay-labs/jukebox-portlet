@@ -21,10 +21,11 @@ import com.liferay.portal.kernel.security.permission.BaseModelPermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 
 import org.liferay.jukebox.model.Artist;
-import org.liferay.jukebox.service.ArtistLocalServiceUtil;
+import org.liferay.jukebox.service.ArtistLocalService;
 import org.liferay.jukebox.util.PortletKeys;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Julio Camarero
@@ -48,7 +49,7 @@ public class ArtistPermission implements BaseModelPermissionChecker {
 			PermissionChecker permissionChecker, long artistId, String actionId)
 		throws PortalException {
 
-		Artist artist = ArtistLocalServiceUtil.getArtist(artistId);
+		Artist artist = _artistLocalService.getArtist(artistId);
 
 		Boolean hasPermission = StagingPermissionUtil.hasPermission(
 			permissionChecker, artist.getGroupId(), Artist.class.getName(),
@@ -71,5 +72,14 @@ public class ArtistPermission implements BaseModelPermissionChecker {
 
 		check(permissionChecker, primaryKey, actionId);
 	}
-	
+
+	@Reference(unbind = "-")
+	protected void setArtistLocalService(
+		ArtistLocalService artistLocalService) {
+
+		_artistLocalService = artistLocalService;
+	}
+
+	private static ArtistLocalService _artistLocalService;
+
 }

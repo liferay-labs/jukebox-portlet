@@ -21,11 +21,12 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 
 import org.liferay.jukebox.model.Artist;
-import org.liferay.jukebox.service.ArtistLocalServiceUtil;
+import org.liferay.jukebox.service.ArtistLocalService;
 import org.liferay.jukebox.service.permission.ArtistPermission;
 import org.liferay.jukebox.util.PortletKeys;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Julio Camarero
@@ -44,7 +45,7 @@ public class ArtistAssetRendererFactory
 	public AssetRenderer<Artist> getAssetRenderer(long classPK, int type)
 		throws PortalException {
 
-		Artist artist = ArtistLocalServiceUtil.getArtist(classPK);
+		Artist artist = _artistLocalService.getArtist(classPK);
 
 		return new ArtistAssetRenderer(artist);
 	}
@@ -70,6 +71,15 @@ public class ArtistAssetRendererFactory
 		return _LINKABLE;
 	}
 
+	@Reference(unbind = "-")
+	protected void setArtistLocalService(
+		ArtistLocalService artistLocalService) {
+
+		_artistLocalService = artistLocalService;
+	}
+
 	private static final boolean _LINKABLE = true;
+
+	private static ArtistLocalService _artistLocalService;
 
 }

@@ -21,10 +21,11 @@ import com.liferay.portal.kernel.security.permission.BaseModelPermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 
 import org.liferay.jukebox.model.Song;
-import org.liferay.jukebox.service.SongLocalServiceUtil;
+import org.liferay.jukebox.service.SongLocalService;
 import org.liferay.jukebox.util.PortletKeys;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Julio Camarero
@@ -59,7 +60,7 @@ public class SongPermission implements BaseModelPermissionChecker {
 			PermissionChecker permissionChecker, long songId, String actionId)
 		throws PortalException {
 
-		Song song = SongLocalServiceUtil.getSong(songId);
+		Song song = _songLocalService.getSong(songId);
 
 		Boolean hasPermission = StagingPermissionUtil.hasPermission(
 			permissionChecker, song.getGroupId(), Song.class.getName(),
@@ -82,7 +83,7 @@ public class SongPermission implements BaseModelPermissionChecker {
 			song.getGroupId(), Song.class.getName(), song.getSongId(),
 			actionId);
 	}
-	
+
 	@Override
 	public void checkBaseModel(
 			PermissionChecker permissionChecker, long groupId, long primaryKey,
@@ -91,5 +92,12 @@ public class SongPermission implements BaseModelPermissionChecker {
 
 		check(permissionChecker, primaryKey, actionId);
 	}
+
+	@Reference(unbind = "-")
+	protected void setSongLocalService(SongLocalService songLocalService) {
+		_songLocalService = songLocalService;
+	}
+
+	private static SongLocalService _songLocalService;
 
 }

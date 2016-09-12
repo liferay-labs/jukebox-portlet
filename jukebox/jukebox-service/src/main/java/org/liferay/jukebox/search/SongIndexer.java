@@ -45,13 +45,14 @@ import javax.portlet.PortletResponse;
 import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.model.Artist;
 import org.liferay.jukebox.model.Song;
-import org.liferay.jukebox.service.AlbumLocalServiceUtil;
-import org.liferay.jukebox.service.ArtistLocalServiceUtil;
-import org.liferay.jukebox.service.SongLocalServiceUtil;
+import org.liferay.jukebox.service.AlbumLocalService;
+import org.liferay.jukebox.service.ArtistLocalService;
+import org.liferay.jukebox.service.SongLocalService;
 import org.liferay.jukebox.service.permission.SongPermission;
 import org.liferay.jukebox.util.PortletKeys;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Eudaldo Alonso
@@ -84,7 +85,7 @@ public class SongIndexer
 		if (obj instanceof FileEntry) {
 			FileEntry fileEntry = (FileEntry)obj;
 
-			Song song = SongLocalServiceUtil.getSong(
+			Song song = _songLocalService.getSong(
 				GetterUtil.getLong(fileEntry.getTitle()));
 
 			document.addKeyword(
@@ -145,8 +146,7 @@ public class SongIndexer
 	@Override
 	public void updateFullQuery(SearchContext searchContext) {
 		if (searchContext.isIncludeAttachments()) {
-			searchContext.addFullQueryEntryClassName(
-				Song.class.getName());
+			searchContext.addFullQueryEntryClassName(Song.class.getName());
 		}
 	}
 
@@ -162,12 +162,12 @@ public class SongIndexer
 		document.addDate(Field.MODIFIED_DATE, song.getModifiedDate());
 		document.addText(Field.TITLE, song.getName());
 
-		Album album = AlbumLocalServiceUtil.getAlbum(song.getAlbumId());
+		Album album = _albumLocalService.getAlbum(song.getAlbumId());
 
 		document.addText("album", album.getName());
 		document.addKeyword("albumId", album.getAlbumId());
 
-		Artist artist = ArtistLocalServiceUtil.getArtist(song.getArtistId());
+		Artist artist = _artistLocalService.getArtist(song.getArtistId());
 
 		document.addText("artist", artist.getName());
 		document.addKeyword("artistId", artist.getArtistId());
@@ -197,7 +197,7 @@ public class SongIndexer
 
 	@Override
 	protected void doReindex(String className, long classPK) throws Exception {
-		Song song = SongLocalServiceUtil.getSong(classPK);
+		Song song = _songLocalService.getSong(classPK);
 
 		doReindex(song);
 	}
@@ -218,7 +218,7 @@ public class SongIndexer
 		final Collection<Document> documents = new ArrayList<>();
 
 		final IndexableActionableDynamicQuery indexableActionableDynamicQuery =
-			SongLocalServiceUtil.getIndexableActionableDynamicQuery();
+			_songLocalService.getIndexableActionableDynamicQuery();
 
 		indexableActionableDynamicQuery.setCompanyId(companyId);
 
@@ -248,6 +248,27 @@ public class SongIndexer
 		indexableActionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 		indexableActionableDynamicQuery.performActions();
 	}
+
+	@Reference(unbind = "-")
+	protected void setAlbumLocalService(AlbumLocalService albumLocalService) {
+		_albumLocalService = albumLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setArtistLocalService(
+		ArtistLocalService artistLocalService) {
+
+		_artistLocalService = artistLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setSongLocalService(SongLocalService songLocalService) {
+		_songLocalService = songLocalService;
+	}
+
+	private static AlbumLocalService _albumLocalService;
+	private static ArtistLocalService _artistLocalService;
+	private static SongLocalService _songLocalService;
 
 	private final RelatedEntryIndexer _relatedEntryIndexer =
 		new BaseRelatedEntryIndexer();

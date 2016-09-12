@@ -32,10 +32,11 @@ import java.util.Map;
 
 import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.model.Artist;
-import org.liferay.jukebox.service.AlbumLocalServiceUtil;
-import org.liferay.jukebox.service.ArtistLocalServiceUtil;
+import org.liferay.jukebox.service.AlbumLocalService;
+import org.liferay.jukebox.service.ArtistLocalService;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Mate Thurzo
@@ -48,7 +49,7 @@ public class AlbumStagedModelDataHandler
 
 	@Override
 	public void deleteStagedModel(Album album) throws PortalException {
-		AlbumLocalServiceUtil.deleteAlbum(album);
+		_albumLocalService.deleteAlbum(album);
 	}
 
 	@Override
@@ -56,11 +57,11 @@ public class AlbumStagedModelDataHandler
 			String uuid, long groupId, String className, String extraData)
 		throws PortalException {
 
-		Album album = AlbumLocalServiceUtil.fetchAlbumByUuidAndGroupId(
+		Album album = _albumLocalService.fetchAlbumByUuidAndGroupId(
 			uuid, groupId);
 
 		if (album != null) {
-			AlbumLocalServiceUtil.deleteAlbum(album);
+			_albumLocalService.deleteAlbum(album);
 		}
 	}
 
@@ -68,8 +69,7 @@ public class AlbumStagedModelDataHandler
 	public List<Album> fetchStagedModelsByUuidAndCompanyId(
 		String uuid, long companyId) {
 
-		return AlbumLocalServiceUtil.getAlbumsByUuidAndCompanyId(
-			uuid, companyId);
+		return _albumLocalService.getAlbumsByUuidAndCompanyId(uuid, companyId);
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class AlbumStagedModelDataHandler
 			PortletDataContext portletDataContext, Album album)
 		throws Exception {
 
-		Artist artist = ArtistLocalServiceUtil.getArtist(album.getArtistId());
+		Artist artist = _artistLocalService.getArtist(album.getArtistId());
 
 		Element albumElement = portletDataContext.getExportDataElement(album);
 
@@ -158,25 +158,24 @@ public class AlbumStagedModelDataHandler
 		Album importedAlbum = null;
 
 		if (portletDataContext.isDataStrategyMirror()) {
-			Album existingAlbum =
-				AlbumLocalServiceUtil.fetchAlbumByUuidAndGroupId(
-					album.getUuid(), portletDataContext.getScopeGroupId());
+			Album existingAlbum = _albumLocalService.fetchAlbumByUuidAndGroupId(
+				album.getUuid(), portletDataContext.getScopeGroupId());
 
 			if (existingAlbum == null) {
 				serviceContext.setUuid(album.getUuid());
 
-				importedAlbum = AlbumLocalServiceUtil.addAlbum(
+				importedAlbum = _albumLocalService.addAlbum(
 					userId, artistId, album.getName(), album.getYear(), null,
 					serviceContext);
 			}
 			else {
-				importedAlbum = AlbumLocalServiceUtil.updateAlbum(
+				importedAlbum = _albumLocalService.updateAlbum(
 					userId, existingAlbum.getAlbumId(), artistId,
 					album.getName(), album.getYear(), null, serviceContext);
 			}
 		}
 		else {
-			importedAlbum = AlbumLocalServiceUtil.addAlbum(
+			importedAlbum = _albumLocalService.addAlbum(
 				userId, artistId, album.getName(), album.getYear(), null,
 				serviceContext);
 		}
@@ -195,7 +194,7 @@ public class AlbumStagedModelDataHandler
 			FileEntry fileEntry =
 				(FileEntry)portletDataContext.getZipEntryAsObject(path);
 
-			importedAlbum = AlbumLocalServiceUtil.updateAlbum(
+			importedAlbum = _albumLocalService.updateAlbum(
 				userId, importedAlbum.getAlbumId(), importedAlbum.getArtistId(),
 				importedAlbum.getName(), importedAlbum.getYear(),
 				fileEntry.getContentStream(), serviceContext);
@@ -211,7 +210,7 @@ public class AlbumStagedModelDataHandler
 
 		long userId = portletDataContext.getUserId(album.getUserUuid());
 
-		Album existingAlbum = AlbumLocalServiceUtil.fetchAlbumByUuidAndGroupId(
+		Album existingAlbum = _albumLocalService.fetchAlbumByUuidAndGroupId(
 			album.getUuid(), portletDataContext.getScopeGroupId());
 
 		if ((existingAlbum == null) || !existingAlbum.isInTrash()) {
@@ -224,5 +223,20 @@ public class AlbumStagedModelDataHandler
 			trashHandler.restoreTrashEntry(userId, existingAlbum.getAlbumId());
 		}
 	}
+
+	@Reference(unbind = "-")
+	protected void setAlbumLocalService(AlbumLocalService albumLocalService) {
+		_albumLocalService = albumLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setArtistLocalService(
+		ArtistLocalService artistLocalService) {
+
+		_artistLocalService = artistLocalService;
+	}
+
+	private static AlbumLocalService _albumLocalService;
+	private static ArtistLocalService _artistLocalService;
 
 }

@@ -44,12 +44,13 @@ import javax.portlet.PortletResponse;
 
 import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.model.Artist;
-import org.liferay.jukebox.service.AlbumLocalServiceUtil;
-import org.liferay.jukebox.service.ArtistLocalServiceUtil;
+import org.liferay.jukebox.service.AlbumLocalService;
+import org.liferay.jukebox.service.ArtistLocalService;
 import org.liferay.jukebox.service.permission.AlbumPermission;
 import org.liferay.jukebox.util.PortletKeys;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Eudaldo Alonso
@@ -82,7 +83,7 @@ public class AlbumIndexer
 		if (obj instanceof FileEntry) {
 			FileEntry fileEntry = (FileEntry)obj;
 
-			Album album = AlbumLocalServiceUtil.getAlbum(
+			Album album = _albumLocalService.getAlbum(
 				GetterUtil.getLong(fileEntry.getTitle()));
 
 			document.addKeyword(
@@ -143,8 +144,7 @@ public class AlbumIndexer
 	@Override
 	public void updateFullQuery(SearchContext searchContext) {
 		if (searchContext.isIncludeAttachments()) {
-			searchContext.addFullQueryEntryClassName(
-				Album.class.getName());
+			searchContext.addFullQueryEntryClassName(Album.class.getName());
 		}
 	}
 
@@ -161,7 +161,7 @@ public class AlbumIndexer
 		document.addText(Field.TITLE, album.getName());
 		document.addKeyword("year", album.getYear());
 
-		Artist artist = ArtistLocalServiceUtil.getArtist(album.getArtistId());
+		Artist artist = _artistLocalService.getArtist(album.getArtistId());
 
 		document.addText("artist", artist.getName());
 		document.addKeyword("artistId", artist.getArtistId());
@@ -191,7 +191,7 @@ public class AlbumIndexer
 
 	@Override
 	protected void doReindex(String className, long classPK) throws Exception {
-		Album album = AlbumLocalServiceUtil.getAlbum(classPK);
+		Album album = _albumLocalService.getAlbum(classPK);
 
 		doReindex(album);
 	}
@@ -212,7 +212,7 @@ public class AlbumIndexer
 		final Collection<Document> documents = new ArrayList<>();
 
 		final IndexableActionableDynamicQuery indexableActionableDynamicQuery =
-			AlbumLocalServiceUtil.getIndexableActionableDynamicQuery();
+			_albumLocalService.getIndexableActionableDynamicQuery();
 
 		indexableActionableDynamicQuery.setCompanyId(companyId);
 
@@ -242,6 +242,21 @@ public class AlbumIndexer
 		indexableActionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 		indexableActionableDynamicQuery.performActions();
 	}
+
+	@Reference(unbind = "-")
+	protected void setAlbumLocalService(AlbumLocalService albumLocalService) {
+		_albumLocalService = albumLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setArtistLocalService(
+		ArtistLocalService artistLocalService) {
+
+		_artistLocalService = artistLocalService;
+	}
+
+	private static AlbumLocalService _albumLocalService;
+	private static ArtistLocalService _artistLocalService;
 
 	private final RelatedEntryIndexer _relatedEntryIndexer =
 		new BaseRelatedEntryIndexer();

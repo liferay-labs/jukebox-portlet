@@ -29,11 +29,12 @@ import javax.portlet.PortletPreferences;
 
 import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.model.Artist;
-import org.liferay.jukebox.service.AlbumLocalServiceUtil;
-import org.liferay.jukebox.service.ArtistLocalServiceUtil;
+import org.liferay.jukebox.service.AlbumLocalService;
+import org.liferay.jukebox.service.ArtistLocalService;
 import org.liferay.jukebox.util.PortletKeys;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Mate Thurzo
@@ -66,11 +67,9 @@ public class JukeboxPortletDataHandler extends BasePortletDataHandler {
 			PortletPreferences portletPreferences)
 		throws Exception {
 
-		AlbumLocalServiceUtil.deleteAlbums(
-			portletDataContext.getScopeGroupId());
+		_albumLocalService.deleteAlbums(portletDataContext.getScopeGroupId());
 
-		ArtistLocalServiceUtil.deleteArtists(
-			portletDataContext.getScopeGroupId());
+		_artistLocalService.deleteArtists(portletDataContext.getScopeGroupId());
 
 		return portletPreferences;
 	}
@@ -85,7 +84,7 @@ public class JukeboxPortletDataHandler extends BasePortletDataHandler {
 
 		if (portletDataContext.getBooleanParameter(NAMESPACE, "albums")) {
 			ActionableDynamicQuery albumActionableDynamicQuery =
-				AlbumLocalServiceUtil.getExportActionableDynamicQuery(
+				_albumLocalService.getExportActionableDynamicQuery(
 					portletDataContext);
 
 			albumActionableDynamicQuery.performActions();
@@ -93,7 +92,7 @@ public class JukeboxPortletDataHandler extends BasePortletDataHandler {
 
 		if (portletDataContext.getBooleanParameter(NAMESPACE, "artists")) {
 			ActionableDynamicQuery artistActionableDynamicQuery =
-				ArtistLocalServiceUtil.getExportActionableDynamicQuery(
+				_artistLocalService.getExportActionableDynamicQuery(
 					portletDataContext);
 
 			artistActionableDynamicQuery.performActions();
@@ -142,16 +141,31 @@ public class JukeboxPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		ActionableDynamicQuery albumActionableDynamicQuery =
-			AlbumLocalServiceUtil.getExportActionableDynamicQuery(
+			_albumLocalService.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		albumActionableDynamicQuery.performCount();
 
 		ActionableDynamicQuery artistActionableDynamicQuery =
-			ArtistLocalServiceUtil.getExportActionableDynamicQuery(
+			_artistLocalService.getExportActionableDynamicQuery(
 				portletDataContext);
 
 		artistActionableDynamicQuery.performCount();
 	}
+
+	@Reference(unbind = "-")
+	protected void setAlbumLocalService(AlbumLocalService albumLocalService) {
+		_albumLocalService = albumLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setArtistLocalService(
+		ArtistLocalService artistLocalService) {
+
+		_artistLocalService = artistLocalService;
+	}
+
+	private static AlbumLocalService _albumLocalService;
+	private static ArtistLocalService _artistLocalService;
 
 }

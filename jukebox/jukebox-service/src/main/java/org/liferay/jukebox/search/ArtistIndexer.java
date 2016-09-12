@@ -45,11 +45,12 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 
 import org.liferay.jukebox.model.Artist;
-import org.liferay.jukebox.service.ArtistLocalServiceUtil;
+import org.liferay.jukebox.service.ArtistLocalService;
 import org.liferay.jukebox.service.permission.ArtistPermission;
 import org.liferay.jukebox.util.PortletKeys;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Eudaldo Alonso
@@ -82,7 +83,7 @@ public class ArtistIndexer
 		if (obj instanceof FileEntry) {
 			FileEntry fileEntry = (FileEntry)obj;
 
-			Artist artist = ArtistLocalServiceUtil.getArtist(
+			Artist artist = _artistLocalService.getArtist(
 				GetterUtil.getLong(fileEntry.getTitle()));
 
 			document.addKeyword(
@@ -142,8 +143,7 @@ public class ArtistIndexer
 	@Override
 	public void updateFullQuery(SearchContext searchContext) {
 		if (searchContext.isIncludeAttachments()) {
-			searchContext.addFullQueryEntryClassName(
-				Artist.class.getName());
+			searchContext.addFullQueryEntryClassName(Artist.class.getName());
 		}
 	}
 
@@ -194,7 +194,7 @@ public class ArtistIndexer
 
 	@Override
 	protected void doReindex(String className, long classPK) throws Exception {
-		Artist artist = ArtistLocalServiceUtil.getArtist(classPK);
+		Artist artist = _artistLocalService.getArtist(classPK);
 
 		doReindex(artist);
 	}
@@ -215,7 +215,7 @@ public class ArtistIndexer
 		final Collection<Document> documents = new ArrayList<>();
 
 		final IndexableActionableDynamicQuery indexableActionableDynamicQuery =
-			ArtistLocalServiceUtil.getIndexableActionableDynamicQuery();
+			_artistLocalService.getIndexableActionableDynamicQuery();
 
 		indexableActionableDynamicQuery.setCompanyId(companyId);
 
@@ -247,6 +247,15 @@ public class ArtistIndexer
 		indexableActionableDynamicQuery.setSearchEngineId(getSearchEngineId());
 		indexableActionableDynamicQuery.performActions();
 	}
+
+	@Reference(unbind = "-")
+	protected void setArtistLocalService(
+		ArtistLocalService artistLocalService) {
+
+		_artistLocalService = artistLocalService;
+	}
+
+	private static ArtistLocalService _artistLocalService;
 
 	private final RelatedEntryIndexer _relatedEntryIndexer =
 		new BaseRelatedEntryIndexer();

@@ -60,7 +60,7 @@ public class JukeBoxPermission extends BaseResourcePermissionChecker {
 		return permissionChecker.hasPermission(
 			groupId, RESOURCE_NAME, groupId, actionId);
 	}
-	
+
 	@Override
 	public Boolean checkResource(
 		PermissionChecker permissionChecker, long classPK, String actionId) {

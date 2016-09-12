@@ -21,10 +21,11 @@ import com.liferay.portal.kernel.security.permission.BaseModelPermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 
 import org.liferay.jukebox.model.Album;
-import org.liferay.jukebox.service.AlbumLocalServiceUtil;
+import org.liferay.jukebox.service.AlbumLocalService;
 import org.liferay.jukebox.util.PortletKeys;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Julio Camarero
@@ -50,7 +51,7 @@ public class AlbumPermission implements BaseModelPermissionChecker {
 			PermissionChecker permissionChecker, long albumId, String actionId)
 		throws PortalException {
 
-		Album album = AlbumLocalServiceUtil.getAlbum(albumId);
+		Album album = _albumLocalService.getAlbum(albumId);
 
 		check(permissionChecker, album, actionId);
 	}
@@ -76,11 +77,11 @@ public class AlbumPermission implements BaseModelPermissionChecker {
 			PermissionChecker permissionChecker, long albumId, String actionId)
 		throws PortalException {
 
-		Album album = AlbumLocalServiceUtil.getAlbum(albumId);
+		Album album = _albumLocalService.getAlbum(albumId);
 
 		return contains(permissionChecker, album, actionId);
 	}
-	
+
 	@Override
 	public void checkBaseModel(
 			PermissionChecker permissionChecker, long groupId, long primaryKey,
@@ -89,5 +90,12 @@ public class AlbumPermission implements BaseModelPermissionChecker {
 
 		check(permissionChecker, primaryKey, actionId);
 	}
+
+	@Reference(unbind = "-")
+	protected void setAlbumLocalService(AlbumLocalService albumLocalService) {
+		_albumLocalService = albumLocalService;
+	}
+
+	private static AlbumLocalService _albumLocalService;
 
 }

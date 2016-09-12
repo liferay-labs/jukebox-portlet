@@ -30,11 +30,12 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 
 import org.liferay.jukebox.model.Album;
-import org.liferay.jukebox.service.AlbumLocalServiceUtil;
+import org.liferay.jukebox.service.AlbumLocalService;
 import org.liferay.jukebox.service.permission.AlbumPermission;
 import org.liferay.jukebox.util.PortletKeys;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Implements trash handling for the albums.
@@ -49,7 +50,7 @@ public class AlbumTrashHandler extends JukeBoxBaseTrashHandler {
 
 	@Override
 	public void deleteTrashEntry(long classPK) throws PortalException {
-		AlbumLocalServiceUtil.deleteAlbum(classPK);
+		_albumLocalService.deleteAlbum(classPK);
 	}
 
 	@Override
@@ -67,7 +68,7 @@ public class AlbumTrashHandler extends JukeBoxBaseTrashHandler {
 			PortletRequest portletRequest, long classPK)
 		throws PortalException {
 
-		Album album = AlbumLocalServiceUtil.getAlbum(classPK);
+		Album album = _albumLocalService.getAlbum(classPK);
 
 		PortletURL portletURL = getRestoreURL(portletRequest, classPK);
 
@@ -99,7 +100,7 @@ public class AlbumTrashHandler extends JukeBoxBaseTrashHandler {
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClass(
 				Album.class);
 
-		Album album = AlbumLocalServiceUtil.getAlbum(classPK);
+		Album album = _albumLocalService.getAlbum(classPK);
 
 		return (TrashRenderer)assetRendererFactory.getAssetRenderer(
 			album.getAlbumId());
@@ -122,7 +123,7 @@ public class AlbumTrashHandler extends JukeBoxBaseTrashHandler {
 
 	@Override
 	public boolean isInTrash(long classPK) throws PortalException {
-		Album album = AlbumLocalServiceUtil.getAlbum(classPK);
+		Album album = _albumLocalService.getAlbum(classPK);
 
 		return album.isInTrash();
 	}
@@ -136,11 +137,11 @@ public class AlbumTrashHandler extends JukeBoxBaseTrashHandler {
 	public void restoreTrashEntry(long userId, long classPK)
 		throws PortalException {
 
-		AlbumLocalServiceUtil.restoreAlbumFromTrash(userId, classPK);
+		_albumLocalService.restoreAlbumFromTrash(userId, classPK);
 	}
 
 	protected Album getAlbum(long classPK) throws PortalException {
-		return AlbumLocalServiceUtil.getAlbum(classPK);
+		return _albumLocalService.getAlbum(classPK);
 	}
 
 	@Override
@@ -156,7 +157,7 @@ public class AlbumTrashHandler extends JukeBoxBaseTrashHandler {
 
 		String portletId = PortletKeys.ALBUMS;
 
-		Album album = AlbumLocalServiceUtil.getAlbum(classPK);
+		Album album = _albumLocalService.getAlbum(classPK);
 
 		long plid = PortalUtil.getPlidFromPortletId(
 			album.getGroupId(), PortletKeys.ALBUMS);
@@ -176,5 +177,12 @@ public class AlbumTrashHandler extends JukeBoxBaseTrashHandler {
 
 		return AlbumPermission.contains(permissionChecker, classPK, actionId);
 	}
+
+	@Reference(unbind = "-")
+	protected void setAlbumLocalService(AlbumLocalService albumLocalService) {
+		_albumLocalService = albumLocalService;
+	}
+
+	private static AlbumLocalService _albumLocalService;
 
 }

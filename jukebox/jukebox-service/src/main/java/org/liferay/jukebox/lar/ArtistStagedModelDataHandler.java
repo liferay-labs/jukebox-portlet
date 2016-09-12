@@ -28,9 +28,10 @@ import com.liferay.portal.kernel.xml.Element;
 import java.util.List;
 
 import org.liferay.jukebox.model.Artist;
-import org.liferay.jukebox.service.ArtistLocalServiceUtil;
+import org.liferay.jukebox.service.ArtistLocalService;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Mate Thurzo
@@ -43,7 +44,7 @@ public class ArtistStagedModelDataHandler
 
 	@Override
 	public void deleteStagedModel(Artist artist) throws PortalException {
-		ArtistLocalServiceUtil.deleteArtist(artist);
+		_artistLocalService.deleteArtist(artist);
 	}
 
 	@Override
@@ -51,11 +52,11 @@ public class ArtistStagedModelDataHandler
 			String uuid, long groupId, String className, String extraData)
 		throws PortalException {
 
-		Artist artist = ArtistLocalServiceUtil.fetchArtistByUuidAndGroupId(
+		Artist artist = _artistLocalService.fetchArtistByUuidAndGroupId(
 			uuid, groupId);
 
 		if (artist != null) {
-			ArtistLocalServiceUtil.deleteArtist(artist);
+			_artistLocalService.deleteArtist(artist);
 		}
 	}
 
@@ -63,7 +64,7 @@ public class ArtistStagedModelDataHandler
 	public List<Artist> fetchStagedModelsByUuidAndCompanyId(
 		String uuid, long companyId) {
 
-		return ArtistLocalServiceUtil.getArtistsByUuidAndCompanyId(
+		return _artistLocalService.getArtistsByUuidAndCompanyId(
 			uuid, companyId);
 	}
 
@@ -110,24 +111,24 @@ public class ArtistStagedModelDataHandler
 
 		if (portletDataContext.isDataStrategyMirror()) {
 			Artist existingArtist =
-				ArtistLocalServiceUtil.fetchArtistByUuidAndGroupId(
+				_artistLocalService.fetchArtistByUuidAndGroupId(
 					artist.getUuid(), portletDataContext.getScopeGroupId());
 
 			if (existingArtist == null) {
 				serviceContext.setUuid(artist.getUuid());
 
-				importedArtist = ArtistLocalServiceUtil.addArtist(
+				importedArtist = _artistLocalService.addArtist(
 					userId, artist.getName(), artist.getBio(), null,
 					serviceContext);
 			}
 			else {
-				importedArtist = ArtistLocalServiceUtil.updateArtist(
+				importedArtist = _artistLocalService.updateArtist(
 					userId, existingArtist.getArtistId(), artist.getName(),
 					artist.getBio(), null, serviceContext);
 			}
 		}
 		else {
-			importedArtist = ArtistLocalServiceUtil.addArtist(
+			importedArtist = _artistLocalService.addArtist(
 				userId, artist.getName(), artist.getBio(), null,
 				serviceContext);
 		}
@@ -146,7 +147,7 @@ public class ArtistStagedModelDataHandler
 			FileEntry fileEntry =
 				(FileEntry)portletDataContext.getZipEntryAsObject(path);
 
-			importedArtist = ArtistLocalServiceUtil.updateArtist(
+			importedArtist = _artistLocalService.updateArtist(
 				userId, importedArtist.getArtistId(), importedArtist.getName(),
 				importedArtist.getBio(), fileEntry.getContentStream(),
 				serviceContext);
@@ -162,9 +163,8 @@ public class ArtistStagedModelDataHandler
 
 		long userId = portletDataContext.getUserId(artist.getUserUuid());
 
-		Artist existingArtist =
-			ArtistLocalServiceUtil.fetchArtistByUuidAndGroupId(
-				artist.getUuid(), portletDataContext.getScopeGroupId());
+		Artist existingArtist = _artistLocalService.fetchArtistByUuidAndGroupId(
+			artist.getUuid(), portletDataContext.getScopeGroupId());
 
 		if ((existingArtist == null) || !existingArtist.isInTrash()) {
 			return;
@@ -178,9 +178,16 @@ public class ArtistStagedModelDataHandler
 		}
 	}
 
+	@Reference(unbind = "-")
+	protected void setArtistLocalService(
+		ArtistLocalService artistLocalService) {
+
+		_artistLocalService = artistLocalService;
+	}
+
 	@Override
 	protected boolean validateMissingReference(String uuid, long groupId) {
-		Artist artist = ArtistLocalServiceUtil.fetchArtistByUuidAndGroupId(
+		Artist artist = _artistLocalService.fetchArtistByUuidAndGroupId(
 			uuid, groupId);
 
 		if (artist == null) {
@@ -189,5 +196,7 @@ public class ArtistStagedModelDataHandler
 
 		return true;
 	}
+
+	private static ArtistLocalService _artistLocalService;
 
 }
