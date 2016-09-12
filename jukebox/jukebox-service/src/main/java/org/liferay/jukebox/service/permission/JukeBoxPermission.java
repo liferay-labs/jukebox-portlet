@@ -17,14 +17,23 @@ package org.liferay.jukebox.service.permission;
 import com.liferay.exportimport.kernel.staging.permission.StagingPermissionUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.BaseResourcePermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.ResourcePermissionChecker;
 
 import org.liferay.jukebox.util.PortletKeys;
+
+import org.osgi.service.component.annotations.Component;
 
 /**
  * @author Julio Camarero
  */
-public class JukeBoxPermission {
+@Component(
+	immediate = true,
+	property = {"resource.name=" + JukeBoxPermission.RESOURCE_NAME},
+	service = ResourcePermissionChecker.class
+)
+public class JukeBoxPermission extends BaseResourcePermissionChecker {
 
 	public static final String RESOURCE_NAME = "org.liferay.jukebox.model";
 
@@ -50,6 +59,13 @@ public class JukeBoxPermission {
 
 		return permissionChecker.hasPermission(
 			groupId, RESOURCE_NAME, groupId, actionId);
+	}
+	
+	@Override
+	public Boolean checkResource(
+		PermissionChecker permissionChecker, long classPK, String actionId) {
+
+		return contains(permissionChecker, classPK, actionId);
 	}
 
 }

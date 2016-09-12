@@ -17,18 +17,25 @@ package org.liferay.jukebox.service.permission;
 import com.liferay.exportimport.kernel.staging.permission.StagingPermissionUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
+import com.liferay.portal.kernel.security.permission.BaseModelPermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 
 import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.service.AlbumLocalServiceUtil;
 import org.liferay.jukebox.util.PortletKeys;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * @author Julio Camarero
  * @author Sergio González
  * @author Eudaldo Alonso
  */
-public class AlbumPermission {
+@Component(
+	property = {"model.class.name=org.liferay.jukebox.model.Album"},
+	service = BaseModelPermissionChecker.class
+)
+public class AlbumPermission implements BaseModelPermissionChecker {
 
 	public static void check(
 			PermissionChecker permissionChecker, Album album, String actionId)
@@ -72,6 +79,15 @@ public class AlbumPermission {
 		Album album = AlbumLocalServiceUtil.getAlbum(albumId);
 
 		return contains(permissionChecker, album, actionId);
+	}
+	
+	@Override
+	public void checkBaseModel(
+			PermissionChecker permissionChecker, long groupId, long primaryKey,
+			String actionId)
+		throws PortalException {
+
+		check(permissionChecker, primaryKey, actionId);
 	}
 
 }
