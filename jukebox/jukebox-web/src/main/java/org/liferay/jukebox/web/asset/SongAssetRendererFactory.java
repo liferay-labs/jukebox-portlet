@@ -15,6 +15,7 @@
 package org.liferay.jukebox.web.asset;
 
 import com.liferay.asset.kernel.model.AssetRenderer;
+import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.model.BaseAssetRendererFactory;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -22,17 +23,24 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import org.liferay.jukebox.model.Song;
 import org.liferay.jukebox.service.SongLocalServiceUtil;
 import org.liferay.jukebox.service.permission.SongPermission;
+import org.liferay.jukebox.util.PortletKeys;
+
+import org.osgi.service.component.annotations.Component;
 
 /**
  * @author Julio Camarero
  */
-public class SongAssetRendererFactory extends BaseAssetRendererFactory {
+@Component(
+	immediate = true, property = {"javax.portlet.name=" + PortletKeys.SONGS},
+	service = AssetRendererFactory.class
+)
+public class SongAssetRendererFactory extends BaseAssetRendererFactory<Song> {
 
 	public static final String CLASS_NAME = Song.class.getName();
 
 	public static final String TYPE = "song";
 
-	public AssetRenderer getAssetRenderer(long classPK, int type)
+	public AssetRenderer<Song> getAssetRenderer(long classPK, int type)
 		throws PortalException {
 
 		Song song = SongLocalServiceUtil.getSong(classPK);

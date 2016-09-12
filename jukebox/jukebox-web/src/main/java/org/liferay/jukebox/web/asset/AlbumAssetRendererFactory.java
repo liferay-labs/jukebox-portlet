@@ -15,6 +15,7 @@
 package org.liferay.jukebox.web.asset;
 
 import com.liferay.asset.kernel.model.AssetRenderer;
+import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.model.BaseAssetRendererFactory;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -22,17 +23,24 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.service.AlbumLocalServiceUtil;
 import org.liferay.jukebox.service.permission.AlbumPermission;
+import org.liferay.jukebox.util.PortletKeys;
+
+import org.osgi.service.component.annotations.Component;
 
 /**
  * @author Julio Camarero
  */
-public class AlbumAssetRendererFactory extends BaseAssetRendererFactory {
+@Component(
+	immediate = true, property = {"javax.portlet.name=" + PortletKeys.ALBUMS},
+	service = AssetRendererFactory.class
+)
+public class AlbumAssetRendererFactory extends BaseAssetRendererFactory<Album> {
 
 	public static final String CLASS_NAME = Album.class.getName();
 
 	public static final String TYPE = "album";
 
-	public AssetRenderer getAssetRenderer(long classPK, int type)
+	public AssetRenderer<Album> getAssetRenderer(long classPK, int type)
 		throws PortalException {
 
 		Album album = AlbumLocalServiceUtil.getAlbum(classPK);
