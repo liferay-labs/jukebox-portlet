@@ -14,13 +14,46 @@
 
 package org.liferay.jukebox.web.portlet;
 
+import javax.portlet.Portlet;
+
+import org.liferay.jukebox.util.PortletKeys;
+
+import org.osgi.service.component.annotations.Component;
+
 /**
  * @author Julio Camarero
  * @author Sergio González
  * @author Eudaldo Alonso
  */
+@Component(
+	immediate = true,
+	property = {
+		"com.liferay.portlet.css-class-wrapper=artists-portlet",
+		"com.liferay.portlet.display-category=category.jukebox",
+		"com.liferay.portlet.display-category=category.jukebox",
+		"com.liferay.portlet.header-portlet-css=/css/jukebox.css",
+		"com.liferay.portlet.header-portlet-css=/css/inlineplayer.css",
+		"com.liferay.portlet.header-portlet-css=/css/flashblock.css",
+		"com.liferay.portlet.header-portlet-javascript=/js/soundmanager2-jsmin.js",
+		"com.liferay.portlet.header-portlet-javascript=/js/inlineplayer.js",
+		"com.liferay.portlet.header-portlet-javascript=/js/artists.js",
+		"com.liferay.portlet.header-portlet-javascript=/js/jukebox_search.js",
+		"com.liferay.portlet.icon=/icons/artist.png",
+		"com.liferay.portlet.instanceable=false",
+		"com.liferay.portlet.preferences-owned-by-group=true",
+		"com.liferay.portlet.preferences-unique-per-layout=true",
+		"com.liferay.portlet.render-weight=50",
+		"com.liferay.portlet.scopeable=true",
+		"javax.portlet.display-name=Artists",
+		"javax.portlet.expiration-cache=0",
+		"javax.portlet.init-param.template-path=/",
+		"javax.portlet.init-param.view-template=/html/artists/view.jsp",
+		"javax.portlet.name=" + PortletKeys.ARTISTS,
+		"javax.portlet.resource-bundle=content.Language",
+		"javax.portlet.security-role-ref=guest,power-user,user",
+		"javax.portlet.supports.mime-type=text/html"
+	},
+	service = {ArtistsPortlet.class, Portlet.class}
+)
 public class ArtistsPortlet extends JukeboxPortlet {
-
-	public static final String PORTLET_ID = "artists_WAR_jukeboxportlet";
-
 }
