@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -33,11 +34,17 @@ import org.liferay.jukebox.service.AlbumLocalServiceUtil;
 import org.liferay.jukebox.service.permission.AlbumPermission;
 import org.liferay.jukebox.util.PortletKeys;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * Implements trash handling for the albums.
  *
  * @author Sergio González
  */
+@Component(
+	property = {"model.class.name=org.liferay.jukebox.model.Album"},
+	service = TrashHandler.class
+)
 public class AlbumTrashHandler extends JukeBoxBaseTrashHandler {
 
 	@Override

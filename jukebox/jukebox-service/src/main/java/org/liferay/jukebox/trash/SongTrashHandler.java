@@ -46,11 +46,17 @@ import org.liferay.jukebox.service.permission.AlbumPermission;
 import org.liferay.jukebox.service.permission.SongPermission;
 import org.liferay.jukebox.util.PortletKeys;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * Implements trash handling for the songs.
  *
  * @author Sergio González
  */
+@Component(
+	property = {"model.class.name=org.liferay.jukebox.model.Song"},
+	service = TrashHandler.class
+)
 public class SongTrashHandler extends JukeBoxBaseTrashHandler {
 
 	public void checkDuplicateTrashEntry(
