@@ -16,6 +16,7 @@ package org.liferay.jukebox.web.lar;
 
 import com.liferay.exportimport.kernel.lar.BasePortletDataHandler;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
+import com.liferay.exportimport.kernel.lar.PortletDataHandler;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerBoolean;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelType;
@@ -30,10 +31,17 @@ import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.model.Artist;
 import org.liferay.jukebox.service.AlbumLocalServiceUtil;
 import org.liferay.jukebox.service.ArtistLocalServiceUtil;
+import org.liferay.jukebox.util.PortletKeys;
+
+import org.osgi.service.component.annotations.Component;
 
 /**
  * @author Mate Thurzo
  */
+@Component(
+	property = {"javax.portlet.name=" + PortletKeys.ARTISTS},
+	service = PortletDataHandler.class
+)
 public class JukeboxPortletDataHandler extends BasePortletDataHandler {
 
 	public static final String NAMESPACE = "jukebox";
