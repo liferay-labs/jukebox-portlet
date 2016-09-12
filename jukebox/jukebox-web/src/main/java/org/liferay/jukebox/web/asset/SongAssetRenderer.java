@@ -41,7 +41,6 @@ import javax.portlet.WindowState;
 import javax.servlet.http.HttpServletRequest;
 
 import org.liferay.jukebox.model.Song;
-import org.liferay.jukebox.web.portlet.SongsPortlet;
 import org.liferay.jukebox.service.permission.SongPermission;
 import org.liferay.jukebox.util.PortletKeys;
 
@@ -138,7 +137,7 @@ public class SongAssetRenderer
 		throws Exception {
 
 		PortletURL portletURL = liferayPortletResponse.createLiferayPortletURL(
-			getControlPanelPlid(liferayPortletRequest), SongsPortlet.PORTLET_ID,
+			getControlPanelPlid(liferayPortletRequest), PortletKeys.SONGS,
 			PortletRequest.RENDER_PHASE);
 
 		portletURL.setParameter("jspPage", "/html/songs/edit_song.jsp");
@@ -154,7 +153,7 @@ public class SongAssetRenderer
 		throws Exception {
 
 		PortletURL portletURL = liferayPortletResponse.createLiferayPortletURL(
-			SongsPortlet.PORTLET_ID, PortletRequest.RENDER_PHASE);
+			PortletKeys.SONGS, PortletRequest.RENDER_PHASE);
 
 		portletURL.setParameter("jspPage", "/html/songs/view_song.jsp");
 		portletURL.setParameter("songId", String.valueOf(_song.getSongId()));

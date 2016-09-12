@@ -40,7 +40,6 @@ import javax.portlet.WindowState;
 import javax.servlet.http.HttpServletRequest;
 
 import org.liferay.jukebox.model.Album;
-import org.liferay.jukebox.web.portlet.AlbumsPortlet;
 import org.liferay.jukebox.service.permission.AlbumPermission;
 import org.liferay.jukebox.util.PortletKeys;
 
@@ -134,8 +133,8 @@ public class AlbumAssetRenderer
 		throws Exception {
 
 		PortletURL portletURL = liferayPortletResponse.createLiferayPortletURL(
-			getControlPanelPlid(liferayPortletRequest),
-			AlbumsPortlet.PORTLET_ID, PortletRequest.RENDER_PHASE);
+			getControlPanelPlid(liferayPortletRequest), PortletKeys.ALBUMS,
+			PortletRequest.RENDER_PHASE);
 
 		portletURL.setParameter("jspPage", "/html/albums/edit_album.jsp");
 		portletURL.setParameter("albumId", String.valueOf(_album.getAlbumId()));
@@ -150,7 +149,7 @@ public class AlbumAssetRenderer
 		throws Exception {
 
 		PortletURL portletURL = liferayPortletResponse.createLiferayPortletURL(
-			AlbumsPortlet.PORTLET_ID, PortletRequest.RENDER_PHASE);
+			PortletKeys.ALBUMS, PortletRequest.RENDER_PHASE);
 
 		portletURL.setParameter("jspPage", "/html/albums/view_album.jsp");
 		portletURL.setParameter("albumId", String.valueOf(_album.getAlbumId()));

@@ -19,10 +19,13 @@ package org.liferay.jukebox.util;
  */
 public class PortletKeys extends com.liferay.portal.kernel.util.PortletKeys {
 
-	public static final String ALBUMS = "albums_WAR_jukeboxportlet";
+	public static final String ALBUMS =
+		"org_liferay_jukebox_web_portlet_AlbumsPortlet";
 
-	public static final String ARTISTS = "artists_WAR_jukeboxportlet";
+	public static final String ARTISTS =
+		"org_liferay_jukebox_web_portlet_ArtistsPortlet";
 
-	public static final String SONGS = "songs_WAR_jukeboxportlet";
+	public static final String SONGS =
+		"org_liferay_jukebox_web_portlet_SongsPortlet";
 
 }

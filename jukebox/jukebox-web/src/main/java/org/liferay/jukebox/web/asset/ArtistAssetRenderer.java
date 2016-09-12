@@ -39,7 +39,6 @@ import javax.portlet.WindowState;
 import javax.servlet.http.HttpServletRequest;
 
 import org.liferay.jukebox.model.Artist;
-import org.liferay.jukebox.web.portlet.ArtistsPortlet;
 import org.liferay.jukebox.service.permission.ArtistPermission;
 import org.liferay.jukebox.util.PortletKeys;
 
@@ -132,8 +131,8 @@ public class ArtistAssetRenderer extends BaseJSPAssetRenderer<Artist> {
 		throws Exception {
 
 		PortletURL portletURL = liferayPortletResponse.createLiferayPortletURL(
-			getControlPanelPlid(liferayPortletRequest),
-			ArtistsPortlet.PORTLET_ID, PortletRequest.RENDER_PHASE);
+			getControlPanelPlid(liferayPortletRequest), PortletKeys.ARTISTS,
+			PortletRequest.RENDER_PHASE);
 
 		portletURL.setParameter("jspPage", "/html/artists/edit_artist.jsp");
 		portletURL.setParameter(
@@ -149,7 +148,7 @@ public class ArtistAssetRenderer extends BaseJSPAssetRenderer<Artist> {
 		throws Exception {
 
 		PortletURL portletURL = liferayPortletResponse.createLiferayPortletURL(
-			ArtistsPortlet.PORTLET_ID, PortletRequest.RENDER_PHASE);
+			PortletKeys.ARTISTS, PortletRequest.RENDER_PHASE);
 
 		portletURL.setParameter("jspPage", "/html/artists/view_artist.jsp");
 		portletURL.setParameter(
