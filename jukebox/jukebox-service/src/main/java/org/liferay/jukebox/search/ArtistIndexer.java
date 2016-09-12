@@ -12,7 +12,7 @@
  * details.
  */
 
-package org.liferay.jukebox.util;
+package org.liferay.jukebox.search;
 
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.search.BaseRelatedEntryIndexer;
 import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.RelatedEntryIndexer;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
@@ -33,6 +34,8 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,23 +44,25 @@ import java.util.Locale;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletResponse;
 
-import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.model.Artist;
-import org.liferay.jukebox.service.AlbumLocalServiceUtil;
 import org.liferay.jukebox.service.ArtistLocalServiceUtil;
-import org.liferay.jukebox.service.permission.AlbumPermission;
+import org.liferay.jukebox.service.permission.ArtistPermission;
+import org.liferay.jukebox.util.PortletKeys;
+
+import org.osgi.service.component.annotations.Component;
 
 /**
  * @author Eudaldo Alonso
  */
-public class AlbumIndexer
-	extends BaseIndexer<Album> implements RelatedEntryIndexer {
+@Component(immediate = true, service = Indexer.class)
+public class ArtistIndexer
+	extends BaseIndexer<Artist> implements RelatedEntryIndexer {
 
-	public static final String[] CLASS_NAMES = {Album.class.getName()};
+	public static final String[] CLASS_NAMES = {Artist.class.getName()};
 
-	public static final String PORTLET_ID = PortletKeys.ALBUMS;
+	public static final String PORTLET_ID = PortletKeys.ARTISTS;
 
-	public AlbumIndexer() {
+	public ArtistIndexer() {
 		setPermissionAware(true);
 	}
 
@@ -77,20 +82,20 @@ public class AlbumIndexer
 		if (obj instanceof FileEntry) {
 			FileEntry fileEntry = (FileEntry)obj;
 
-			Album album = AlbumLocalServiceUtil.getAlbum(
+			Artist artist = ArtistLocalServiceUtil.getArtist(
 				GetterUtil.getLong(fileEntry.getTitle()));
 
 			document.addKeyword(
 				Field.CLASS_NAME_ID,
-				PortalUtil.getClassNameId(Album.class.getName()));
-			document.addKeyword(Field.CLASS_PK, album.getAlbumId());
+				PortalUtil.getClassNameId(Artist.class.getName()));
+			document.addKeyword(Field.CLASS_PK, artist.getArtistId());
 			document.addKeyword(Field.RELATED_ENTRY, true);
 		}
 	}
 
 	@Override
 	public String getClassName() {
-		return Album.class.getName();
+		return Artist.class.getName();
 	}
 
 	@Override
@@ -109,7 +114,7 @@ public class AlbumIndexer
 			long entryClassPK, String actionId)
 		throws Exception {
 
-		return AlbumPermission.contains(
+		return ArtistPermission.contains(
 			permissionChecker, entryClassPK, ActionKeys.VIEW);
 	}
 
@@ -131,35 +136,30 @@ public class AlbumIndexer
 		}
 
 		addSearchTerm(searchQuery, searchContext, Field.TITLE, true);
-		addSearchTerm(searchQuery, searchContext, "artist", true);
-		addSearchTerm(searchQuery, searchContext, "year", false);
+		addSearchTerm(searchQuery, searchContext, "bio", true);
 	}
 
 	@Override
 	public void updateFullQuery(SearchContext searchContext) {
 		if (searchContext.isIncludeAttachments()) {
 			searchContext.addFullQueryEntryClassName(
-				Album.class.getName());
+				Artist.class.getName());
 		}
 	}
 
 	@Override
-	protected void doDelete(Album album) throws Exception {
-		deleteDocument(album.getCompanyId(), album.getAlbumId());
+	protected void doDelete(Artist artist) throws Exception {
+		deleteDocument(artist.getCompanyId(), artist.getArtistId());
 	}
 
 	@Override
-	protected Document doGetDocument(Album album) throws Exception {
-		Document document = getBaseModelDocument(PORTLET_ID, album);
+	protected Document doGetDocument(Artist artist) throws Exception {
+		Document document = getBaseModelDocument(PORTLET_ID, artist);
 
-		document.addDate(Field.MODIFIED_DATE, album.getModifiedDate());
-		document.addText(Field.TITLE, album.getName());
-		document.addKeyword("year", album.getYear());
-
-		Artist artist = ArtistLocalServiceUtil.getArtist(album.getArtistId());
-
-		document.addText("artist", artist.getName());
+		document.addDate(Field.MODIFIED_DATE, artist.getModifiedDate());
+		document.addText(Field.TITLE, artist.getName());
 		document.addKeyword("artistId", artist.getArtistId());
+		document.addText("bio", artist.getBio());
 
 		return document;
 	}
@@ -173,22 +173,30 @@ public class AlbumIndexer
 
 		summary.setMaxContentLength(200);
 
-		return summary;
+		String title = document.get(Field.TITLE);
+
+		String content = snippet;
+
+		if (Validator.isNull(snippet)) {
+			content = StringUtil.shorten(document.get("bio"), 200);
+		}
+
+		return new Summary(title, content);
 	}
 
 	@Override
-	protected void doReindex(Album album) throws Exception {
-		Document document = getDocument(album);
+	protected void doReindex(Artist artist) throws Exception {
+		Document document = getDocument(artist);
 
 		SearchEngineUtil.updateDocument(
-			getSearchEngineId(), album.getCompanyId(), document);
+			getSearchEngineId(), artist.getCompanyId(), document);
 	}
 
 	@Override
 	protected void doReindex(String className, long classPK) throws Exception {
-		Album album = AlbumLocalServiceUtil.getAlbum(classPK);
+		Artist artist = ArtistLocalServiceUtil.getArtist(classPK);
 
-		doReindex(album);
+		doReindex(artist);
 	}
 
 	@Override
@@ -207,7 +215,7 @@ public class AlbumIndexer
 		final Collection<Document> documents = new ArrayList<>();
 
 		final IndexableActionableDynamicQuery indexableActionableDynamicQuery =
-			AlbumLocalServiceUtil.getIndexableActionableDynamicQuery();
+			ArtistLocalServiceUtil.getIndexableActionableDynamicQuery();
 
 		indexableActionableDynamicQuery.setCompanyId(companyId);
 
@@ -221,11 +229,13 @@ public class AlbumIndexer
 			});
 
 		indexableActionableDynamicQuery.setPerformActionMethod(
-			new ActionableDynamicQuery.PerformActionMethod<Album>() {
+			new ActionableDynamicQuery.PerformActionMethod<Artist>() {
 
 				@Override
-				public void performAction(Album album) throws PortalException {
-					Document document = getDocument(album);
+				public void performAction(Artist artist)
+					throws PortalException {
+
+					Document document = getDocument(artist);
 
 					if (document != null) {
 						indexableActionableDynamicQuery.addDocuments(document);
