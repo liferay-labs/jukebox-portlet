@@ -17,6 +17,7 @@ package org.liferay.jukebox.lar;
 import com.liferay.exportimport.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
+import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -34,9 +35,12 @@ import org.liferay.jukebox.model.Artist;
 import org.liferay.jukebox.service.AlbumLocalServiceUtil;
 import org.liferay.jukebox.service.ArtistLocalServiceUtil;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * @author Mate Thurzo
  */
+@Component(immediate = true, service = StagedModelDataHandler.class)
 public class AlbumStagedModelDataHandler
 	extends BaseStagedModelDataHandler<Album> {
 
