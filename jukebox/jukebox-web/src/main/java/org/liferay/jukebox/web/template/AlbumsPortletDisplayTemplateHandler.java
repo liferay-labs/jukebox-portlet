@@ -16,6 +16,7 @@ package org.liferay.jukebox.web.template;
 
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portletdisplaytemplate.BasePortletDisplayTemplateHandler;
+import com.liferay.portal.kernel.template.TemplateHandler;
 import com.liferay.portal.kernel.template.TemplateVariableGroup;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
@@ -28,9 +29,15 @@ import java.util.Map;
 import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.util.PortletKeys;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * @author Eduardo Garcia
  */
+@Component(
+	immediate = true, property = {"javax.portlet.name=" + PortletKeys.ALBUMS},
+	service = TemplateHandler.class
+)
 public class AlbumsPortletDisplayTemplateHandler
 	extends BasePortletDisplayTemplateHandler {
 
