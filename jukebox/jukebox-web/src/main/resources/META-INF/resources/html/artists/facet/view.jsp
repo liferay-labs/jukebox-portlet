@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="/html/portlet/search/facets/init.jsp" %>
+<%@ include file="/html/init.jsp" %>
 
 <%@ page import="com.liferay.document.library.kernel.model.DLFolderConstants" %>
 <%@ page import="com.liferay.document.library.kernel.util.DLUtil" %>
@@ -23,6 +23,22 @@
 <%@ page import="com.liferay.portal.kernel.repository.model.FileEntry" %>
 
 <%
+String randomNamespace = PortalUtil.generateRandomKey(request, "portlet_search_facets_" + StringUtil.randomString()) + StringPool.UNDERLINE;
+
+Facet facet = (Facet)request.getAttribute("search.jsp-facet");
+
+String fieldParam = ParamUtil.getString(request, facet.getFieldId());
+
+FacetConfiguration facetConfiguration = facet.getFacetConfiguration();
+
+JSONObject dataJSONObject = facetConfiguration.getData();
+
+FacetCollector facetCollector = facet.getFacetCollector();
+
+List<TermCollector> termCollectors = facetCollector.getTermCollectors();
+
+String cssClass = "search-facet search-".concat(HtmlUtil.escapeAttribute(facetConfiguration.getDisplayStyle()));
+
 if (termCollectors.isEmpty()) {
 	return;
 }
@@ -107,7 +123,7 @@ Indexer indexer = IndexerRegistryUtil.getIndexer("org.liferay.jukebox.model.Arti
 </style>
 
 <%!
-protected String getImageURL(long artistId, ThemeDisplay themeDisplay) throws SystemException {
+protected String getImageURL(long artistId, ThemeDisplay themeDisplay) {
 	Repository repository = PortletFileRepositoryUtil.fetchPortletRepository(themeDisplay.getScopeGroupId(), "JukeboxPortletRepository");
 
 	try {
