@@ -20,6 +20,7 @@ import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.xml.Element;
 
@@ -161,10 +162,7 @@ public class ArtistStagedModelDataHandler
 	}
 
 	@Override
-	protected boolean validateMissingReference(
-			String uuid, long companyId, long groupId)
-		throws Exception {
-
+	protected boolean validateMissingReference(String uuid, long groupId) {
 		Artist artist = ArtistLocalServiceUtil.fetchArtistByUuidAndGroupId(
 			uuid, groupId);
 
@@ -173,6 +171,17 @@ public class ArtistStagedModelDataHandler
 		}
 
 		return true;
+	}
+
+	@Override
+	public void deleteStagedModel(Artist artist) throws PortalException {
+		ArtistLocalServiceUtil.deleteArtist(artist);
+		
+	}
+
+	@Override
+	public List<Artist> fetchStagedModelsByUuidAndCompanyId(String uuid, long companyId) {
+		return ArtistLocalServiceUtil.getArtistsByUuidAndCompanyId(uuid, companyId);
 	}
 
 }

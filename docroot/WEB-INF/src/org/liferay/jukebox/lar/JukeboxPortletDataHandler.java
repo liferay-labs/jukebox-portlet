@@ -30,8 +30,6 @@ import org.liferay.jukebox.model.Album;
 import org.liferay.jukebox.model.Artist;
 import org.liferay.jukebox.service.AlbumLocalServiceUtil;
 import org.liferay.jukebox.service.ArtistLocalServiceUtil;
-import org.liferay.jukebox.service.persistence.AlbumExportActionableDynamicQuery;
-import org.liferay.jukebox.service.persistence.ArtistExportActionableDynamicQuery;
 
 /**
  * @author Mate Thurzo
@@ -79,14 +77,15 @@ public class JukeboxPortletDataHandler extends BasePortletDataHandler {
 
 		if (portletDataContext.getBooleanParameter(NAMESPACE, "albums")) {
 			ActionableDynamicQuery albumActionableDynamicQuery =
-				new AlbumExportActionableDynamicQuery(portletDataContext);
+				AlbumLocalServiceUtil.getExportActionableDynamicQuery(portletDataContext);
 
 			albumActionableDynamicQuery.performActions();
 		}
 
 		if (portletDataContext.getBooleanParameter(NAMESPACE, "artists")) {
 			ActionableDynamicQuery artistActionableDynamicQuery =
-				new ArtistExportActionableDynamicQuery(portletDataContext);
+				ArtistLocalServiceUtil.getExportActionableDynamicQuery(
+					portletDataContext);
 
 			artistActionableDynamicQuery.performActions();
 		}
@@ -134,12 +133,12 @@ public class JukeboxPortletDataHandler extends BasePortletDataHandler {
 		throws Exception {
 
 		ActionableDynamicQuery albumActionableDynamicQuery =
-			new AlbumExportActionableDynamicQuery(portletDataContext);
+			AlbumLocalServiceUtil.getExportActionableDynamicQuery(portletDataContext);
 
 		albumActionableDynamicQuery.performCount();
 
 		ActionableDynamicQuery artistActionableDynamicQuery =
-			new ArtistExportActionableDynamicQuery(portletDataContext);
+			ArtistLocalServiceUtil.getExportActionableDynamicQuery(portletDataContext);
 
 		artistActionableDynamicQuery.performCount();
 	}

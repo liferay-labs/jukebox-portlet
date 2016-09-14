@@ -20,6 +20,7 @@ import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -206,6 +207,17 @@ public class AlbumStagedModelDataHandler
 		if (trashHandler.isRestorable(existingAlbum.getAlbumId())) {
 			trashHandler.restoreTrashEntry(userId, existingAlbum.getAlbumId());
 		}
+	}
+
+	@Override
+	public void deleteStagedModel(Album album) throws PortalException {
+		AlbumLocalServiceUtil.deleteAlbum(album);
+		
+	}
+
+	@Override
+	public List<Album> fetchStagedModelsByUuidAndCompanyId(String uuid, long companyId) {
+		return AlbumLocalServiceUtil.getAlbumsByUuidAndCompanyId(uuid, companyId);
 	}
 
 }
