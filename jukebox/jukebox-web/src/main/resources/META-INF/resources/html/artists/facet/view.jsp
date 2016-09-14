@@ -16,12 +16,6 @@
 
 <%@ include file="/html/init.jsp" %>
 
-<%@ page import="com.liferay.document.library.kernel.model.DLFolderConstants" %>
-<%@ page import="com.liferay.document.library.kernel.util.DLUtil" %>
-<%@ page import="com.liferay.portal.kernel.model.Repository" %>
-<%@ page import="com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil" %>
-<%@ page import="com.liferay.portal.kernel.repository.model.FileEntry" %>
-
 <%
 String randomNamespace = PortalUtil.generateRandomKey(request, "portlet_search_facets_" + StringUtil.randomString()) + StringPool.UNDERLINE;
 
@@ -50,92 +44,72 @@ boolean showAssetCount = dataJSONObject.getBoolean("showAssetCount", true);
 Indexer indexer = IndexerRegistryUtil.getIndexer("org.liferay.jukebox.model.Artist");
 %>
 
-<div class="<%= cssClass %>" data-facetFieldName="<%= facet.getFieldId() %>" id="<%= randomNamespace %>facet">
-	<aui:input name="<%= facet.getFieldId() %>" type="hidden" value="<%= fieldParam %>" />
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<div class="panel-title">
+			<liferay-ui:message key="artists" />
+		</div>
+	</div>
 
-	<ul class="artist list-unstyled">
-		<li class="facet-value default <%= Validator.isNull(fieldParam) ? "current-term" : StringPool.BLANK %>">
-			<a data-value="" href="javascript:;"><img alt="" class="any-artist-result" src='<%= themeDisplay.getPortalURL() + "/jukebox-portlet/icons/artists.png" %>' /><liferay-ui:message key="any" /> <liferay-ui:message key="<%= facetConfiguration.getLabel() %>" /></a>
-		</li>
+	<div class="panel-body">
+		<div class="<%= cssClass %>" data-facetFieldName="<%= facet.getFieldId() %>" id="<%= randomNamespace %>facet">
+			<aui:input name="<%= facet.getFieldId() %>" type="hidden" value="<%= fieldParam %>" />
 
-		<%
-		long artistId = GetterUtil.getLong(fieldParam);
+			<ul class="artist list-unstyled">
+				<li class="facet-value default <%= Validator.isNull(fieldParam) ? "current-term" : StringPool.BLANK %>">
+					<a class="<%= Validator.isNull(fieldParam) ? "text-primary" : "text-default" %> data-value="" href="javascript:;"><liferay-ui:message key="<%= facetConfiguration.getLabel() %>" /></a>
+				</li>
 
-		for (int i = 0; i < termCollectors.size(); i++) {
-			TermCollector termCollector = termCollectors.get(i);
+				<%
+				long artistId = GetterUtil.getLong(fieldParam);
 
-			long curArtistId = GetterUtil.getLong(termCollector.getTerm());
+				for (int i = 0; i < termCollectors.size(); i++) {
+					TermCollector termCollector = termCollectors.get(i);
 
-			SearchContext searchContext = SearchContextFactory.getInstance(request);
+					long curArtistId = GetterUtil.getLong(termCollector.getTerm());
 
-			searchContext.setAttribute("artistId", curArtistId);
-			searchContext.setKeywords(StringPool.BLANK);
+					SearchContext searchContext = SearchContextFactory.getInstance(request);
 
-			Hits results = indexer.search(searchContext);
+					searchContext.setAttribute("artistId", curArtistId);
+					searchContext.setKeywords(StringPool.BLANK);
 
-			if (results.getLength() == 0) {
-				continue;
-			}
+					Hits results = indexer.search(searchContext);
 
-			Document document = results.doc(0);
+					if (results.getLength() == 0) {
+						continue;
+					}
 
-			String artistName = document.get(Field.TITLE);
-		%>
+					Document document = results.doc(0);
 
-			<c:if test="<%= artistId == curArtistId %>">
-				<aui:script use="liferay-token-list">
-					Liferay.Search.tokenList.add(
-						{
-							clearFields: '<%= renderResponse.getNamespace() + facet.getFieldId() %>',
-							text: '<%= artistName %>'
-						}
-					);
-				</aui:script>
-			</c:if>
+					String artistName = document.get(Field.TITLE);
+				%>
 
-			<%
-			if (((maxTerms > 0) && (i >= maxTerms)) || ((frequencyThreshold > 0) && (frequencyThreshold > termCollector.getFrequency()))) {
-				break;
-			}
-			%>
+					<c:if test="<%= artistId == curArtistId %>">
+						<aui:script use="liferay-token-list">
+							Liferay.Search.tokenList.add(
+								{
+									clearFields: '<%= renderResponse.getNamespace() + facet.getFieldId() %>',
+									text: '<%= artistName %>'
+								}
+							);
+						</aui:script>
+					</c:if>
 
-			<li class="facet-value <%= (artistId == curArtistId) ? "current-term" : StringPool.BLANK %>">
-				<a data-value="<%= curArtistId %>" href="javascript:;"><img alt="" class="artist-search-result img-circle" src="<%= getImageURL(curArtistId, themeDisplay) %>" /><%= HtmlUtil.escape(artistName) %></a><c:if test="<%= showAssetCount %>"> <span class="frequency">(<%= termCollector.getFrequency() %>)</span></c:if>
-			</li>
+					<%
+					if (((maxTerms > 0) && (i >= maxTerms)) || ((frequencyThreshold > 0) && (frequencyThreshold > termCollector.getFrequency()))) {
+						break;
+					}
+					%>
 
-		<%
-		}
-		%>
+					<li class="facet-value <%= (artistId == curArtistId) ? "current-term" : StringPool.BLANK %>">
+						<a data-value="<%= curArtistId %>" href="javascript:;"><%= HtmlUtil.escape(artistName) %></a><c:if test="<%= showAssetCount %>"> <span class="frequency">(<%= termCollector.getFrequency() %>)</span></c:if>
+					</li>
 
-	</ul>
+				<%
+				}
+				%>
+
+			</ul>
+		</div>
+	</div>
 </div>
-
-<style type="text/css">
-	.artist-search-result {
-		width: 30px;
-		height: 30px;
-
-	}
-
-	.any-artist-result {
-		width: 25px;
-	}
-</style>
-
-<%!
-protected String getImageURL(long artistId, ThemeDisplay themeDisplay) {
-	Repository repository = PortletFileRepositoryUtil.fetchPortletRepository(themeDisplay.getScopeGroupId(), "JukeboxPortletRepository");
-
-	try {
-		if (repository != null) {
-			FileEntry fileEntry = PortletFileRepositoryUtil.getPortletFileEntry(repository.getRepositoryId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID, String.valueOf(artistId));
-
-			return DLUtil.getPreviewURL(fileEntry, fileEntry.getLatestFileVersion(), themeDisplay, StringPool.BLANK);
-		}
-	}
-	catch (Exception e) {
-	}
-
-	return themeDisplay.getPortalURL() + "/jukebox-portlet/images/singer2.jpeg";
-}
-%>
