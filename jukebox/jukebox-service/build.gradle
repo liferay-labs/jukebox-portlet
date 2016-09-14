@@ -13,4 +13,5 @@ buildService {
 	apiDir = "../jukebox-api/src/main/java"
 	osgiModule = true
 	propsUtil = "org.liferay.jukebox.service.util.PropsUtil"
+	testDir = "../jukebox-test/src/testIntegration/java"
 }
