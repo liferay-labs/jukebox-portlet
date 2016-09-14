@@ -78,7 +78,7 @@ public class AlbumIndexer
 			FileEntry fileEntry = (FileEntry)obj;
 
 			Album album = AlbumLocalServiceUtil.getAlbum(
-				fileEntry.getFileEntryId());
+				GetterUtil.getLong(fileEntry.getTitle()));
 
 			document.addKeyword(
 				Field.CLASS_NAME_ID,

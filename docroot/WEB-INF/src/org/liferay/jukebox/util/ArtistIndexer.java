@@ -78,7 +78,7 @@ public class ArtistIndexer
 			FileEntry fileEntry = (FileEntry)obj;
 
 			Artist artist = ArtistLocalServiceUtil.getArtist(
-				fileEntry.getFileEntryId());
+				GetterUtil.getLong(fileEntry.getTitle()));
 
 			document.addKeyword(
 				Field.CLASS_NAME_ID,

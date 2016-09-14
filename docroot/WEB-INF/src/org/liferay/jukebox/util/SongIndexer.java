@@ -80,7 +80,7 @@ public class SongIndexer
 			FileEntry fileEntry = (FileEntry)obj;
 
 			Song song = SongLocalServiceUtil.getSong(
-				fileEntry.getFileEntryId());
+				GetterUtil.getLong(fileEntry.getTitle()));
 
 			document.addKeyword(
 				Field.CLASS_NAME_ID,
