@@ -226,6 +226,11 @@ public class SongLocalServiceImpl extends SongLocalServiceBaseImpl {
 			}
 		}
 
+		// Trash
+
+		trashEntryLocalService.deleteEntry(
+			Song.class.getName(), songId);
+
 		return songPersistence.remove(songId);
 	}
 
